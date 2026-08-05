@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Analyzers (applied per-project via PrivateAssets="all" in Directory.Build.props) -->
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.15.0" />
+    <PackageVersion Include="Meziantou.Analyzer" Version="3.0.139" />
+    <PackageVersion Include="AsyncFixer" Version="2.1.0" />
+    <PackageVersion Include="IDisposableAnalyzers" Version="4.0.8" />
+    <PackageVersion Include="SharpSource" Version="1.33.3" />
+    <PackageVersion Include="ErrorProne.NET.CoreAnalyzers" Version="0.1.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.31.0.145097" />
+  </ItemGroup>
+</Project>
