@@ -45,7 +45,7 @@ public static class SceneBuilder
             SceneLayer fillLayer = scene.Layer(LayerKind.HexFill);
             foreach (HexCell cell in layout.Cells)
             {
-                fillLayer.Items.Add(new PathItem(cell.Vertices, true, null, 0, fill));
+                fillLayer.Items.Add(new PathItem(cell.Vertices, Closed: true, Stroke: null, 0, fill));
             }
         }
 
@@ -58,6 +58,16 @@ public static class SceneBuilder
             // and thickens them under antialiasing. Emit each edge exactly once instead.
             var seen = new HashSet<(long, long, long, long)>(layout.Cells.Count * 3);
 
+            // S3267 asks for this to become a LINQ Select/Where chain. Deliberately not applied:
+            // this runs on every live-preview rebuild over every hex x 6 edges (thousands of
+            // iterations on large grids), and the CSharp/CLAUDE.md performance doctrine is explicit
+            // that LINQ is avoided on hot paths because of enumerator/closure allocation. S3267 also
+            // has a documented history of false positives on loops with a side-effecting filter
+            // (seen.Add doubles as membership test and record, which HashSet<T> has no LINQ-idiomatic
+            // equivalent for without materializing an intermediate sequence) — see
+            // https://github.com/SonarSource/sonar-dotnet/issues/8356 and the Sonar Community thread
+            // "False positives on S3267: These loops can not be simplified using LINQ".
+#pragma warning disable S3267
             foreach (HexCell cell in layout.Cells)
             {
                 for (int i = 0; i < 6; i++)
@@ -66,10 +76,11 @@ public static class SceneBuilder
                     PointF b = cell.Vertices[(i + 1) % 6];
                     if (seen.Add(EdgeKey(a, b)))
                     {
-                        gridLayer.Items.Add(new PathItem([a, b], false, stroke, thickness, null));
+                        gridLayer.Items.Add(new PathItem([a, b], Closed: false, stroke, thickness, Fill: null));
                     }
                 }
             }
+#pragma warning restore S3267
         }
     }
 
@@ -82,7 +93,11 @@ public static class SceneBuilder
         long ax = Q(a.X), ay = Q(a.Y), bx = Q(b.X), by = Q(b.Y);
         return ax < bx || (ax == bx && ay <= by) ? (ax, ay, bx, by) : (bx, by, ax, ay);
 
-        static long Q(float v) => (long)Math.Round(v * 10.0);
+        // MA0193: explicit mode for consistency with the rest of the codebase. It's inconsequential
+        // here specifically — both hexes sharing this edge quantize independently, and real trig
+        // output essentially never lands on an exact tie at one-tenth-of-a-pixel granularity, so
+        // ToEven vs AwayFromZero doesn't change whether the two sides agree.
+        static long Q(float v) => (long)Math.Round(v * 10.0, MidpointRounding.AwayFromZero);
     }
 
     private static void AddCenterDots(DrawScene scene, GridSettings s, GridLayout layout, UnitScale scale)
@@ -121,12 +136,15 @@ public static class SceneBuilder
         }
 
         SceneLayer layer = scene.Layer(LayerKind.HexLabels);
-        double inset = layout.HexHeightPx * 0.30;
+
+        // HexLabelMargin is the gap from the label to the near edge, not from the centre — so the
+        // inset from centre is the remaining distance after that gap is subtracted from the half-height.
+        double inset = layout.HexHeightPx * (0.5 - (Math.Clamp(s.HexLabelMargin, 0, 50) / 100.0));
 
         // Centred labels would sit right on top of the centre dot and become unreadable, so when a
         // dot is present the label is lifted to rest just clear of it. With no dot there is nothing
         // to avoid and the label is centred properly.
-        double dotClearance = s.ShowCenterDots ? scale.ToPx(s.DotRadius) + fontPx * 0.2 : 0;
+        double dotClearance = s.ShowCenterDots ? scale.ToPx(s.DotRadius) + (fontPx * 0.2) : 0;
 
         foreach (HexCell cell in layout.Cells)
         {
@@ -134,6 +152,8 @@ public static class SceneBuilder
             {
                 HexLabelPosition.Top => ((float)(cell.Center.Y - inset), TextBaseline.Top),
                 HexLabelPosition.Bottom => ((float)(cell.Center.Y + inset), TextBaseline.Bottom),
+                HexLabelPosition.Center when dotClearance > 0 => ((float)(cell.Center.Y - dotClearance), TextBaseline.Bottom),
+                HexLabelPosition.Center => (cell.Center.Y, TextBaseline.Middle),
                 _ when dotClearance > 0 => ((float)(cell.Center.Y - dotClearance), TextBaseline.Bottom),
                 _ => (cell.Center.Y, TextBaseline.Middle),
             };
@@ -229,7 +249,7 @@ public static class SceneBuilder
         }
 
         // Drawn last of the map elements, so its inner half covers the clipped hex edges.
-        scene.Layer(LayerKind.Border).Items.Add(new RectItem(layout.FrameBounds, s.BorderColor, t, null));
+        scene.Layer(LayerKind.Border).Items.Add(new RectItem(layout.FrameBounds, s.BorderColor, t, Fill: null));
     }
 
 }

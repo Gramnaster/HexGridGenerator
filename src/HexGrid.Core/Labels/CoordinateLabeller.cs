@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace HexGrid.Core.Labels;
@@ -21,12 +22,18 @@ public static class CoordinateLabeller
 
         var sb = new StringBuilder(3);
         int n = index;
+
+        // SS003: integer division is the algorithm, not a rounding accident — this is base-`radix`
+        // digit extraction (the spreadsheet A..Z, AA..AZ column-naming scheme), and floating-point
+        // division would corrupt it.
+#pragma warning disable SS003
         do
         {
             sb.Insert(0, alphabet[n % radix]);
-            n = n / radix - 1;
+            n = (n / radix) - 1;
         }
         while (n >= 0);
+#pragma warning restore SS003
 
         return sb.ToString();
     }
@@ -37,11 +44,11 @@ public static class CoordinateLabeller
         int value = index + 1;
         if (!zeroPad)
         {
-            return value.ToString();
+            return value.ToString(CultureInfo.InvariantCulture);
         }
 
-        int width = count.ToString().Length;
-        return value.ToString().PadLeft(width, '0');
+        int width = count.ToString(CultureInfo.InvariantCulture).Length;
+        return value.ToString(CultureInfo.InvariantCulture).PadLeft(width, '0');
     }
 
     /// <summary>

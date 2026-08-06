@@ -66,7 +66,7 @@ public static class SvgRenderer
         return sb.ToString();
     }
 
-    private static void WriteItems(StringBuilder sb, List<IDrawItem> items)
+    private static void WriteItems(StringBuilder sb, IList<IDrawItem> items)
     {
         int i = 0;
         while (i < items.Count)
@@ -76,52 +76,20 @@ public static class SvgRenderer
                 // Merge a run of identically styled paths into one <path>. A 40x30 grid drops from
                 // 1200 elements to 1, which matters when Photoshop imports the file.
                 case PathItem first:
-                {
-                    int j = i;
-                    var d = new StringBuilder();
-                    while (j < items.Count && items[j] is PathItem p && SameStyle(first, p))
-                    {
-                        AppendPath(d, p);
-                        j++;
-                    }
-
-                    sb.Append("    <path d=\"").Append(d).Append('"')
-                      .Append(StrokeAttrs(first.Stroke, first.StrokeWidthPx))
-                      .Append(FillAttrs(first.Fill))
-                      .Append(" />\n");
-                    i = j;
+                    i = WritePathRun(sb, items, i, first);
                     break;
-                }
 
                 case CircleItem firstCircle:
-                {
-                    int j = i;
-                    var d = new StringBuilder();
-                    while (j < items.Count && items[j] is CircleItem c && c.Fill == firstCircle.Fill)
-                    {
-                        AppendCircle(d, c);
-                        j++;
-                    }
-
-                    sb.Append("    <path d=\"").Append(d).Append('"')
-                      .Append(FillAttrs(firstCircle.Fill))
-                      .Append(" stroke=\"none\" />\n");
-                    i = j;
+                    i = WriteCircleRun(sb, items, i, firstCircle);
                     break;
-                }
 
                 case LineItem l:
-                    sb.Append(Inv, $"    <line x1=\"{N(l.A.X)}\" y1=\"{N(l.A.Y)}\" x2=\"{N(l.B.X)}\" y2=\"{N(l.B.Y)}\"")
-                      .Append(StrokeAttrs(l.Stroke, l.StrokeWidthPx))
-                      .Append(" />\n");
+                    WriteLine(sb, l);
                     i++;
                     break;
 
                 case RectItem r:
-                    sb.Append(Inv, $"    <rect x=\"{N(r.Rect.X)}\" y=\"{N(r.Rect.Y)}\" width=\"{N(r.Rect.Width)}\" height=\"{N(r.Rect.Height)}\"")
-                      .Append(StrokeAttrs(r.Stroke, r.StrokeWidthPx))
-                      .Append(FillAttrs(r.Fill))
-                      .Append(" />\n");
+                    WriteRect(sb, r);
                     i++;
                     break;
 
@@ -137,6 +105,50 @@ public static class SvgRenderer
         }
     }
 
+    private static int WritePathRun(StringBuilder sb, IList<IDrawItem> items, int i, PathItem first)
+    {
+        int j = i;
+        var d = new StringBuilder();
+        while (j < items.Count && items[j] is PathItem p && SameStyle(first, p))
+        {
+            AppendPath(d, p);
+            j++;
+        }
+
+        sb.Append("    <path d=\"").Append(d).Append('"')
+          .Append(StrokeAttrs(first.Stroke, first.StrokeWidthPx))
+          .Append(FillAttrs(first.Fill))
+          .Append(" />\n");
+        return j;
+    }
+
+    private static int WriteCircleRun(StringBuilder sb, IList<IDrawItem> items, int i, CircleItem firstCircle)
+    {
+        int j = i;
+        var d = new StringBuilder();
+        while (j < items.Count && items[j] is CircleItem c && c.Fill == firstCircle.Fill)
+        {
+            AppendCircle(d, c);
+            j++;
+        }
+
+        sb.Append("    <path d=\"").Append(d).Append('"')
+          .Append(FillAttrs(firstCircle.Fill))
+          .Append(" stroke=\"none\" />\n");
+        return j;
+    }
+
+    private static void WriteLine(StringBuilder sb, LineItem l) =>
+        sb.Append(Inv, $"    <line x1=\"{N(l.A.X)}\" y1=\"{N(l.A.Y)}\" x2=\"{N(l.B.X)}\" y2=\"{N(l.B.Y)}\"")
+          .Append(StrokeAttrs(l.Stroke, l.StrokeWidthPx))
+          .Append(" />\n");
+
+    private static void WriteRect(StringBuilder sb, RectItem r) =>
+        sb.Append(Inv, $"    <rect x=\"{N(r.Rect.X)}\" y=\"{N(r.Rect.Y)}\" width=\"{N(r.Rect.Width)}\" height=\"{N(r.Rect.Height)}\"")
+          .Append(StrokeAttrs(r.Stroke, r.StrokeWidthPx))
+          .Append(FillAttrs(r.Fill))
+          .Append(" />\n");
+
     private static void WriteText(StringBuilder sb, TextItem t)
     {
         double baselineY = BaselineY(t.At.Y, t.FontSizePx, t.Baseline);
@@ -144,6 +156,7 @@ public static class SvgRenderer
         {
             TextAnchor.Start => "start",
             TextAnchor.End => "end",
+            TextAnchor.Middle => "middle",
             _ => "middle",
         };
 
@@ -162,9 +175,10 @@ public static class SvgRenderer
     /// </summary>
     public static double BaselineY(double y, double fontSizePx, TextBaseline baseline) => baseline switch
     {
-        TextBaseline.Top => y + AscentRatio * fontSizePx,
-        TextBaseline.Bottom => y - (1 - AscentRatio) * fontSizePx,
-        _ => y + (AscentRatio - 0.5) * fontSizePx,
+        TextBaseline.Top => y + (AscentRatio * fontSizePx),
+        TextBaseline.Bottom => y - ((1 - AscentRatio) * fontSizePx),
+        TextBaseline.Middle => y + ((AscentRatio - 0.5) * fontSizePx),
+        _ => y + ((AscentRatio - 0.5) * fontSizePx),
     };
 
     // ----------------------------------------------------------------- helpers
@@ -222,7 +236,9 @@ public static class SvgRenderer
 
     private static string N(double v)
     {
-        double r = Math.Round(v, 3);
+        // MA0193: explicit mode for consistency (see SceneBuilder.EdgeKey's Q for why the mode itself
+        // doesn't practically matter here — real coordinates essentially never tie at 3 decimals).
+        double r = Math.Round(v, 3, MidpointRounding.AwayFromZero);
         if (Math.Abs(r) < 0.0005)
         {
             r = 0;

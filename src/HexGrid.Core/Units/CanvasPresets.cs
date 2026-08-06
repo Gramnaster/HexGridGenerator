@@ -1,25 +1,15 @@
 namespace HexGrid.Core.Units;
 
-/// <summary>A canvas size resolved to a concrete physical or pixel size.</summary>
-/// <param name="WidthMm">Width in millimetres, or null for pixel-defined presets.</param>
-/// <param name="HeightMm">Height in millimetres, or null for pixel-defined presets.</param>
-/// <param name="WidthPx">Width in pixels, or null for paper presets.</param>
-/// <param name="HeightPx">Height in pixels, or null for paper presets.</param>
-public readonly record struct CanvasSpec(double? WidthMm, double? HeightMm, int? WidthPx, int? HeightPx)
-{
-    public bool IsPaper => WidthMm.HasValue;
-
-    public static CanvasSpec Paper(double wMm, double hMm) => new(wMm, hMm, null, null);
-
-    public static CanvasSpec Screen(int wPx, int hPx) => new(null, null, wPx, hPx);
-}
-
 public static class CanvasPresets
 {
     /// <summary>ISO 216 portrait dimensions in millimetres, and fixed pixel dimensions for screen presets.</summary>
+    // SS018: the "_" arm here is doing real, deliberate work — it's reached only by Custom, which by
+    // definition has no fixed size, so throwing is correct. Listing Custom explicitly would just
+    // duplicate the throw under a different label.
+#pragma warning disable SS018
     public static CanvasSpec Resolve(CanvasPreset preset) => preset switch
     {
-        CanvasPreset.A2_0 => CanvasSpec.Paper(1189, 1682),
+        CanvasPreset.TwoA0 => CanvasSpec.Paper(1189, 1682),
         CanvasPreset.A0 => CanvasSpec.Paper(841, 1189),
         CanvasPreset.A1 => CanvasSpec.Paper(594, 841),
         CanvasPreset.A2 => CanvasSpec.Paper(420, 594),
@@ -35,16 +25,22 @@ public static class CanvasPresets
 
         _ => throw new ArgumentOutOfRangeException(nameof(preset), preset, "Custom has no fixed size."),
     };
+#pragma warning restore SS018
 
     /// <summary>Short token used in generated filenames.</summary>
+    // SS018: the "_" arm here is also doing real work — A0..A6 deliberately fall through to
+    // preset.ToString(), since the enum member names ("A0", "A1", ...) already are the desired short
+    // names. Listing them explicitly would just duplicate CanvasPreset's own member names by hand.
+#pragma warning disable SS018
     public static string ShortName(CanvasPreset preset) => preset switch
     {
         CanvasPreset.Custom => "Custom",
-        CanvasPreset.A2_0 => "2A0",
+        CanvasPreset.TwoA0 => "2A0",
         CanvasPreset.Uhd8K => "8K",
         CanvasPreset.Uhd4K => "4K",
         CanvasPreset.Qhd2K => "2K",
         CanvasPreset.Fhd1080p => "1080p",
         _ => preset.ToString(),
     };
+#pragma warning restore SS018
 }

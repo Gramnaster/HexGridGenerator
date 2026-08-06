@@ -30,11 +30,13 @@ public static class FileNameBuilder
         return cleaned.Length == 0 ? "HexGrid" : cleaned;
     }
 
+    // MA0193: explicit AwayFromZero rather than the implicit ToEven default, matching the "round
+    // half up" a user would expect from a number embedded in a filename.
     private static string Round(double v) =>
-        Math.Round(v).ToString("0", CultureInfo.InvariantCulture);
+        Math.Round(v, MidpointRounding.AwayFromZero).ToString("0", CultureInfo.InvariantCulture);
 
     private static string Trim(double v) =>
-        Math.Round(v, 2).ToString("0.##", CultureInfo.InvariantCulture);
+        Math.Round(v, 2, MidpointRounding.AwayFromZero).ToString("0.##", CultureInfo.InvariantCulture);
 
     private static string Sanitise(string s)
     {

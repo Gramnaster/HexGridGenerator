@@ -18,7 +18,7 @@ public sealed class UnitScale
             LengthUnit.Inches => dpi,
             LengthUnit.Centimeters => dpi / 2.54,
             LengthUnit.Millimeters => dpi / 25.4,
-            _ => throw new ArgumentOutOfRangeException(nameof(unit), unit, null),
+            _ => throw new ArgumentOutOfRangeException(nameof(unit), unit, message: null),
         };
     }
 

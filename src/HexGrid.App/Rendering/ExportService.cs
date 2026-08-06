@@ -9,8 +9,11 @@ namespace HexGrid.App.Rendering;
 /// <summary>Writes the scene to disk as SVG or PNG, flattened or one file per layer.</summary>
 public static class ExportService
 {
+    // SS018: Transparent was previously reached only via the "_" default. Listed explicitly so the
+    // fallback is reserved for genuinely unhandled future values, not a real current member.
     public static Color BackgroundFor(GridSettings s) => s.PngBackground switch
     {
+        PngBackground.Transparent => Color.Transparent,
         PngBackground.White => Color.White,
         PngBackground.Black => Color.Black,
         PngBackground.Custom => s.PngCustomBackground,
@@ -36,6 +39,7 @@ public static class ExportService
 
         using (Bitmap flat = rasterizer.Render(scene, bg, settings.Antialiasing))
         {
+            flat.SetResolution((float)scene.Dpi, (float)scene.Dpi);
             flat.Save(path, ImageFormat.Png);
         }
 
@@ -61,6 +65,7 @@ public static class ExportService
             LayerKind kind = layer.Kind;
             using Bitmap bmp = rasterizer.Render(scene, Color.Transparent, settings.Antialiasing,
                 includeLayer: k => k == kind);
+            bmp.SetResolution((float)scene.Dpi, (float)scene.Dpi);
             bmp.Save(layerPath, ImageFormat.Png);
             written.Add(layerPath);
         }

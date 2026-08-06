@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- CA1707 (no underscores in identifiers) conflicts with rules/testing.md's mandated
+         MethodName_Scenario_ExpectedResult test naming convention. Third-party analyzers are already
+         skipped for Test projects in Directory.Build.props; this extends the same test-only carve-out
+         to this one built-in rule, which does not apply to non-test code in the solution. -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HexGrid.Core\HexGrid.Core.csproj" />
+  </ItemGroup>
+
+</Project>

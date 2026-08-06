@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Globalization;
 using HexGrid.App.Rendering;
 using HexGrid.Core;
 using HexGrid.Core.Layout;
@@ -11,16 +12,38 @@ namespace HexGrid.App;
 
 public sealed class MainForm : Form
 {
+    private const double MinZoomPercent = 10.0;
+    private const double MaxZoomPercent = 400.0;
+    private const double ZoomStepPercent = 10.0;
+    private static readonly int[] ZoomPresets = [200, 150, 100, 75, 50];
+
+    // SS066: these three are Controls added into this form's own Controls tree in BuildUi() below
+    // (via root -> split -> Panel1/Panel2, and root directly for _status), not orphaned fields.
+    // Control.Dispose(bool) documents that it "releases the unmanaged resources used by the Control
+    // and its child controls" — base.Dispose(disposing) at the bottom of this class's own
+    // Dispose(bool) already disposes them recursively. Explicitly disposing them again here would be
+    // redundant, not a fix for a real leak.
+#pragma warning disable SS066
     private readonly PropertyGrid _properties = new();
     private readonly PreviewPanel _preview = new();
     private readonly Label _status = new();
+#pragma warning restore SS066
+    // Not a Control (doesn't live in the Controls tree above), so not covered by the SS066 reasoning
+    // either - disposed explicitly below, same as _zoomMenu. Assigned in the constructor body, not
+    // here: a field initializer cannot reference _properties (CS0236), since it needs to already exist.
+    private readonly PropertyGridBoolOverlay _boolOverlay;
     private readonly System.Windows.Forms.Timer _debounce = new() { Interval = 180 };
     private readonly SceneRasterizer _rasterizer = new();
+
+    // Not part of the Controls tree above (it's a popup, only assigned via _preview.ContextMenuStrip),
+    // so it is not covered by the SS066 auto-dispose reasoning and needs its own Dispose() call below.
+    private readonly ContextMenuStrip _zoomMenu = new();
 
     private GridSettings _settings = new();
     private GridLayout? _layout;
     private DrawScene? _scene;
     private string? _lastFolder;
+    private double _zoomPercent = 100.0;
 
     public MainForm()
     {
@@ -30,8 +53,11 @@ public sealed class MainForm : Form
         StartPosition = FormStartPosition.CenterScreen;
 
         BuildUi();
+        BuildZoomMenu();
 
         _properties.SelectedObject = _settings;
+        _boolOverlay = new PropertyGridBoolOverlay(_properties);
+        _boolOverlay.Toggled += (_, _) => ScheduleRebuild();
         _debounce.Tick += (_, _) =>
         {
             _debounce.Stop();
@@ -53,10 +79,22 @@ public sealed class MainForm : Form
         // Without an explicit ColumnStyle the single column defaults to AutoSize and collapses
         // around the preferred width of its contents, squeezing the whole window.
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
 
+        SplitContainer split = BuildSplit();
+
+        root.Controls.Add(BuildButtonBar(), 0, 0);
+        root.Controls.Add(split, 0, 1);
+        root.Controls.Add(BuildStatusBar(), 0, 2);
+        Controls.Add(root);
+
+        Shown += (_, _) => TrySetPreferredSplit(split);
+    }
+
+    private SplitContainer BuildSplit()
+    {
         var split = new SplitContainer
         {
             Dock = DockStyle.Fill,
@@ -81,8 +119,36 @@ public sealed class MainForm : Form
 
         _preview.Dock = DockStyle.Fill;
         _preview.Resize += (_, _) => ScheduleRebuild();
+        _preview.ZoomRequested += (_, e) => AdjustZoom(e.Direction);
+        _preview.ContextMenuStrip = _zoomMenu;
         split.Panel2.Controls.Add(_preview);
 
+        return split;
+    }
+
+    private void BuildZoomMenu()
+    {
+        foreach (int percent in ZoomPresets)
+        {
+            var item = new ToolStripMenuItem($"{percent}%") { Tag = percent };
+            item.Click += (_, _) => SetZoom(percent);
+            _zoomMenu.Items.Add(item);
+        }
+
+        _zoomMenu.Opening += (_, _) =>
+        {
+            foreach (ToolStripItem entry in _zoomMenu.Items)
+            {
+                if (entry is ToolStripMenuItem menuItem && menuItem.Tag is int percent)
+                {
+                    menuItem.Checked = Math.Abs(_zoomPercent - percent) < 0.01;
+                }
+            }
+        };
+    }
+
+    private FlowLayoutPanel BuildButtonBar()
+    {
         var bar = new FlowLayoutPanel
         {
             Dock = DockStyle.Fill,
@@ -98,32 +164,37 @@ public sealed class MainForm : Form
         bar.Controls.Add(MakeButton("Save preset…", SavePreset, 130));
         bar.Controls.Add(MakeButton("Load preset…", LoadPreset, 130));
         bar.Controls.Add(MakeButton("Reset", ResetSettings, 90));
+        return bar;
+    }
 
+    private Label BuildStatusBar()
+    {
         _status.Dock = DockStyle.Fill;
         _status.AutoSize = false;
         _status.TextAlign = ContentAlignment.MiddleLeft;
         _status.Padding = new Padding(10, 0, 10, 0);
         _status.ForeColor = SystemColors.GrayText;
         _status.Text = "Ready.";
+        return _status;
+    }
 
-        root.Controls.Add(split, 0, 0);
-        root.Controls.Add(bar, 0, 1);
-        root.Controls.Add(_status, 0, 2);
-        Controls.Add(root);
-
-        // Only safe once the container has a real width, and the exception type the setter throws
-        // when out of range has varied across versions, so catch broadly. The default split is fine.
-        Shown += (_, _) =>
+    private static void TrySetPreferredSplit(SplitContainer split)
+    {
+        // Only safe once the container has a real width. The default split from BuildSplit() above
+        // is usable on its own, so a too-narrow window is not fatal - just logged in case the
+        // underlying cause is something other than "window too narrow" (see HANDOFF.md for the
+        // SplitContainer construction-order bug this project already hit once).
+        try
         {
-            try
-            {
-                split.SplitterDistance = 430;
-            }
-            catch (Exception)
-            {
-                // Window too narrow for the preferred split.
-            }
-        };
+            split.SplitterDistance = 430;
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Confirmed exception type for this target framework: HANDOFF.md's own captured crash
+            // log shows SplitContainer.set_SplitterDistance throwing InvalidOperationException when
+            // the distance falls outside Panel1MinSize..Width-Panel2MinSize.
+            Program.WriteCrashLog(ex);
+        }
     }
 
     private static Button MakeButton(string text, Action onClick, int width)
@@ -147,7 +218,7 @@ public sealed class MainForm : Form
         {
             _layout = HexLayoutEngine.Build(_settings);
             _scene = SceneBuilder.Build(_settings, _layout);
-            _preview.SetMessage(null);
+            _preview.SetMessage(message: null);
 
             UpdateStatus();
             RenderPreview();
@@ -155,10 +226,13 @@ public sealed class MainForm : Form
         catch (Exception ex)
         {
             // A bad setting combination must leave the window usable so it can be corrected,
-            // never take the application down.
+            // never take the application down. The friendly ex.Message goes to the UI; the full
+            // exception still goes to the crash log so a genuinely unexpected failure (not just an
+            // out-of-range setting) is diagnosable after the fact.
+            Program.WriteCrashLog(ex);
             _layout = null;
             _scene = null;
-            _preview.SetImage(null);
+            _preview.SetImage(image: null);
             _preview.SetMessage(ex.Message);
             _status.Text = "Cannot lay out this grid: " + ex.Message;
         }
@@ -173,12 +247,23 @@ public sealed class MainForm : Form
 
         int availW = Math.Max(1, _preview.ClientSize.Width - 24);
         int availH = Math.Max(1, _preview.ClientSize.Height - 24);
-        double scale = Math.Min(availW / _scene.WidthPx, availH / _scene.HeightPx);
-        scale = Math.Clamp(scale, 0.001, 1.0);
+        double fitScale = Math.Min(availW / _scene.WidthPx, availH / _scene.HeightPx);
+        fitScale = Math.Clamp(fitScale, 0.001, 1.0);
+
+        // _zoomPercent is relative to the live "fit" scale above, not to native canvas pixels — at
+        // 100% (the default) the preview always fits the panel, matching the pre-zoom behavior.
+        double scale = Math.Max(0.001, fitScale * (_zoomPercent / 100.0));
 
         Color bg = ExportService.BackgroundFor(_settings);
-        Bitmap bmp = _rasterizer.Render(_scene, bg, _settings.Antialiasing, scale, minStrokePx: 1.0);
-        _preview.SetImage(bmp);
+        _preview.SetImage(_rasterizer.Render(_scene, bg, _settings.Antialiasing, scale, minStrokePx: 1.0));
+    }
+
+    private void AdjustZoom(int direction) => SetZoom(_zoomPercent + (direction * ZoomStepPercent));
+
+    private void SetZoom(double percent)
+    {
+        _zoomPercent = Math.Clamp(percent, MinZoomPercent, MaxZoomPercent);
+        RenderPreview();
     }
 
     private void UpdateStatus()
@@ -189,8 +274,11 @@ public sealed class MainForm : Form
         }
 
         var scale = new UnitScale(_settings.Unit, _settings.Dpi);
+        // SS018: Pixels was previously reached only via the "_" default. Listed explicitly so the
+        // fallback is reserved for genuinely unhandled future values, not a real current member.
         string unit = _settings.Unit switch
         {
+            LengthUnit.Pixels => "px",
             LengthUnit.Millimeters => "mm",
             LengthUnit.Centimeters => "cm",
             LengthUnit.Inches => "in",
@@ -199,16 +287,39 @@ public sealed class MainForm : Form
 
         string canvas = _settings.Preset == CanvasPreset.Custom
             ? "Custom"
-            : CanvasPresets.ShortName(_settings.Preset) +
-              (CanvasPresets.Resolve(_settings.Preset).IsPaper ? " " + _settings.PageOrientation.ToString().ToLowerInvariant() : string.Empty);
+            : CanvasPresets.ShortName(_settings.Preset) + OrientationSuffix();
 
+        string OrientationSuffix() =>
+            CanvasPresets.Resolve(_settings.Preset).IsPaper
+                ? " " + _settings.PageOrientation.ToString().ToLowerInvariant()
+                : string.Empty;
+
+        // AutoFitRowsColumns only: Columns and Rows share one resolved radius, so whichever implies
+        // the smaller radius wins and the other is inert. Surfaces which one currently drives the
+        // grid and the value the other needs to reach before nudging it does anything.
+        string sizingHint = string.Empty;
+        if (_settings.SizingMode == GridSizingMode.AutoFitRowsColumns)
+        {
+            (bool columnsBound, int threshold) = HexLayoutEngine.SizingBindingHint(_settings, _layout.ClipBounds);
+            sizingHint = columnsBound
+                ? F($"  ·  Rows need ≥ {threshold} to matter")
+                : F($"  ·  Columns need ≥ {threshold} to matter");
+        }
+
+        // MA0076: number formatting here is deliberately locale-aware (this is status text read by a
+        // local interactive user, not machine-parsed output — unlike SvgRenderer's InvariantCulture,
+        // which is a file-format requirement). CurrentCulture is spelled out explicitly rather than
+        // left implicit, via the FormattableString overload so each interpolated line still reads
+        // cleanly instead of a wall of string.Create(...) calls.
         _status.Text =
-            $"{canvas}  ·  {_layout.CanvasWidthPx:0} × {_layout.CanvasHeightPx:0} px @ {_settings.Dpi} dpi " +
-            $"({_layout.CanvasWidthMm:0.#} × {_layout.CanvasHeightMm:0.#} mm)  ·  " +
-            $"{_layout.Columns} × {_layout.Rows} hexes  ·  " +
-            $"hex {_layout.HexWidthPx:0.#} × {_layout.HexHeightPx:0.#} px " +
-            $"({scale.FromPx(_layout.HexWidthPx):0.##} {unit} wide)  ·  " +
-            $"{_layout.Cells.Count} cells";
+            F($"{canvas}  ·  {_layout.CanvasWidthPx:0} × {_layout.CanvasHeightPx:0} px @ {_settings.Dpi} dpi ") +
+            F($"({_layout.CanvasWidthMm:0.#} × {_layout.CanvasHeightMm:0.#} mm)  ·  ") +
+            F($"{_layout.Columns} × {_layout.Rows} hexes") + sizingHint + F($"  ·  ") +
+            F($"hex {_layout.HexWidthPx:0.#} × {_layout.HexHeightPx:0.#} px ") +
+            F($"({scale.FromPx(_layout.HexWidthPx):0.##} {unit} wide)  ·  ") +
+            F($"{_layout.Cells.Count} cells");
+
+        static string F(FormattableString s) => s.ToString(CultureInfo.CurrentCulture);
     }
 
     // ----------------------------------------------------------------- actions
@@ -230,10 +341,17 @@ public sealed class MainForm : Form
         }
 
         double gb = pixels * 4.0 / (1024 * 1024 * 1024);
+
+        // MA0076: same reasoning as UpdateStatus — explicit CurrentCulture, not implicit.
+        static string F(FormattableString s) => s.ToString(CultureInfo.CurrentCulture);
+
+        string message =
+            F($"This export is {_layout.CanvasWidthPx:0} × {_layout.CanvasHeightPx:0} px ({pixels / 1_000_000.0:0} megapixels). ") +
+            F($"It needs roughly {gb:0.0} GB of memory while rendering.\n\nSVG has no such limit. Continue anyway?");
+
         return MessageBox.Show(
             this,
-            $"This export is {_layout.CanvasWidthPx:0} × {_layout.CanvasHeightPx:0} px ({pixels / 1_000_000.0:0} megapixels). " +
-            $"It needs roughly {gb:0.0} GB of memory while rendering.\n\nSVG has no such limit. Continue anyway?",
+            message,
             "Large export",
             MessageBoxButtons.OKCancel,
             MessageBoxIcon.Warning) == DialogResult.OK;
@@ -379,6 +497,8 @@ public sealed class MainForm : Form
         }
         catch (Exception ex)
         {
+            // As in Rebuild(): friendly ex.Message for the UI, full exception to the crash log.
+            Program.WriteCrashLog(ex);
             MessageBox.Show(this, ex.Message, "Export failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             _status.Text = "Export failed: " + ex.Message;
         }
@@ -399,6 +519,8 @@ public sealed class MainForm : Form
         {
             _debounce.Dispose();
             _rasterizer.Dispose();
+            _zoomMenu.Dispose();
+            _boolOverlay.Dispose();
         }
 
         base.Dispose(disposing);

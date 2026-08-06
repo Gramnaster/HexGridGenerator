@@ -53,48 +53,23 @@ public sealed class SceneRasterizer : IDisposable
         int w = Math.Max(1, (int)Math.Ceiling(scene.WidthPx * scale));
         int h = Math.Max(1, (int)Math.Ceiling(scene.HeightPx * scale));
 
+        // DPI metadata (SetResolution) belongs to the exported *file*, not this bitmap - callers that
+        // export set it explicitly (ExportService). Baking scene.Dpi * scale in here tagged preview
+        // bitmaps (scale < 1) with a fractional, meaningless DPI, and GDI+ sizes some draw calls off
+        // that metadata rather than raw pixel count, which made the live preview render oversized and
+        // get clipped by the panel instead of showing the whole page.
         var bmp = new Bitmap(w, h, PixelFormat.Format32bppArgb);
-        bmp.SetResolution((float)(scene.Dpi * scale), (float)(scene.Dpi * scale));
 
         using (Graphics g = Graphics.FromImage(bmp))
         {
-            g.PageUnit = GraphicsUnit.Pixel;
-            g.CompositingQuality = CompositingQuality.HighQuality;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.SmoothingMode = antialias ? SmoothingMode.AntiAlias : SmoothingMode.None;
-            g.PixelOffsetMode = antialias ? PixelOffsetMode.HighQuality : PixelOffsetMode.None;
-            g.TextRenderingHint = antialias
-                ? TextRenderingHint.AntiAlias      // not ClearType: subpixel AA fringes on transparency
-                : TextRenderingHint.SingleBitPerPixelGridFit;
-
+            ConfigureGraphics(g, antialias);
             g.Clear(background);
             g.ScaleTransform((float)scale, (float)scale);
 
             // Stroke floor is expressed in device pixels, so convert into world units.
             double minStrokeWorld = scale > 0 ? minStrokePx / scale : 0;
 
-            foreach (SceneLayer layer in scene.Layers)
-            {
-                if (layer.IsEmpty || (includeLayer is not null && !includeLayer(layer.Kind)))
-                {
-                    continue;
-                }
-
-                // Grid layers are cut off at the frame; labels, frame and scale bar are not.
-                if (LayerRules.IsClipped(layer.Kind))
-                {
-                    g.SetClip(scene.ClipBounds);
-                }
-                else
-                {
-                    g.ResetClip();
-                }
-
-                foreach (IDrawItem item in layer.Items)
-                {
-                    DrawItem(g, item, minStrokeWorld);
-                }
-            }
+            DrawLayers(g, scene, includeLayer, minStrokeWorld);
 
             g.ResetClip();
         }
@@ -102,32 +77,50 @@ public sealed class SceneRasterizer : IDisposable
         return bmp;
     }
 
+    private static void ConfigureGraphics(Graphics g, bool antialias)
+    {
+        g.PageUnit = GraphicsUnit.Pixel;
+        g.CompositingQuality = CompositingQuality.HighQuality;
+        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        g.SmoothingMode = antialias ? SmoothingMode.AntiAlias : SmoothingMode.None;
+        g.PixelOffsetMode = antialias ? PixelOffsetMode.HighQuality : PixelOffsetMode.None;
+        g.TextRenderingHint = antialias
+            ? TextRenderingHint.AntiAlias      // not ClearType: subpixel AA fringes on transparency
+            : TextRenderingHint.SingleBitPerPixelGridFit;
+    }
+
+    private void DrawLayers(Graphics g, DrawScene scene, Func<LayerKind, bool>? includeLayer, double minStrokeWorld)
+    {
+        foreach (SceneLayer layer in scene.Layers)
+        {
+            if (layer.IsEmpty || (includeLayer is not null && !includeLayer(layer.Kind)))
+            {
+                continue;
+            }
+
+            // Grid layers are cut off at the frame; labels, frame and scale bar are not.
+            if (LayerRules.IsClipped(layer.Kind))
+            {
+                g.SetClip(scene.ClipBounds);
+            }
+            else
+            {
+                g.ResetClip();
+            }
+
+            foreach (IDrawItem item in layer.Items)
+            {
+                DrawItem(g, item, minStrokeWorld);
+            }
+        }
+    }
+
     private void DrawItem(Graphics g, IDrawItem item, double minStrokeWorld)
     {
         switch (item)
         {
             case PathItem p when p.Points.Length >= 2:
-                if (p.Fill is { A: > 0 } fill)
-                {
-                    using (var brush = new SolidBrush(fill))
-                    {
-                        g.FillPolygon(brush, p.Points);
-                    }
-                }
-
-                if (p.Stroke is { A: > 0 } stroke && p.StrokeWidthPx > 0)
-                {
-                    using var pen = MakePen(stroke, p.StrokeWidthPx, minStrokeWorld);
-                    if (p.Closed)
-                    {
-                        g.DrawPolygon(pen, p.Points);
-                    }
-                    else
-                    {
-                        g.DrawLines(pen, p.Points);
-                    }
-                }
-
+                DrawPathItem(g, p, minStrokeWorld);
                 break;
 
             case LineItem l when l.Stroke.A > 0 && l.StrokeWidthPx > 0:
@@ -146,20 +139,7 @@ public sealed class SceneRasterizer : IDisposable
             }
 
             case RectItem r:
-                if (r.Fill is { A: > 0 } rectFill)
-                {
-                    using (var brush = new SolidBrush(rectFill))
-                    {
-                        g.FillRectangle(brush, r.Rect);
-                    }
-                }
-
-                if (r.Stroke is { A: > 0 } rectStroke && r.StrokeWidthPx > 0)
-                {
-                    using var pen = MakePen(rectStroke, r.StrokeWidthPx, minStrokeWorld);
-                    g.DrawRectangle(pen, r.Rect.X, r.Rect.Y, r.Rect.Width, r.Rect.Height);
-                }
-
+                DrawRectItem(g, r, minStrokeWorld);
                 break;
 
             case TextItem t when t.Color.A > 0 && t.FontSizePx > 0 && !string.IsNullOrEmpty(t.Text):
@@ -168,9 +148,55 @@ public sealed class SceneRasterizer : IDisposable
         }
     }
 
+    private static void DrawPathItem(Graphics g, PathItem p, double minStrokeWorld)
+    {
+        if (p.Fill is { A: > 0 } fill)
+        {
+            using (var brush = new SolidBrush(fill))
+            {
+                g.FillPolygon(brush, p.Points);
+            }
+        }
+
+        if (p.Stroke is { A: > 0 } stroke && p.StrokeWidthPx > 0)
+        {
+            using var pen = MakePen(stroke, p.StrokeWidthPx, minStrokeWorld);
+            if (p.Closed)
+            {
+                g.DrawPolygon(pen, p.Points);
+            }
+            else
+            {
+                g.DrawLines(pen, p.Points);
+            }
+        }
+    }
+
+    private static void DrawRectItem(Graphics g, RectItem r, double minStrokeWorld)
+    {
+        if (r.Fill is { A: > 0 } rectFill)
+        {
+            using (var brush = new SolidBrush(rectFill))
+            {
+                g.FillRectangle(brush, r.Rect);
+            }
+        }
+
+        if (r.Stroke is { A: > 0 } rectStroke && r.StrokeWidthPx > 0)
+        {
+            using var pen = MakePen(rectStroke, r.StrokeWidthPx, minStrokeWorld);
+            g.DrawRectangle(pen, r.Rect.X, r.Rect.Y, r.Rect.Width, r.Rect.Height);
+        }
+    }
+
     private void DrawText(Graphics g, TextItem t)
     {
+        // IDISP001: font is borrowed from the _fonts cache, not created here — GetFont only creates
+        // on a cache miss and stores the result in _fonts, which owns it and disposes it in Dispose()
+        // below. Disposing it here would break every later draw call that reuses the same cache entry.
+#pragma warning disable IDISP001
         Font font = GetFont(t.FontFamily, (float)t.FontSizePx, t.Bold);
+#pragma warning restore IDISP001
         FontFamily family = font.FontFamily;
 
         float emHeight = family.GetEmHeight(font.Style);
@@ -184,7 +210,8 @@ public sealed class SceneRasterizer : IDisposable
         {
             HexGrid.Core.TextAnchor.Start => t.At.X,
             HexGrid.Core.TextAnchor.End => t.At.X - size.Width,
-            _ => t.At.X - size.Width / 2f,
+            HexGrid.Core.TextAnchor.Middle => t.At.X - (size.Width / 2f),
+            _ => t.At.X - (size.Width / 2f),
         };
 
         using var brush = new SolidBrush(t.Color);
