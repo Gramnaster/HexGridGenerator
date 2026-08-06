@@ -29,8 +29,8 @@ description: >
 - **DO** assign one task per subagent for focused execution.
   Rationale: Mixed-task subagents produce unfocused results and harder-to-review outputs.
 
-- **DO** route to specialist agents for domain-specific work. Check AGENTS.md for the routing table.
-  Rationale: Specialist agents carry pre-loaded skills and domain context that generalists lack.
+- **DO** route to specialist agents for domain-specific work: `build-error-resolver` for broken builds, `code-reviewer` for review passes, `refactor-cleaner` for dead-code/cleanup work.
+  Rationale: Specialist agents carry pre-loaded skills and domain context that generalists lack. This project keeps only the stack-agnostic agents — the rest of the original kit's roster (API design, EF Core, auth, cloud deploy, architecture selection) doesn't apply to a WinForms desktop tool with no web/DB surface.
 
 - **DON'T** use subagents for trivial, single-step tasks. The overhead is not worth it.
   Rationale: Spawning a subagent for a one-liner adds latency without benefit.
@@ -51,7 +51,7 @@ description: >
 
 ## Skill Loading
 
-- **DO** load relevant skills before starting work. Check AGENTS.md skill maps for the current task domain.
+- **DO** load relevant skills before starting work. See `.claude/skills/` for what's available in this project.
   Rationale: Skills carry opinionated patterns and anti-patterns that prevent common mistakes.
 
 - **DON'T** start implementation without checking if a relevant skill exists.
