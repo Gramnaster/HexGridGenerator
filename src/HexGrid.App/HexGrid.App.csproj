@@ -13,4 +13,8 @@
     <ProjectReference Include="..\HexGrid.Core\HexGrid.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="HexGrid.App.Tests" />
+  </ItemGroup>
+
 </Project>
