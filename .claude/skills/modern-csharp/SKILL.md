@@ -14,10 +14,10 @@ description: >
 
 ## Core Principles
 
-1. **Use the newest stable features** — C# 14 is the target. Prefer language-level constructs over library workarounds.
-2. **Readability over cleverness** — Pattern matching and expression-bodied members improve readability when used appropriately; deeply nested patterns do not.
-3. **Value types where possible** — Prefer `record struct`, `Span<T>`, and stack allocation to reduce GC pressure.
-4. **Immutability by default** — Use `record`, `readonly`, `init`, and `required` to make illegal states unrepresentable.
+1. **Use the newest stable features**: C# 14 is the target. Prefer language-level constructs over library workarounds.
+2. **Readability over cleverness**: Pattern matching and expression-bodied members improve readability when used appropriately; deeply nested patterns do not.
+3. **Value types where possible**: Prefer `record struct`, `Span<T>`, and stack allocation to reduce GC pressure.
+4. **Immutability by default**: Use `record`, `readonly`, `init`, and `required` to make illegal states unrepresentable.
 
 ## Patterns
 
@@ -41,7 +41,7 @@ description: >
 Access the auto-generated backing field in property accessors without declaring it manually.
 
 ```csharp
-// GOOD — field keyword for validation in auto-property
+// GOOD: field keyword for validation in auto-property
 public class Product
 {
     public string Name
@@ -63,7 +63,7 @@ public class Product
 ```csharp
 public class ProductCatalog
 {
-    // Lazy-load on first access — no manual Lazy<T> or backing field
+    // Lazy-load on first access: no manual Lazy<T> or backing field
     public IReadOnlyList<Product> Products
     {
         get => field ??= LoadProducts();
@@ -110,7 +110,7 @@ public class OrderViewModel : INotifyPropertyChanged
 Extension members replace static extension method classes with a cleaner syntax.
 
 ```csharp
-// GOOD — extension members (C# 14)
+// GOOD: extension members (C# 14)
 public extension OrderExtensions for Order
 {
     public decimal TotalWithTax => Total * 1.2m;
@@ -126,7 +126,7 @@ public extension OrderExtensions for Order
 ### Don't Use Obsolete Patterns When Modern Alternatives Exist
 
 ```csharp
-// BAD — manual backing field when field keyword works
+// BAD: manual backing field when field keyword works
 private string _name;
 public string Name
 {
@@ -134,34 +134,34 @@ public string Name
     set => _name = value ?? throw new ArgumentNullException();
 }
 
-// BAD — old-style collection initialization
+// BAD: old-style collection initialization
 var list = new List<int>() { 1, 2, 3 };
 
-// BAD — Tuple instead of record for domain types
+// BAD: Tuple instead of record for domain types
 (string Name, decimal Price) product = ("Widget", 9.99m);
-// GOOD — record
+// GOOD: record
 public record Product(string Name, decimal Price);
 ```
 
 ### Don't Over-pattern-match
 
 ```csharp
-// BAD — deeply nested pattern that's hard to read
+// BAD: deeply nested pattern that's hard to read
 if (order is { Customer: { Address: { Country: { Code: "US" } } } })
 
-// GOOD — extract to a clear method or use sequential checks
+// GOOD: extract to a clear method or use sequential checks
 if (order.Customer.Address.Country.Code == "US")
 ```
 
 ### Don't Use `var` When the Type Is Not Obvious
 
 ```csharp
-// BAD — what type is this?
+// BAD: what type is this?
 var result = Process(order);
 
-// GOOD — explicit type when not obvious
+// GOOD: explicit type when not obvious
 Result<Order> result = Process(order);
-// Also GOOD — var is fine when type is apparent
+// Also GOOD: var is fine when type is apparent
 var orders = new List<Order>();
 ```
 

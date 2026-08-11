@@ -237,7 +237,7 @@ public static class SvgRenderer
     private static string N(double v)
     {
         // MA0193: explicit mode for consistency (see SceneBuilder.EdgeKey's Q for why the mode itself
-        // doesn't practically matter here — real coordinates essentially never tie at 3 decimals).
+        // doesn't practically matter here: real coordinates essentially never tie at 3 decimals).
         double r = Math.Round(v, 3, MidpointRounding.AwayFromZero);
         if (Math.Abs(r) < 0.0005)
         {

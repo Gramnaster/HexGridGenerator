@@ -4,14 +4,14 @@ description: >
   MCP-powered multi-dimensional code review for .NET projects. Uses Roslyn
   analysis tools for antipatterns, diagnostics, references, and dependency
   graphs combined with structured manual review. Prioritizes effort with
-  blast-radius scoring — data access, security, concurrency, and integration
-  boundaries before style — and produces severity-categorized findings with
+  blast-radius scoring - data access, security, concurrency, and integration
+  boundaries before style - and produces severity-categorized findings with
   actionable fixes. Use when: "review", "code review", "PR review", "review
   this", "review my code", "check code quality", "review changes", "what
   should I review", "review priorities", "blast radius", "critical path".
 ---
 
-# /code-review — MCP-Powered Code Review
+# /code-review - MCP-Powered Code Review
 
 ## What
 
@@ -30,7 +30,7 @@ types).
 
 - "Review this", "code review", "PR review", before merging a pull request
 - After a major refactor to verify no regressions or design drift
-- "What should I review?" — deciding where review effort goes on a large change
+- "What should I review?" - deciding where review effort goes on a large change
 - Onboarding to unfamiliar code and wanting a quality assessment
 
 ## How
@@ -38,15 +38,15 @@ types).
 ### Step 1: Scope and Score Blast Radius
 
 Identify changed files (`git diff main...HEAD`, specified files, or module).
-Score each change to set review depth — blast radius determines depth, not
+Score each change to set review depth - blast radius determines depth, not
 line count. A one-line middleware change outranks a 300-line rename.
 
 | Blast Radius | Examples | Depth |
 |---|---|---|
-| Critical | Middleware, auth, DB migrations, shared kernel, CI/CD | Thorough — every code path |
-| High | Public API changes, message consumers, EF configuration, new module | Focused — consumers + behavior |
-| Medium | New feature following existing patterns, bug fix, new endpoint | Standard — checklist pass |
-| Low | Docs, formatting, renames, logging statements | Glance — build + tests pass |
+| Critical | Middleware, auth, DB migrations, shared kernel, CI/CD | Thorough - every code path |
+| High | Public API changes, message consumers, EF configuration, new module | Focused - consumers + behavior |
+| Medium | New feature following existing patterns, bug fix, new endpoint | Standard - checklist pass |
+| Low | Docs, formatting, renames, logging statements | Glance - build + tests pass |
 
 ### Step 2: MCP Analysis (before reading any file)
 
@@ -55,7 +55,7 @@ detect_antipatterns(projectFilter: "affected-project")   → async void, DateTim
 get_diagnostics(scope: "project", path: "affected-project") → new warnings, nullability issues
 ```
 
-Distinguish newly introduced findings from pre-existing ones — focus on new.
+Distinguish newly introduced findings from pre-existing ones - focus on new.
 
 ### Step 3: Blast Radius Verification
 
@@ -74,10 +74,10 @@ Verify dependency direction (Domain → nothing; Infrastructure → Application 
 Domain) via `get_project_graph` and `detect_circular_dependencies`. Per
 architecture: VSA features don't cross-reference; Clean Architecture domain has
 zero project references; Modular Monolith modules communicate only via
-integration events — `find_references` on a module's DbContext should resolve
+integration events - `find_references` on a module's DbContext should resolve
 only inside that module.
 
-### Step 5: Manual Review — Priority Order
+### Step 5: Manual Review - Priority Order
 
 Review what tools can't catch, highest-risk areas first:
 
@@ -89,7 +89,7 @@ Review what tools can't catch, highest-risk areas first:
 | 4 | Integration | Retry/timeout on external calls, consumer idempotency, no swallowed exceptions |
 | 5 | Correctness | Business logic, edge cases (empty/null/concurrent), entities mapped to DTOs at the boundary |
 | 6 | Tests | Behavior tested (not implementation); happy path + main error case covered |
-| — | Style/naming | Mention only after the above; formatters and analyzers own this |
+| - | Style/naming | Mention only after the above; formatters and analyzers own this |
 
 ### Step 6: Produce the Review
 
@@ -103,13 +103,13 @@ bury a security bug under naming nits.
 [1-3 sentences: scope, risk level, recommendation]
 
 ### Critical (must fix before merge)
-- **[Title]** — [file:line] [What's wrong. Why it matters. How to fix.]
+- **[Title]** - [file:line] [What's wrong. Why it matters. How to fix.]
 
 ### Warnings (should fix, creates tech debt)
-- **[Title]** — [file:line] [...]
+- **[Title]** - [file:line] [...]
 
 ### Suggestions (nice to have)
-- **[Title]** — [file:line] [...]
+- **[Title]** - [file:line] [...]
 
 ### Architecture Compliance
 [PASS/WARN with boundary-violation notes]
@@ -118,7 +118,7 @@ bury a security bug under naming nits.
 [Which changed types have tests; specific scenarios to add]
 
 ### What's Good
-- [Always include — reinforce good patterns]
+- [Always include - reinforce good patterns]
 ```
 
 **Quick review** (1-2 files, low blast radius): run `detect_antipatterns` +
@@ -130,7 +130,7 @@ bury a security bug under naming nits.
 User: /code-review the changes in this PR
 
 Claude: 7 changed files across 3 projects. CreateOrder touches data access
-and a public endpoint — High blast radius. Running MCP analysis...
+and a public endpoint - High blast radius. Running MCP analysis...
 
 ## Code Review: Order Processing Feature
 
@@ -139,21 +139,21 @@ Adds CreateOrder/GetOrder endpoints with EF Core persistence. Well-structured
 VSA feature. Two issues need attention before merge.
 
 ### Critical (must fix before merge)
-- **Missing CancellationToken propagation** — CreateOrder.cs:38
+- **Missing CancellationToken propagation** - CreateOrder.cs:38
   SaveChangesAsync() called without the token. Client disconnects keep
   burning server resources. Pass `ct` from the handler parameter.
 
 ### Warnings (should fix, creates tech debt)
-- **N+1 query in GetOrder** — GetOrder.cs:25
+- **N+1 query in GetOrder** - GetOrder.cs:25
   Order loaded without `.Include(o => o.Items)`; one lazy load per item
   during serialization. Eager-load or use a projection.
 
 ### Suggestions (nice to have)
-- **Seal the handler** — CreateOrderHandler.cs:10
+- **Seal the handler** - CreateOrderHandler.cs:10
   Not designed for inheritance; `sealed` enables devirtualization.
 
 ### Architecture Compliance
-PASS — all changes within Features/Orders/, no layer violations.
+PASS - all changes within Features/Orders/, no layer violations.
 
 ### Test Coverage
 Happy path covered. Add tests for validation failure and not-found.
@@ -165,6 +165,6 @@ Happy path covered. Add tests for validation failure and not-found.
 
 ## Related
 
-- `/de-sloppify` — Cleanup pass for the style/formatting issues review skips
-- `/verify` — Automated verification pipeline (complements manual review)
-- `/health-check` — Broader project health assessment beyond a single PR
+- `/de-sloppify` - Cleanup pass for the style/formatting issues review skips
+- `/verify` - Automated verification pipeline (complements manual review)
+- `/health-check` - Broader project health assessment beyond a single PR

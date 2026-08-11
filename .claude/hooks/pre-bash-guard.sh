@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Pre-Bash Guard — Block destructive operations
+# Pre-Bash Guard: Block destructive operations
 # Inspects the Bash tool command before execution. Reads CLAUDE_TOOL_INPUT when set,
-# otherwise the PreToolUse payload on stdin — current Claude Code passes hook data on
+# otherwise the PreToolUse payload on stdin: current Claude Code passes hook data on
 # stdin as JSON, not via CLAUDE_TOOL_INPUT, so without the stdin path the guard would
 # see an empty command and never block. The command field is parsed with jq so escaped
 # quotes inside the command don't truncate it; when jq is unavailable, a sed extraction
 # pulls the command field instead of matching against the whole payload (grepping the
 # raw JSON blocked on matches in *other* fields, e.g. a description mentioning
 # "git reset --hard"). Only if both extractions fail does the raw payload get used,
-# which over-blocks rather than under-blocks — the safe direction here.
-# Exit 2 = block the command, exit 0 = allow. Block reasons go to stderr — on exit 2
+# which over-blocks rather than under-blocks (the safe direction here).
+# Exit 2 = block the command, exit 0 = allow. Block reasons go to stderr. On exit 2
 # Claude Code feeds stderr (not stdout) back to Claude.
 
 COMMAND="${CLAUDE_TOOL_INPUT:-}"
@@ -21,9 +21,9 @@ if [[ -z "$COMMAND" ]] && [[ ! -t 0 ]]; then
   fi
   if [[ -z "$COMMAND" ]]; then
     # No jq: extract the "command" value with sed. Stops at the first unescaped
-    # quote, so escaped quotes truncate the tail — acceptable, since the guard
+    # quote, so escaped quotes truncate the tail (acceptable, since the guard
     # patterns match on prefixes and truncation only risks under-matching the
-    # tail of unusual commands, not blocking on unrelated payload fields.
+    # tail of unusual commands, not blocking on unrelated payload fields).
     COMMAND=$(printf '%s' "$STDIN" | sed -n 's/.*"command"[[:space:]]*:[[:space:]]*"\(\(\\.\|[^"\\]\)*\)".*/\1/p' | head -1) || true
   fi
   [[ -z "$COMMAND" ]] && COMMAND="$STDIN"
@@ -70,7 +70,7 @@ fi
 
 if echo "$COMMAND" | grep -qE 'dotnet\s+run\b'; then
   echo "WARNING: dotnet run detected. Ensure launchSettings.json exists and the correct profile is selected."
-  # Allow but warn — exit 0 so it proceeds
+  # Allow but warn: exit 0 so it proceeds
 fi
 
 exit 0

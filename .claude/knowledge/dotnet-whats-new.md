@@ -1,11 +1,11 @@
 # What's New in .NET 10 and C# 14
 
-> Last updated: February 2026 — .NET 10 release
+> Last updated: February 2026 (.NET 10 release)
 
 ## C# 14 Language Features
 
 ### Extension Members
-Extension methods evolve into full extension members — properties, static methods, and more.
+Extension methods evolve into full extension members: properties, static methods, and more.
 
 ```csharp
 public extension StringExtensions for string
@@ -51,33 +51,33 @@ Source generators can now use partial properties.
 ## .NET 10 Runtime & Libraries
 
 ### ASP.NET Core
-- **Built-in OpenAPI** — `builder.Services.AddOpenApi()` replaces Swashbuckle for most scenarios
-- **Improved minimal API binding** — Better `[AsParameters]` support, complex type binding
-- **HybridCache GA** — Graduated from preview; the default caching abstraction
-- **Blazor enhancements** — Improved SSR, navigation, enhanced form handling
+- **Built-in OpenAPI**: `builder.Services.AddOpenApi()` replaces Swashbuckle for most scenarios
+- **Improved minimal API binding**: Better `[AsParameters]` support, complex type binding
+- **HybridCache GA**: Graduated from preview; the default caching abstraction
+- **Blazor enhancements**: Improved SSR, navigation, enhanced form handling
 
 ### Entity Framework Core 10
-- **LINQ improvements** — Better query translation for complex expressions
+- **LINQ improvements**: Better query translation for complex expressions
 - **ExecuteUpdateAsync/ExecuteDeleteAsync** refinements
-- **Improved migrations** — Better handling of complex schema changes
-- **Enhanced value converters** — Less ceremony for common patterns
+- **Improved migrations**: Better handling of complex schema changes
+- **Enhanced value converters**: Less ceremony for common patterns
 
 ### BCL (Base Class Library)
-- **`TimeProvider`** — Standard abstraction for time (GA since .NET 8, now widely adopted)
-- **`FrozenDictionary<K,V>` / `FrozenSet<T>`** — Immutable collections optimized for read-heavy workloads
-- **`SearchValues<T>`** — Optimized searching within sets of values
-- **`CompositeFormat`** — Pre-parsed format strings for high-perf logging
-- **`Lock` type** — Dedicated lock type replacing `object` locks (since .NET 9)
+- **`TimeProvider`**: Standard abstraction for time (GA since .NET 8, now widely adopted)
+- **`FrozenDictionary<K,V>` / `FrozenSet<T>`**: Immutable collections optimized for read-heavy workloads
+- **`SearchValues<T>`**: Optimized searching within sets of values
+- **`CompositeFormat`**: Pre-parsed format strings for high-perf logging
+- **`Lock` type**: Dedicated lock type replacing `object` locks (since .NET 9)
 
 ### Performance
-- **Dynamic PGO on by default** — Profile-guided optimization automatically tunes hot paths
-- **Native AOT improvements** — Better trimming, more libraries compatible
-- **Arm64 optimizations** — Continued investment in ARM performance
+- **Dynamic PGO on by default**: Profile-guided optimization automatically tunes hot paths
+- **Native AOT improvements**: Better trimming, more libraries compatible
+- **Arm64 optimizations**: Continued investment in ARM performance
 
 ### Container & Deployment
-- **Smaller container images** — `mcr.microsoft.com/dotnet/nightly/aspnet:10.0` with reduced layers
-- **Non-root by default** — Container images run as non-root user
-- **.NET Aspire 9+** — Improved orchestration, dashboard, and service discovery
+- **Smaller container images**: `mcr.microsoft.com/dotnet/nightly/aspnet:10.0` with reduced layers
+- **Non-root by default**: Container images run as non-root user
+- **.NET Aspire 9+**: Improved orchestration, dashboard, and service discovery
 
 ## Key NuGet Ecosystem Updates
 
@@ -96,5 +96,5 @@ Source generators can now use partial properties.
 1. Update `TargetFramework` to `net10.0`
 2. Update `LangVersion` to `14` (or `latest`)
 3. Review `breaking-changes.md` for specific breaking changes
-4. HybridCache is now GA — migrate from manual `IDistributedCache` patterns
+4. HybridCache is now GA: migrate from manual `IDistributedCache` patterns
 5. Built-in OpenAPI may replace your Swashbuckle dependency

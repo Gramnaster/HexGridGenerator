@@ -49,8 +49,8 @@ internal static class Program
     /// <summary>
     /// Writes the exception to its own timestamped file under a "logs" folder next to the exe, and
     /// returns the formatted detail text. Used both for truly unhandled exceptions (<see cref="Report"/>)
-    /// and for recoverable failures elsewhere in the app that only surface <c>ex.Message</c> in the UI —
-    /// the full exception still needs to land somewhere diagnosable. One file per incident rather than
+    /// and for recoverable failures elsewhere in the app that only surface <c>ex.Message</c> in the UI.
+    /// The full exception still needs to land somewhere diagnosable. One file per incident rather than
     /// one shared file, so an earlier crash isn't overwritten by a later, unrelated one.
     /// </summary>
     internal static string WriteCrashLog(Exception ex)

@@ -90,7 +90,7 @@ else label = "Unknown";
 
 ## Comments (SonarAnalyzer S125 is disabled)
 
-SonarAnalyzer's S125 ("Remove this commented out code") pattern-matches comment *text* against shapes that look like statements — it doesn't understand prose. Narrative comments kept tripping it as false positives even with no real dead code involved, and rewording around every hit stopped scaling. **S125 is disabled project-wide** (`dotnet_diagnostic.S125.severity = none` in `.editorconfig`) — it is no longer the enforcement mechanism here. Real commented-out dead code should still be deleted on sight in review; git history is the record, not a comment block.
+SonarAnalyzer's S125 ("Remove this commented out code") pattern-matches comment *text* against shapes that look like statements. It doesn't understand prose. Narrative comments kept tripping it as false positives even with no real dead code involved, and rewording around every hit stopped scaling. **S125 is disabled project-wide** (`dotnet_diagnostic.S125.severity = none` in `.editorconfig`). It is no longer the enforcement mechanism here. Real commented-out dead code should still be deleted on sight in review; git history is the record, not a comment block.
 
 The style habits below are no longer analyzer-enforced but are still good practice for writing comments that read as prose, not as broken code:
 
@@ -98,8 +98,8 @@ The style habits below are no longer analyzer-enforced but are still good practi
 - **Never end a comment line with `);`.** A closing paren immediately followed by a semicolon reads exactly like a terminated method call (`(self-service paths);`). Rephrase so the parenthetical isn't the last thing before the terminator, or drop the semicolon for a period.
 - **Prefer periods over semicolons between clauses.** Sonar keys off semicolons as a statement-end signal; periods don't trigger it.
 - **Avoid dot-prefixed method-call notation** (`.IsConcurrencyToken()`) in prose. Say "marks it as a concurrency token" instead of naming the fluent API call with its parens attached.
-- **Avoid `ALLCAPS/ALLCAPS;` patterns** (e.g. `UPDATE/DELETE;`) — spell it out (`UPDATE and DELETE statements.`).
-- **Deliberate illustrative code in design-note files** (e.g. `Guidance.cs`) should stay as prose/pseudo-code, not real C# syntax — Sonar can't distinguish an intentional example from dead code, and real dead code should just be deleted (git history is the record), not commented out.
+- **Avoid `ALLCAPS/ALLCAPS;` patterns** (e.g. `UPDATE/DELETE;`): spell it out (`UPDATE and DELETE statements.`).
+- **Deliberate illustrative code in design-note files** (e.g. `Guidance.cs`) should stay as prose/pseudo-code, not real C# syntax. Sonar can't distinguish an intentional example from dead code, and real dead code should just be deleted (git history is the record), not commented out.
 
 ```csharp
 // DO

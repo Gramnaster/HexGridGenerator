@@ -14,15 +14,15 @@ description: >
 
 ## Core Principles
 
-1. **Systematic over random** — Follow the cleanup pipeline in order. Formatting first (because it touches every file), dead code last (because earlier steps might reveal it). Random cleanup misses things and creates merge conflicts.
+1. **Systematic over random** - Follow the cleanup pipeline in order. Formatting first (because it touches every file), dead code last (because earlier steps might reveal it). Random cleanup misses things and creates merge conflicts.
 
-2. **Verify after each step** — Run `dotnet build` and `dotnet test` after every step. A cleanup that breaks something is worse than the mess it was fixing. Never batch multiple cleanup types into one untested change.
+2. **Verify after each step** - Run `dotnet build` and `dotnet test` after every step. A cleanup that breaks something is worse than the mess it was fixing. Never batch multiple cleanup types into one untested change.
 
-3. **Safe removals only** — Before removing any code flagged as "dead," verify it isn't used via reflection, DI conventions, or serialization. `find_references` shows compile-time usage; grep for string-based references that Roslyn cannot track.
+3. **Safe removals only** - Before removing any code flagged as "dead," verify it isn't used via reflection, DI conventions, or serialization. `find_references` shows compile-time usage; grep for string-based references that Roslyn cannot track.
 
-4. **One concern at a time** — Don't mix formatting fixes with logic changes. Don't combine dead code removal with new feature work. Separate concerns make code review possible and reverts safe.
+4. **One concern at a time** - Don't mix formatting fixes with logic changes. Don't combine dead code removal with new feature work. Separate concerns make code review possible and reverts safe.
 
-5. **Commit between phases** — Each cleanup step gets its own commit. If Step 4 (dead code removal) breaks something, revert just that commit without losing the formatting and analyzer fixes from Steps 1-3.
+5. **Commit between phases** - Each cleanup step gets its own commit. If Step 4 (dead code removal) breaks something, revert just that commit without losing the formatting and analyzer fixes from Steps 1-3.
 
 ## Patterns
 
@@ -53,10 +53,10 @@ Commit: `chore: remove unused using statements`
 MCP: get_diagnostics(scope: "solution", severityFilter: "warning")
 ```
 Triage warnings by category:
-- **Nullability warnings (CS8600-CS8604)** — Add null checks or use the null-forgiving operator with a comment explaining why null is impossible.
-- **Unused variables (CS0219)** — Remove them.
-- **Obsolete API usage (CS0618)** — Migrate to the recommended replacement.
-- **IDE suggestions (IDE0xxx)** — Apply if they improve readability.
+- **Nullability warnings (CS8600-CS8604)** - Add null checks or use the null-forgiving operator with a comment explaining why null is impossible.
+- **Unused variables (CS0219)** - Remove them.
+- **Obsolete API usage (CS0618)** - Migrate to the recommended replacement.
+- **IDE suggestions (IDE0xxx)** - Apply if they improve readability.
 
 Fix in priority order: compiler warnings first, then analyzer suggestions.
 Verify: `dotnet build` with zero new warnings. `dotnet test` passes.
@@ -70,9 +70,9 @@ For each result, perform a safety check before removing:
 
 ```
 SAFETY CHECK BEFORE REMOVAL:
-1. find_references(symbolName: "DeadType") — confirm zero compile-time references
+1. find_references(symbolName: "DeadType") - confirm zero compile-time references
 2. Grep for string-based usage:
-   - "nameof(DeadType)" — sometimes used in attributes or logging
+   - "nameof(DeadType)" - sometimes used in attributes or logging
    - Reflection: Type.GetType("DeadType"), Activator.CreateInstance
    - DI registration: services.AddScoped(typeof(IHandler<>), typeof(DeadType))
    - Serialization: [JsonDerivedType(typeof(DeadType))]
@@ -91,17 +91,17 @@ Commit: `chore: remove dead code`
 grep -rn "TODO\|HACK\|FIXME\|XXX" --include="*.cs"
 ```
 For each TODO, decide:
-- **Fix it now** — If it's small and self-contained, resolve it in this cleanup pass.
-- **Create an issue** — If it requires significant work, create a GitHub issue and update the TODO with the issue number: `// TODO(#142): Implement retry logic`
-- **Remove it** — If it's stale (the work was already done or is no longer relevant), delete the comment.
+- **Fix it now** - If it's small and self-contained, resolve it in this cleanup pass.
+- **Create an issue** - If it requires significant work, create a GitHub issue and update the TODO with the issue number: `// TODO(#142): Implement retry logic`
+- **Remove it** - If it's stale (the work was already done or is no longer relevant), delete the comment.
 
 Verify: `dotnet build` and `dotnet test` pass.
 Commit: `chore: resolve TODO comments`
 
 **Step 6: Seal Non-Inherited Classes**
 ```
-MCP: find_dead_code(scope: "solution", kind: "type") — for a list of types
-MCP: get_type_hierarchy(typeName: "EachClass") — check for derived types
+MCP: find_dead_code(scope: "solution", kind: "type") - for a list of types
+MCP: get_type_hierarchy(typeName: "EachClass") - check for derived types
 ```
 Add `sealed` to every class that:
 - Has no derived types (confirmed via `get_type_hierarchy`)
@@ -121,7 +121,7 @@ public class OrderValidator : AbstractValidator<CreateOrderCommand>
     }
 }
 
-// AFTER — sealed, because nothing inherits from it
+// AFTER - sealed, because nothing inherits from it
 public sealed class OrderValidator : AbstractValidator<CreateOrderCommand>
 {
     public OrderValidator()
@@ -141,19 +141,19 @@ Commit: `chore: seal non-inherited classes`
 
 **Step 7: Propagate CancellationToken**
 ```
-MCP: detect_antipatterns(severity: "warning") — filter for "missing CancellationToken"
+MCP: detect_antipatterns(severity: "warning") - filter for "missing CancellationToken"
 ```
 Trace the async call chain from entry points (endpoints, handlers) through services to data access (DbContext, HttpClient). Ensure `CancellationToken` flows through every layer.
 
 ```csharp
-// BEFORE — CancellationToken stops at the endpoint
+// BEFORE - CancellationToken stops at the endpoint
 app.MapGet("/orders/{id}", async (Guid id, AppDbContext db) =>
 {
     var order = await db.Orders.FindAsync(id);
     return order is not null ? Results.Ok(order) : Results.NotFound();
 });
 
-// AFTER — CancellationToken propagated to EF Core
+// AFTER - CancellationToken propagated to EF Core
 app.MapGet("/orders/{id}", async (Guid id, AppDbContext db, CancellationToken ct) =>
 {
     var order = await db.Orders.FindAsync([id], ct);
@@ -195,11 +195,11 @@ After completing all steps, produce a summary:
 ### Mixing Cleanup with Feature Work
 
 ```
-# BAD — one commit with formatting + new feature + dead code removal
+# BAD - one commit with formatting + new feature + dead code removal
 git commit -m "Add order validation and clean up code"
 # Impossible to review, impossible to revert the cleanup without losing the feature
 
-# GOOD — separate commits, separate concerns
+# GOOD - separate commits, separate concerns
 git commit -m "chore: apply dotnet format"
 git commit -m "chore: remove dead code"
 git commit -m "feat: add order validation"
@@ -208,40 +208,40 @@ git commit -m "feat: add order validation"
 ### Removing Code Without Checking Reflection
 
 ```
-# BAD — find_dead_code says it's unused, so delete it
+# BAD - find_dead_code says it's unused, so delete it
 MCP: find_dead_code → "PaymentProcessor has 0 references"
 *Deletes PaymentProcessor*
 # Runtime crash: DI container can't resolve IPaymentProcessor
 # It was registered via: services.AddScoped(typeof(IPaymentProcessor), typeof(PaymentProcessor))
 
-# GOOD — safety check before removal
+# GOOD - safety check before removal
 MCP: find_dead_code → "PaymentProcessor has 0 references"
 MCP: find_references(symbolName: "PaymentProcessor") → 0 compile-time refs
 Grep: "PaymentProcessor" in *.cs, *.json → Found in DI registration
-*Keep PaymentProcessor — it's used via DI convention*
+*Keep PaymentProcessor - it's used via DI convention*
 ```
 
 ### Sealing Classes That Tests Mock
 
 ```
-# BAD — sealing a class that tests inherit from
+# BAD - sealing a class that tests inherit from
 public sealed class OrderService { ... }
-// Test project: class MockOrderService : OrderService { ... } — COMPILE ERROR
+// Test project: class MockOrderService : OrderService { ... } - COMPILE ERROR
 
-# GOOD — check for test doubles before sealing
+# GOOD - check for test doubles before sealing
 MCP: get_type_hierarchy(typeName: "OrderService") → no derived types in production
 Grep: "OrderService" in test projects → no inheritance, only usage via interface
-*Safe to seal — tests use IOrderService, not OrderService directly*
+*Safe to seal - tests use IOrderService, not OrderService directly*
 ```
 
 ### Batch-Committing All Cleanup
 
 ```
-# BAD — one giant commit with all 7 steps
+# BAD - one giant commit with all 7 steps
 git add -A && git commit -m "chore: cleanup everything"
 # If sealing a class broke a test, you have to revert ALL cleanup to fix it
 
-# GOOD — commit per step with verification between
+# GOOD - commit per step with verification between
 Step 1 → verify → commit
 Step 2 → verify → commit
 ...
@@ -251,12 +251,12 @@ Step 2 → verify → commit
 ### Running Cleanup Without Tests
 
 ```
-# BAD — "it's just formatting and dead code, what could go wrong?"
+# BAD - "it's just formatting and dead code, what could go wrong?"
 dotnet format → commit (no test run)
 Remove dead code → commit (no test run)
-# Dead code was actually used by a test helper via reflection — tests broken
+# Dead code was actually used by a test helper via reflection - tests broken
 
-# GOOD — verify after every step
+# GOOD - verify after every step
 dotnet format → dotnet test → commit
 Remove dead code → dotnet test → commit
 ```

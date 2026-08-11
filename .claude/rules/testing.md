@@ -2,7 +2,7 @@
 alwaysApply: true
 description: >
   Testing strategy, patterns, and naming conventions for this solution.
-  Stack-agnostic — no web/DB test infrastructure assumed, since this project
+  Stack-agnostic: no web/DB test infrastructure assumed, since this project
   has none.
 ---
 
@@ -13,7 +13,7 @@ description: >
 
 ## Test Structure
 
-- **AAA pattern with clear separation.** Arrange, Act, Assert — separated by blank lines. Each section should be immediately identifiable.
+- **AAA pattern with clear separation.** Arrange, Act, Assert: separated by blank lines. Each section should be immediately identifiable.
 
 ```csharp
 [Fact]

@@ -20,7 +20,7 @@ public sealed class MainForm : Form
     // SS066: these three are Controls added into this form's own Controls tree in BuildUi() below
     // (via root -> split -> Panel1/Panel2, and root directly for _status), not orphaned fields.
     // Control.Dispose(bool) documents that it "releases the unmanaged resources used by the Control
-    // and its child controls" — base.Dispose(disposing) at the bottom of this class's own
+    // and its child controls." base.Dispose(disposing) at the bottom of this class's own
     // Dispose(bool) already disposes them recursively. Explicitly disposing them again here would be
     // redundant, not a fix for a real leak.
 #pragma warning disable SS066
@@ -249,7 +249,7 @@ public sealed class MainForm : Form
         double fitScale = Math.Min(availW / _scene.WidthPx, availH / _scene.HeightPx);
         fitScale = Math.Clamp(fitScale, 0.001, 1.0);
 
-        // _zoomPercent is relative to the live "fit" scale above, not to native canvas pixels — at
+        // _zoomPercent is relative to the live "fit" scale above, not to native canvas pixels. At
         // 100% (the default) the preview always fits the panel, matching the pre-zoom behavior.
         double scale = Math.Max(0.001, fitScale * (_zoomPercent / 100.0));
 
@@ -306,7 +306,7 @@ public sealed class MainForm : Form
         }
 
         // MA0076: number formatting here is deliberately locale-aware (this is status text read by a
-        // local interactive user, not machine-parsed output — unlike SvgRenderer's InvariantCulture,
+        // local interactive user, not machine-parsed output, unlike SvgRenderer's InvariantCulture,
         // which is a file-format requirement). CurrentCulture is spelled out explicitly rather than
         // left implicit, via the FormattableString overload so each interpolated line still reads
         // cleanly instead of a wall of string.Create(...) calls.
@@ -341,7 +341,7 @@ public sealed class MainForm : Form
 
         double gb = pixels * 4.0 / (1024 * 1024 * 1024);
 
-        // MA0076: same reasoning as UpdateStatus — explicit CurrentCulture, not implicit.
+        // MA0076: same reasoning as UpdateStatus: explicit CurrentCulture, not implicit.
         static string F(FormattableString s) => s.ToString(CultureInfo.CurrentCulture);
 
         string message =

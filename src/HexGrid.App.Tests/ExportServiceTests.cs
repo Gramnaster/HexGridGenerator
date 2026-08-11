@@ -91,7 +91,7 @@ public class ExportServiceTests
     public void SavePng_LayersSeparate_WritesOneFilePerNonEmptyLayerAndSkipsReservedEmptyOnes()
     {
         // Arrange: CenterDots is reserved via Layer() but never given an item, matching how the real
-        // pipeline reserves layers up front — an empty layer must not produce a stray PNG file.
+        // pipeline reserves layers up front. An empty layer must not produce a stray PNG file.
         DrawScene scene = NewScene();
         scene.Layer(LayerKind.HexGrid).Items.Add(
             new RectItem(new RectangleF(0, 0, 10, 10), Color.Black, 1.0, Fill: null));

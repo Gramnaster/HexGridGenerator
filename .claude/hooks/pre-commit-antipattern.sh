@@ -4,8 +4,8 @@
 # For full anti-pattern detection, use the Roslyn MCP detect_antipatterns tool.
 #
 # Exit codes:
-#   0 — No issues found (or no .cs files staged)
-#   1 — Issues found, commit blocked
+#   0 - No issues found (or no .cs files staged)
+#   1 - Issues found, commit blocked
 
 set -euo pipefail
 
@@ -44,7 +44,7 @@ for FILE in "${STAGED_FILES[@]}"; do
 
     # Check for async void (except event handlers)
     if grep -n 'async void' "$FILE" 2>/dev/null | grep -v 'EventArgs'; then
-        echo "🔴 $FILE: async void is dangerous — use async Task instead"
+        echo "🔴 $FILE: async void is dangerous - use async Task instead"
         ERRORS=$((ERRORS + 1))
     fi
 

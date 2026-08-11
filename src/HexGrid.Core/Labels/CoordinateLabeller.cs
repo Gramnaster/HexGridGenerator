@@ -23,7 +23,7 @@ public static class CoordinateLabeller
         var sb = new StringBuilder(3);
         int n = index;
 
-        // SS003: integer division is the algorithm, not a rounding accident — this is base-`radix`
+        // SS003: integer division is the algorithm, not a rounding accident: this is base-`radix`
         // digit extraction (the spreadsheet A..Z, AA..AZ column-naming scheme), and floating-point
         // division would corrupt it.
 #pragma warning disable SS003

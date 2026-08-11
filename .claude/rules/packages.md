@@ -10,10 +10,10 @@ description: >
 ## This Project Carries Zero Runtime Packages By Design
 
 HexGrid.Core and HexGrid.App reference nothing beyond the BCL and the Windows Desktop
-framework (`System.Drawing`, `System.ComponentModel`, `System.Text.Json`) — see project root
+framework (`System.Drawing`, `System.ComponentModel`, `System.Text.Json`). See project root
 `CLAUDE.md`. The only `PackageReference`s in the solution are dev-time Roslyn analyzers,
 applied via `Directory.Build.props`. **Do not add a runtime NuGet package to solve a problem
-without confirming with the user first** — that decision has already been made deliberately.
+without confirming with the user first**. That decision has already been made deliberately.
 
 ## Always Use Latest Stable Versions
 
@@ -30,7 +30,7 @@ the rule above).
 ## Central Package Management
 
 This solution already uses `Directory.Packages.props` with
-`<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>` — individual
+`<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>`. Individual
 `.csproj` files must NOT specify `Version=` on `<PackageReference>`.
 
 ## Version Verification

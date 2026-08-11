@@ -191,7 +191,7 @@ public sealed class SceneRasterizer : IDisposable
 
     private void DrawText(Graphics g, TextItem t)
     {
-        // IDISP001: font is borrowed from the _fonts cache, not created here — GetFont only creates
+        // IDISP001: font is borrowed from the _fonts cache, not created here: GetFont only creates
         // on a cache miss and stores the result in _fonts, which owns it and disposes it in Dispose()
         // below. Disposing it here would break every later draw call that reuses the same cache entry.
 #pragma warning disable IDISP001

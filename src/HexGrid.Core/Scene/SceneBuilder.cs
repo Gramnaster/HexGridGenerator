@@ -64,7 +64,7 @@ public static class SceneBuilder
             // that LINQ is avoided on hot paths because of enumerator/closure allocation. S3267 also
             // has a documented history of false positives on loops with a side-effecting filter
             // (seen.Add doubles as membership test and record, which HashSet<T> has no LINQ-idiomatic
-            // equivalent for without materializing an intermediate sequence) — see
+            // equivalent for without materializing an intermediate sequence). See
             // https://github.com/SonarSource/sonar-dotnet/issues/8356 and the Sonar Community thread
             // "False positives on S3267: These loops can not be simplified using LINQ".
 #pragma warning disable S3267
@@ -94,7 +94,7 @@ public static class SceneBuilder
         return ax < bx || (ax == bx && ay <= by) ? (ax, ay, bx, by) : (bx, by, ax, ay);
 
         // MA0193: explicit mode for consistency with the rest of the codebase. It's inconsequential
-        // here specifically — both hexes sharing this edge quantize independently, and real trig
+        // here specifically: both hexes sharing this edge quantize independently, and real trig
         // output essentially never lands on an exact tie at one-tenth-of-a-pixel granularity, so
         // ToEven vs AwayFromZero doesn't change whether the two sides agree.
         static long Q(float v) => (long)Math.Round(v * 10.0, MidpointRounding.AwayFromZero);
@@ -137,7 +137,7 @@ public static class SceneBuilder
 
         SceneLayer layer = scene.Layer(LayerKind.HexLabels);
 
-        // HexLabelMargin is the gap from the label to the near edge, not from the centre — so the
+        // HexLabelMargin is the gap from the label to the near edge, not from the centre, so the
         // inset from centre is the remaining distance after that gap is subtracted from the half-height.
         double inset = layout.HexHeightPx * (0.5 - (Math.Clamp(s.HexLabelMargin, 0, 50) / 100.0));
 

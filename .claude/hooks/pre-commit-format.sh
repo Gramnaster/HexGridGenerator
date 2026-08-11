@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Pre-commit hook: verify code formatting
-# Runs dotnet format in verify mode — fails if any files need formatting.
+# Runs dotnet format in verify mode - fails if any files need formatting.
 
 set -euo pipefail
 

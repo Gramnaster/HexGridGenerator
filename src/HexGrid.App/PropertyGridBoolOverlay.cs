@@ -7,11 +7,11 @@ namespace HexGrid.App;
 /// <summary>
 /// Overlays real, clickable <see cref="CheckBox"/> controls on the boolean rows of a
 /// <see cref="PropertyGrid"/>. Stock PropertyGrid only offers a True/False dropdown for bool
-/// properties — there is no public API to render or host an interactive control per row (confirmed
+/// properties. There is no public API to render or host an interactive control per row (confirmed
 /// against the dotnet/winforms source: GridEntry and PropertyGridView are both internal, and GridItem
 /// exposes no row-bounds member), so this reflects into PropertyGridView's row-layout internals.
 /// Every reflected member is looked up once and cached; if a future .NET version renames or removes
-/// one, the lookup returns null and <see cref="Sync"/> no-ops instead of throwing — the grid falls
+/// one, the lookup returns null and <see cref="Sync"/> no-ops instead of throwing. The grid falls
 /// back to its normal True/False dropdown, it never crashes the form.
 /// </summary>
 internal sealed class PropertyGridBoolOverlay : IDisposable

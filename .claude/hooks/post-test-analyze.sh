@@ -27,7 +27,7 @@ fi
 # project's summary line, e.g.:
 #   Passed!  - Failed:     0, Passed:    86, Skipped:     0, Total:    86, Duration: ...
 # The previous approach counted occurrences of the words "Passed!"/"Failed!", which only
-# counts summary lines (≈ test projects), not tests — and "grep -c ... || echo 0"
+# counts summary lines (≈ test projects), not tests, and "grep -c ... || echo 0"
 # double-appended a value under this script's 'set -euo pipefail'.
 sum_metric() {
     printf '%s\n' "$TEST_OUTPUT" \
@@ -39,7 +39,7 @@ PASSED=$(sum_metric Passed)
 FAILED=$(sum_metric Failed)
 SKIPPED=$(sum_metric Skipped)
 
-# Extract failure details (printf, not echo — output may start with '-')
+# Extract failure details (printf, not echo: output may start with '-')
 FAILURES=$(printf '%s\n' "$TEST_OUTPUT" | grep -A 5 'Failed ' 2>/dev/null || true)
 
 echo ""

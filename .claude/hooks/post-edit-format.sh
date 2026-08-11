@@ -22,7 +22,7 @@ if [[ -z "$FILE" ]] && [[ ! -t 0 ]]; then
     fi
     if [[ -z "$FILE" ]]; then
         FILE=$(printf '%s' "$STDIN" | sed -n 's/.*"file_path"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1) || true
-        # sed sees raw JSON escapes — collapse \\ to \ so the path is usable
+        # sed sees raw JSON escapes: collapse \\ to \ so the path is usable
         FILE="${FILE//\\\\/\\}"
     fi
 fi
@@ -62,7 +62,7 @@ while [[ "$DIR" != "/" && "$DIR" != "." ]]; do
         break
     fi
     # Fixed-point guard: on Windows drive roots dirname "C:" returns "C:",
-    # which never equals "/" or "." — without this break the walk loops forever
+    # which never equals "/" or ".", without this break the walk loops forever
     PARENT=$(dirname "$DIR")
     if [[ "$PARENT" == "$DIR" ]]; then
         break

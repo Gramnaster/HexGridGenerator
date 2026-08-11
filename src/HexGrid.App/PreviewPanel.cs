@@ -74,7 +74,7 @@ public sealed class PreviewPanel : Panel
         }
     }
 
-    // Capture can be lost without a MouseUp (e.g. alt-tab mid-drag) — release the pan state so the
+    // Capture can be lost without a MouseUp (e.g. alt-tab mid-drag). Release the pan state so the
     // cursor doesn't get stuck as a hand.
     protected override void OnMouseCaptureChanged(EventArgs e)
     {
@@ -103,10 +103,10 @@ public sealed class PreviewPanel : Panel
         }
 
         // IDISP007: _image was originally handed in through this same method, so the analyzer treats
-        // it as a caller-owned "injected" value. It isn't — this method's own contract (above) is that
+        // it as a caller-owned "injected" value. It isn't: this method's own contract (above) is that
         // ownership transfers to PreviewPanel on every call, which is why the previous image is
         // disposed here rather than left for its original caller to clean up.
-        // RCS1146 wants this collapsed back to "_image?.Dispose();" — deliberately not applied:
+        // RCS1146 wants this collapsed back to "_image?.Dispose();". Deliberately not applied:
         // SharpSource's SS066 (disposable field must be disposed) does not recognize the
         // null-conditional form as a disposal call, so that shape re-triggers a build-breaking SS066
         // "not disposed" false positive. The explicit if is the one form that satisfies both analyzers.
@@ -152,7 +152,7 @@ public sealed class PreviewPanel : Panel
         // at 0 instead of centering. The axis that still fits stays centred as before.
         g.TranslateTransform(AutoScrollPosition.X, AutoScrollPosition.Y);
 
-        // SS003: integer division is intentional — GDI+ draws at integer pixel offsets
+        // SS003: integer division is intentional: GDI+ draws at integer pixel offsets
         // (DrawImageUnscaled below takes int x/y), so a fractional centre would just get truncated
         // right back anyway. Off-by-at-most-one-pixel centering in a preview-only widget, with no
         // effect on exported output.
@@ -200,7 +200,7 @@ public sealed class PreviewPanel : Panel
     {
         if (disposing)
         {
-            // Same ownership contract as SetImage above — see the IDISP007 and RCS1146 notes there.
+            // Same ownership contract as SetImage above. See the IDISP007 and RCS1146 notes there.
 #pragma warning disable IDISP007, RCS1146
             if (_image is not null)
             {

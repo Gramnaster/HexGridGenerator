@@ -3,7 +3,7 @@ namespace HexGrid.Core.Units;
 public static class CanvasPresets
 {
     /// <summary>ISO 216 portrait dimensions in millimetres, and fixed pixel dimensions for screen presets.</summary>
-    // SS018: the "_" arm here is doing real, deliberate work — it's reached only by Custom, which by
+    // SS018: the "_" arm here is doing real, deliberate work: it's reached only by Custom, which by
     // definition has no fixed size, so throwing is correct. Listing Custom explicitly would just
     // duplicate the throw under a different label.
 #pragma warning disable SS018
@@ -28,7 +28,7 @@ public static class CanvasPresets
 #pragma warning restore SS018
 
     /// <summary>Short token used in generated filenames.</summary>
-    // SS018: the "_" arm here is also doing real work — A0..A6 deliberately fall through to
+    // SS018: the "_" arm here is also doing real work: A0..A6 deliberately fall through to
     // preset.ToString(), since the enum member names ("A0", "A1", ...) already are the desired short
     // names. Listing them explicitly would just duplicate CanvasPreset's own member names by hand.
 #pragma warning disable SS018

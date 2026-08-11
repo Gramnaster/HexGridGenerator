@@ -9,8 +9,8 @@ namespace HexGrid.Core.Layout;
 /// </summary>
 /// <remarks>
 /// Working outward from the canvas edge: safe margin, coordinate-label band, frame rule, map area.
-/// The grid always fills the map area — every hex centre lands inside it and the outermost hexes
-/// overhang and get clipped — so the grid meets the frame on all four sides with no gap.
+/// The grid always fills the map area (every hex centre lands inside it and the outermost hexes
+/// overhang and get clipped), so the grid meets the frame on all four sides with no gap.
 /// </remarks>
 public static class HexLayoutEngine
 {
@@ -267,7 +267,7 @@ public static class HexLayoutEngine
     }
 
     /// <summary>
-    /// In AutoFitRowsColumns mode, Columns and Rows share one resolved hex radius — whichever axis
+    /// In AutoFitRowsColumns mode, Columns and Rows share one resolved hex radius: whichever axis
     /// implies the smaller radius wins, so the other has no effect on the grid until it would imply
     /// an equally small radius. Reports which axis currently drives the grid and the value the other
     /// one needs to reach to start affecting it, given the current settings and the already-solved

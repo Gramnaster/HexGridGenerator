@@ -14,10 +14,10 @@ description: >
 
 ## Core Principles
 
-1. **Central package management** — Use `Directory.Packages.props` to manage NuGet package versions in one place. No version numbers in individual `.csproj` files.
-2. **Shared build properties** — Use `Directory.Build.props` for common settings (target framework, nullable, implicit usings). Don't repeat in every project.
-3. **.slnx for solutions** — The new XML-based solution format is cleaner and more merge-friendly than the legacy `.sln` format.
-4. **src/tests separation** — Source projects in `src/`, test projects in `tests/`. Clear boundary.
+1. **Central package management**: Use `Directory.Packages.props` to manage NuGet package versions in one place. No version numbers in individual `.csproj` files.
+2. **Shared build properties**: Use `Directory.Build.props` for common settings (target framework, nullable, implicit usings). Don't repeat in every project.
+3. **.slnx for solutions**: The new XML-based solution format is cleaner and more merge-friendly than the legacy `.sln` format.
+4. **src/tests separation**: Source projects in `src/`, test projects in `tests/`. Clear boundary.
 
 ## Patterns
 
@@ -69,7 +69,7 @@ MyApp/
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Versions below are illustrative — resolve the current stable versions
+    <!-- Versions below are illustrative: resolve the current stable versions
          with `dotnet add package <name>` (no --version flag); see the packages rule -->
     <!-- ASP.NET Core -->
     <PackageVersion Include="Mediator.Abstractions" Version="3.0.0" />
@@ -96,10 +96,10 @@ MyApp/
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk.Web">
-  <!-- No TargetFramework here — inherited from Directory.Build.props -->
+  <!-- No TargetFramework here, inherited from Directory.Build.props -->
 
   <ItemGroup>
-    <!-- No Version attribute — managed centrally -->
+    <!-- No Version attribute, managed centrally -->
     <PackageReference Include="Mediator.Abstractions" />
     <PackageReference Include="Mediator.SourceGenerator" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
@@ -156,11 +156,11 @@ MyApp/
 ### Don't Scatter Package Versions
 
 ```xml
-<!-- BAD — version in every .csproj, version drift -->
+<!-- BAD: version in every .csproj, version drift -->
 <PackageReference Include="Mediator.Abstractions" Version="2.0.0" />  <!-- in Project A -->
 <PackageReference Include="Mediator.Abstractions" Version="3.0.0" />  <!-- in Project B -->
 
-<!-- GOOD — central management, one version -->
+<!-- GOOD: central management, one version -->
 <!-- Directory.Packages.props: <PackageVersion Include="Mediator.Abstractions" Version="3.0.0" /> -->
 <!-- .csproj: <PackageReference Include="Mediator.Abstractions" /> -->
 ```
@@ -168,25 +168,25 @@ MyApp/
 ### Don't Repeat Build Properties
 
 ```xml
-<!-- BAD — same properties in every .csproj -->
+<!-- BAD: same properties in every .csproj -->
 <PropertyGroup>
   <TargetFramework>net10.0</TargetFramework>
   <Nullable>enable</Nullable>
   <ImplicitUsings>enable</ImplicitUsings>
 </PropertyGroup>
 
-<!-- GOOD — once in Directory.Build.props, inherited everywhere -->
+<!-- GOOD: once in Directory.Build.props, inherited everywhere -->
 ```
 
 ### Don't Mix Source and Test Projects
 
 ```
-# BAD — tests mixed with source
+# BAD: tests mixed with source
 src/
   MyApp.Api/
   MyApp.Api.Tests/    # test project in src/
 
-# GOOD — clear separation
+# GOOD: clear separation
 src/
   MyApp.Api/
 tests/

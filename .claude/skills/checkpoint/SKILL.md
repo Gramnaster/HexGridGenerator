@@ -15,9 +15,9 @@ description: >
 
 A quick mid-session save that banks the known-good state in two moves:
 
-1. **Descriptive git commit** — stage relevant changes and commit with a
+1. **Descriptive git commit** - stage relevant changes and commit with a
    message that summarizes the work.
-2. **Brief handoff note** — write `.claude/handoff.md` so a resumed session
+2. **Brief handoff note** - write `.claude/handoff.md` so a resumed session
    (or you, after a botched refactor) knows exactly where things stand.
 
 Checkpoint is the mid-session save; `/wrap-up` is the end-of-session ritual.
@@ -26,39 +26,39 @@ handoff plus learning extraction into `MEMORY.md`.
 
 ## When
 
-- Before a risky refactor or destructive change — checkpoint the known-good state
+- Before a risky refactor or destructive change - checkpoint the known-good state
 - When switching to a different task or feature mid-session
-- After completing a logical unit of work — bank it
+- After completing a logical unit of work - bank it
 - User says "checkpoint", "save progress", "save state", "pause here"
 - If the session is actually ending, use `/wrap-up` for the full ritual
 
 ## How
 
-1. **Assess state** — `git status` and `git diff` to see staged and unstaged
+1. **Assess state** - `git status` and `git diff` to see staged and unstaged
    changes.
-2. **Stage changes** — Stage specific files; never `git add -A`. Exclude
+2. **Stage changes** - Stage specific files; never `git add -A`. Exclude
    generated files, build artifacts, and secrets (`.env`, credentials).
-3. **Commit** — Descriptive message following the repo's commit style
+3. **Commit** - Descriptive message following the repo's commit style
    (conventional prefixes: `feat:`, `fix:`, `refactor:`). New commit, never
    amend. If there is nothing to commit, skip to the handoff.
-4. **Write handoff note** — `.claude/handoff.md`, same format as `/wrap-up`
+4. **Write handoff note** - `.claude/handoff.md`, same format as `/wrap-up`
    but abbreviated: Completed, Pending (with specific next steps), Learned
    (only if something non-obvious surfaced), and Context (branch + commit
    hash). One file, always overwritten.
-5. **Confirm** — Report the commit hash and the handoff summary, then resume
+5. **Confirm** - Report the commit hash and the handoff summary, then resume
    work.
 
 ### Safety Rules
 
 - Never push, force-push, or touch remote branches
 - Never commit secrets
-- Never amend — a checkpoint is a new commit you can return to
+- Never amend - a checkpoint is a new commit you can return to
 - No changes to commit? Update the handoff only
 
 ## Example
 
 ```
-User: /checkpoint — about to try the EF Core split-query refactor
+User: /checkpoint - about to try the EF Core split-query refactor
 
 Claude: 3 files modified, 1 new.
 
@@ -75,11 +75,11 @@ Claude: 3 files modified, 1 new.
   ## Context
   - Branch: feature/order-validation | Checkpoint: a1b2c3d
 
-  Checkpoint saved — safe to proceed with the risky refactor.
+  Checkpoint saved - safe to proceed with the risky refactor.
 ```
 
 ## Related
 
-- `/wrap-up` — End-of-session ritual: full handoff format definition plus
+- `/wrap-up` - End-of-session ritual: full handoff format definition plus
   learning extraction into MEMORY.md
-- `/build-fix` — Get the build green before checkpointing
+- `/build-fix` - Get the build green before checkpointing

@@ -14,15 +14,15 @@ description: >
 
 ## Core Principles
 
-1. **Data-driven assessment** — Use MCP tools for every dimension. `get_diagnostics` for build health, `detect_antipatterns` for code quality, `detect_circular_dependencies` for architecture, `get_test_coverage_map` for testing, `find_dead_code` for dead code. Gut feeling is not a grade.
+1. **Data-driven assessment** - Use MCP tools for every dimension. `get_diagnostics` for build health, `detect_antipatterns` for code quality, `detect_circular_dependencies` for architecture, `get_test_coverage_map` for testing, `find_dead_code` for dead code. Gut feeling is not a grade.
 
-2. **Letter grades with justification** — Every dimension gets A (90+), B (80+), C (70+), D (60+), or F (<60). Every grade includes the specific data points that produced it. "B in Code Quality" means nothing. "B in Code Quality: 3 anti-patterns in 2,400 lines (1.25 per 1K)" is actionable.
+2. **Letter grades with justification** - Every dimension gets A (90+), B (80+), C (70+), D (60+), or F (<60). Every grade includes the specific data points that produced it. "B in Code Quality" means nothing. "B in Code Quality: 3 anti-patterns in 2,400 lines (1.25 per 1K)" is actionable.
 
-3. **Actionable recommendations** — Every grade below A comes with specific, prioritized fix suggestions. "Improve test coverage" is not actionable. "Add test classes for OrderService, PaymentProcessor, and ShippingCalculator (3 production types without tests)" is.
+3. **Actionable recommendations** - Every grade below A comes with specific, prioritized fix suggestions. "Improve test coverage" is not actionable. "Add test classes for OrderService, PaymentProcessor, and ShippingCalculator (3 production types without tests)" is.
 
-4. **Comparative baselines** — Grade against .NET best practices, not perfection. Zero warnings is aspirational. Fewer than 1 warning per 1K lines of code is excellent. Context matters.
+4. **Comparative baselines** - Grade against .NET best practices, not perfection. Zero warnings is aspirational. Fewer than 1 warning per 1K lines of code is excellent. Context matters.
 
-5. **Non-judgmental tone** — Health checks are diagnostic, not punitive. A project with a C grade has a clear improvement path. Frame findings as opportunities, not failures.
+5. **Non-judgmental tone** - Health checks are diagnostic, not punitive. A project with a C grade has a clear improvement path. Frame findings as opportunities, not failures.
 
 ## Patterns
 
@@ -63,9 +63,9 @@ broad catch blocks, string interpolation in logging, missing CancellationToken.
 
 **Dimension 3: Architecture**
 ```
-Tool: MCP get_project_graph — check dependency direction
-Tool: MCP detect_circular_dependencies(scope: "projects") — find cycles
-Tool: MCP detect_circular_dependencies(scope: "types", projectFilter: each) — type-level cycles
+Tool: MCP get_project_graph - check dependency direction
+Tool: MCP detect_circular_dependencies(scope: "projects") - find cycles
+Tool: MCP detect_circular_dependencies(scope: "types", projectFilter: each) - type-level cycles
 ```
 
 | Grade | Criteria |
@@ -111,8 +111,8 @@ Note: Some false positives are expected (reflection, DI conventions). Verify bef
 
 **Dimension 6: API Surface**
 ```
-Tool: MCP get_public_api(typeName: each public type) — review public API design
-Tool: MCP find_references(symbolName: public members) — check for overexposed APIs
+Tool: MCP get_public_api(typeName: each public type) - review public API design
+Tool: MCP find_references(symbolName: public members) - check for overexposed APIs
 ```
 
 | Grade | Criteria |
@@ -132,7 +132,7 @@ Check for:
 **Dimension 7: Security Posture**
 ```
 Tool: dotnet list package --vulnerable --include-transitive
-Tool: MCP detect_antipatterns — filter for security-related patterns
+Tool: MCP detect_antipatterns - filter for security-related patterns
 Scan: Hardcoded secrets, connection strings in code, missing auth attributes
 ```
 
@@ -193,9 +193,9 @@ Check: README exists, is current, covers setup and architecture
    Estimated effort: 1 day
 
 3. **Code Quality (B -> A):** Fix 3 anti-patterns:
-   - `OrderService.cs:47` — Replace `DateTime.Now` with `TimeProvider.GetUtcNow()`
-   - `PaymentClient.cs:23` — Replace `new HttpClient()` with `IHttpClientFactory`
-   - `NotificationHandler.cs:12` — Replace `async void` with `async Task`
+   - `OrderService.cs:47` - Replace `DateTime.Now` with `TimeProvider.GetUtcNow()`
+   - `PaymentClient.cs:23` - Replace `new HttpClient()` with `IHttpClientFactory`
+   - `NotificationHandler.cs:12` - Replace `async void` with `async Task`
    Estimated effort: 1 hour
 ```
 
@@ -206,11 +206,11 @@ GPA = average of all 8 dimension scores.
 
 | GPA Range | Overall Assessment |
 |-----------|--------------------|
-| 3.5 - 4.0 | Excellent — production-ready, well-maintained |
-| 3.0 - 3.4 | Good — solid foundation, minor improvements needed |
-| 2.5 - 2.9 | Fair — functional but accumulating tech debt |
-| 2.0 - 2.4 | Needs Work — significant improvements required |
-| < 2.0 | Critical — major structural issues to address |
+| 3.5 - 4.0 | Excellent - production-ready, well-maintained |
+| 3.0 - 3.4 | Good - solid foundation, minor improvements needed |
+| 2.5 - 2.9 | Fair - functional but accumulating tech debt |
+| 2.0 - 2.4 | Needs Work - significant improvements required |
+| < 2.0 | Critical - major structural issues to address |
 
 ### Quick Health Check
 
@@ -218,10 +218,10 @@ For a rapid assessment, run dimensions 1-4 only:
 
 ```
 QUICK HEALTH (4 dimensions):
-1. Build Health — dotnet build
-2. Code Quality — detect_antipatterns
-3. Architecture — get_project_graph + detect_circular_dependencies
-4. Test Coverage — get_test_coverage_map
+1. Build Health - dotnet build
+2. Code Quality - detect_antipatterns
+3. Architecture - get_project_graph + detect_circular_dependencies
+4. Test Coverage - get_test_coverage_map
 
 Use when:
 - Mid-sprint checkpoint
@@ -239,9 +239,9 @@ If a previous health report exists, compare grades:
 
 | Dimension | Previous | Current | Change |
 |-----------|----------|---------|--------|
-| Build Health | B | A | Improved — fixed 4 warnings |
-| Code Quality | C | B | Improved — resolved 7 anti-patterns |
-| Test Coverage | C | C | No change — still 68% |
+| Build Health | B | A | Improved - fixed 4 warnings |
+| Code Quality | C | B | Improved - resolved 7 anti-patterns |
+| Test Coverage | C | C | No change - still 68% |
 | Dead Code | B | B | No change |
 ```
 
@@ -252,11 +252,11 @@ Track trends to show progress over time. Improving grades validate cleanup effor
 ### Grading Without MCP Tools
 
 ```
-# BAD — gut-feeling assessment
+# BAD - gut-feeling assessment
 "The code looks pretty clean, I'd give it a B overall."
 # No data. No specific findings. No actionable recommendations.
 
-# GOOD — MCP-driven assessment with data
+# GOOD - MCP-driven assessment with data
 MCP: detect_antipatterns → 3 findings
 MCP: get_diagnostics → 2 warnings
 MCP: get_test_coverage_map → 68% coverage
@@ -267,23 +267,23 @@ MCP: get_test_coverage_map → 68% coverage
 ### Only Checking Build Health
 
 ```
-# BAD — build passes, ship it
+# BAD - build passes, ship it
 "dotnet build succeeded with 0 errors. The project is healthy!"
 # Misses: 12 anti-patterns, 3 circular dependencies, 30% test coverage, 2 CVEs
 
-# GOOD — all 8 dimensions for a complete picture
+# GOOD - all 8 dimensions for a complete picture
 Build passes, but Architecture is D (circular deps), Test Coverage is F (15%),
-and Security is D (high-severity CVE). Overall GPA: 2.1 — Needs Work.
+and Security is D (high-severity CVE). Overall GPA: 2.1 - Needs Work.
 ```
 
 ### Inflated Grades
 
 ```
-# BAD — grading on a curve to make the project look good
+# BAD - grading on a curve to make the project look good
 15 warnings → "That's pretty good for a project this size" → Grade: B
 # Absolute standards exist for a reason
 
-# GOOD — consistent grading against defined thresholds
+# GOOD - consistent grading against defined thresholds
 15 warnings → Grade C (6-15 warnings bracket)
 "15 warnings puts this in the C range. Here are the 5 highest-priority
  warnings to fix to reach B (under 6 warnings)."
@@ -292,15 +292,15 @@ and Security is D (high-severity CVE). Overall GPA: 2.1 — Needs Work.
 ### Recommendations Without Specifics
 
 ```
-# BAD — vague improvement suggestions
+# BAD - vague improvement suggestions
 "Improve test coverage."
 "Fix code quality issues."
 "Address security concerns."
 
-# GOOD — specific, prioritized, estimated
+# GOOD - specific, prioritized, estimated
 "Add test classes for OrderService, PaymentProcessor, ShippingCalculator.
  These are on the critical path and have 0 test coverage.
- Start with OrderService — it has the most complex logic.
+ Start with OrderService - it has the most complex logic.
  Estimated effort: 4 hours for all three."
 ```
 
@@ -315,6 +315,6 @@ and Security is D (high-severity CVE). Overall GPA: 2.1 — Needs Work.
 | Post-dependency update | Targeted | 1 (Build), 7 (Security) |
 | Tech debt prioritization | Full Health Check | All 8, focus on lowest grades |
 | Monthly maintenance review | Full Health Check | All 8 with trend comparison |
-| Before hiring/onboarding | Full Health Check | All 8 — sets baseline for new team member |
+| Before hiring/onboarding | Full Health Check | All 8 - sets baseline for new team member |
 | After cleanup sprint | Targeted | Re-grade dimensions that were cleaned up |
 | Executive summary needed | Full Health Check | All 8 with GPA summary |

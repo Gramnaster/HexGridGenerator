@@ -25,7 +25,7 @@ repo's pre-commit hook:
 | `pre-commit-antipattern.sh` | Blocks commits containing `DateTime.Now`, `async void`, `new HttpClient()`, or sync-over-async in staged files |
 
 ```bash
-# One-time setup per clone — .git/hooks/pre-commit
+# One-time setup per clone - .git/hooks/pre-commit
 #!/usr/bin/env bash
 bash hooks/pre-commit-format.sh && bash hooks/pre-commit-antipattern.sh
 ```
@@ -37,5 +37,5 @@ invoke them:
 
 | Script | Usage |
 |---|---|
-| `pre-build-validate.sh` | `bash hooks/pre-build-validate.sh [solution-dir]` — checks solution structure (sln file, Directory.Build.props, global.json, test projects) |
-| `post-test-analyze.sh` | `dotnet test 2>&1 \| bash hooks/post-test-analyze.sh` — summarizes test results with actionable next steps |
+| `pre-build-validate.sh` | `bash hooks/pre-build-validate.sh [solution-dir]` - checks solution structure (sln file, Directory.Build.props, global.json, test projects) |
+| `post-test-analyze.sh` | `dotnet test 2>&1 \| bash hooks/post-test-analyze.sh` - summarizes test results with actionable next steps |

@@ -4,8 +4,8 @@ namespace HexGrid.App.Tests;
 
 /// <summary>
 /// Runs a test body on a dedicated STA thread. WinForms controls are only supported on STA (window
-/// handle creation, drag/drop and clipboard all assume it), but xUnit's own worker threads are MTA —
-/// any test that touches a real Control has to hop onto its own thread rather than adding a test
+/// handle creation, drag/drop and clipboard all assume it), but xUnit's own worker threads are MTA.
+/// Any test that touches a real Control has to hop onto its own thread rather than adding a test
 /// framework package just for STA support.
 /// </summary>
 internal static class StaThread

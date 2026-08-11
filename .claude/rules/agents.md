@@ -30,7 +30,7 @@ description: >
   Rationale: Mixed-task subagents produce unfocused results and harder-to-review outputs.
 
 - **DO** route to specialist agents for domain-specific work: `build-error-resolver` for broken builds, `code-reviewer` for review passes, `refactor-cleaner` for dead-code/cleanup work.
-  Rationale: Specialist agents carry pre-loaded skills and domain context that generalists lack. This project keeps only the stack-agnostic agents — the rest of the original kit's roster (API design, EF Core, auth, cloud deploy, architecture selection) doesn't apply to a WinForms desktop tool with no web/DB surface.
+  Rationale: Specialist agents carry pre-loaded skills and domain context that generalists lack. This project keeps only the stack-agnostic agents. The rest of the original kit's roster (API design, EF Core, auth, cloud deploy, architecture selection) doesn't apply to a WinForms desktop tool with no web/DB surface.
 
 - **DON'T** use subagents for trivial, single-step tasks. The overhead is not worth it.
   Rationale: Spawning a subagent for a one-liner adds latency without benefit.
@@ -46,7 +46,7 @@ description: >
 - **DO** escalate to Fable for the highest-stakes work: greenfield architecture for long-lived systems, or problems that resisted an Opus pass.
   Rationale: Fable is the frontier tier above Opus. Reserve it for decisions where a mistake is very expensive.
 
-- **DO** use model aliases (`fable`, `opus`, `sonnet`, `haiku`) in agent frontmatter and configs — never pinned version IDs.
+- **DO** use model aliases (`fable`, `opus`, `sonnet`, `haiku`) in agent frontmatter and configs, never pinned version IDs.
   Rationale: Aliases track the latest version of each tier; pinned IDs rot when new versions ship.
 
 ## Skill Loading

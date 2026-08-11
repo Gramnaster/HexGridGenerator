@@ -12,11 +12,11 @@ description: >
 
 ## Core Principles
 
-1. **Observe before enforcing** — Never impose conventions without first analyzing the existing codebase. A project with 200 `internal sealed class` handlers should not get a new `public class` handler. Detect first, then match.
-2. **Project conventions override generic rules** — If the project uses `*Service` instead of `*Handler`, follow the project's convention even if the kit default is different. Explicit `.editorconfig` and `Directory.Build.props` rules always win.
-3. **Use MCP tools for analysis** — `get_public_api` reveals naming patterns, `get_project_graph` shows structure conventions, `detect_antipatterns` tracks quality trends. Tools provide objective data; file reads provide confirmation.
-4. **Document findings** — After detecting conventions, suggest adding them to the project's CLAUDE.md. Undocumented conventions are lost when the original developers leave.
-5. **Consistency over perfection** — A project with consistent `snake_case` database columns is better than a project with half `snake_case` and half `PascalCase`. Match the existing pattern, even if another convention is theoretically superior.
+1. **Observe before enforcing** - Never impose conventions without first analyzing the existing codebase. A project with 200 `internal sealed class` handlers should not get a new `public class` handler. Detect first, then match.
+2. **Project conventions override generic rules** - If the project uses `*Service` instead of `*Handler`, follow the project's convention even if the kit default is different. Explicit `.editorconfig` and `Directory.Build.props` rules always win.
+3. **Use MCP tools for analysis** - `get_public_api` reveals naming patterns, `get_project_graph` shows structure conventions, `detect_antipatterns` tracks quality trends. Tools provide objective data; file reads provide confirmation.
+4. **Document findings** - After detecting conventions, suggest adding them to the project's CLAUDE.md. Undocumented conventions are lost when the original developers leave.
+5. **Consistency over perfection** - A project with consistent `snake_case` database columns is better than a project with half `snake_case` and half `PascalCase`. Match the existing pattern, even if another convention is theoretically superior.
 
 ## Patterns
 
@@ -155,15 +155,15 @@ Use `detect_antipatterns` to track recurring quality issues across sessions.
 ```
 | Anti-pattern | Count | Trend | Priority |
 |-------------|-------|-------|----------|
-| DateTime.Now | 12 | ↑ +3 | High — add to CLAUDE.md conventions |
-| async void | 1 | → same | Medium — one-off fix |
-| new HttpClient | 0 | ↓ -2 | Low — already fixing |
+| DateTime.Now | 12 | ↑ +3 | High - add to CLAUDE.md conventions |
+| async void | 1 | → same | Medium - one-off fix |
+| new HttpClient | 0 | ↓ -2 | Low - already fixing |
 ```
 
 When patterns recur, add explicit rules to CLAUDE.md:
 ```markdown
 ## Conventions
-- **NEVER use DateTime.Now** — Use TimeProvider.GetUtcNow() (12 violations found, fixing)
+- **NEVER use DateTime.Now** - Use TimeProvider.GetUtcNow() (12 violations found, fixing)
 ```
 
 ## Anti-patterns
@@ -171,13 +171,13 @@ When patterns recur, add explicit rules to CLAUDE.md:
 ### Enforcing Without Detecting
 
 ```
-# BAD — Imposing kit defaults on a project with its own conventions
+# BAD - Imposing kit defaults on a project with its own conventions
 "All handlers should be internal sealed class"
 # But this project uses public class with interfaces for testing
 ```
 
 ```
-# GOOD — Detect first, then follow what exists
+# GOOD - Detect first, then follow what exists
 → get_public_api reveals: 8/8 handlers are `public class` implementing `IHandler<T>`
 "This project uses public handlers with interfaces. Matching that convention."
 ```
@@ -185,13 +185,13 @@ When patterns recur, add explicit rules to CLAUDE.md:
 ### Overriding Explicit Project Rules
 
 ```
-# BAD — Ignoring .editorconfig because kit says otherwise
+# BAD - Ignoring .editorconfig because kit says otherwise
 # .editorconfig says: csharp_style_expression_bodied_methods = false
 # But generating expression-bodied methods anyway
 ```
 
 ```
-# GOOD — .editorconfig and Directory.Build.props always win
+# GOOD - .editorconfig and Directory.Build.props always win
 "Your .editorconfig disables expression-bodied methods.
 I'll use block-bodied methods to match your project settings."
 ```
@@ -199,13 +199,13 @@ I'll use block-bodied methods to match your project settings."
 ### Applying Generic Conventions to Unconventional Projects
 
 ```
-# BAD — Forcing Clean Architecture naming on a VSA project
+# BAD - Forcing Clean Architecture naming on a VSA project
 "You need a Services/ folder and a Repositories/ folder"
 # But this project uses feature folders with everything co-located
 ```
 
 ```
-# GOOD — Match the project's organizational convention
+# GOOD - Match the project's organizational convention
 "This project uses feature folders. I'll add the new feature
 at Features/Shipping/ with all related files together."
 ```
@@ -213,12 +213,12 @@ at Features/Shipping/ with all related files together."
 ### Documenting Conventions Without Evidence
 
 ```
-# BAD — "Conventions" based on reading one file
+# BAD - "Conventions" based on reading one file
 "Convention: Use var everywhere" (based on seeing var in one method)
 ```
 
 ```
-# GOOD — Document only patterns confirmed across multiple files
+# GOOD - Document only patterns confirmed across multiple files
 → get_public_api on 5 types: 100% use explicit types for non-obvious cases
 "Convention: Use explicit types for non-obvious cases (e.g., method returns),
 var for obvious cases (e.g., new MyClass()). Confirmed across 5 files."
@@ -231,8 +231,8 @@ var for obvious cases (e.g., new MyClass()). Confirmed across 5 files."
 | Joining existing project | Run full convention detection flow | get_project_graph, get_public_api |
 | Generating new code | Check detected conventions first | Previous detection results |
 | Reviewing code | Flag convention deviations | get_public_api + comparison |
-| Convention conflict (kit vs project) | **Project wins** | — |
-| Convention conflict (team disagreement) | Document both, suggest .editorconfig | — |
+| Convention conflict (kit vs project) | **Project wins** | - |
+| Convention conflict (team disagreement) | Document both, suggest .editorconfig | - |
 | No conventions detected | Use kit defaults, document them | architecture-advisor skill |
 | Recurring anti-pattern | Add to CLAUDE.md conventions | detect_antipatterns |
 | New team member onboarding | Run detection, generate convention doc | Full detection flow |

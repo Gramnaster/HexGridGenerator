@@ -24,27 +24,27 @@ fi
 CSPROJ_COUNT=$(find "$SOLUTION_DIR" -name "*.csproj" 2>/dev/null | wc -l)
 if [[ "$CSPROJ_COUNT" -gt 2 ]]; then
     if [[ ! -f "$SOLUTION_DIR/Directory.Build.props" ]]; then
-        echo "⚠️  Multi-project solution without Directory.Build.props — consider centralizing common settings"
+        echo "⚠️  Multi-project solution without Directory.Build.props: consider centralizing common settings"
         WARNINGS=$((WARNINGS + 1))
     fi
 fi
 
 # Check for global.json (recommended for SDK version pinning)
 if [[ ! -f "$SOLUTION_DIR/global.json" ]]; then
-    echo "⚠️  No global.json found — consider pinning the SDK version"
+    echo "⚠️  No global.json found: consider pinning the SDK version"
     WARNINGS=$((WARNINGS + 1))
 fi
 
 # Check for .editorconfig (recommended for code style consistency)
 if [[ ! -f "$SOLUTION_DIR/.editorconfig" ]]; then
-    echo "⚠️  No .editorconfig found — consider adding for consistent code style"
+    echo "⚠️  No .editorconfig found: consider adding for consistent code style"
     WARNINGS=$((WARNINGS + 1))
 fi
 
 # Check that test projects exist
 TEST_PROJECTS=$(find "$SOLUTION_DIR" -name "*.Tests.csproj" -o -name "*.Test.csproj" -o -name "*Tests.csproj" 2>/dev/null | wc -l)
 if [[ "$TEST_PROJECTS" -eq 0 && "$CSPROJ_COUNT" -gt 1 ]]; then
-    echo "⚠️  No test projects found — consider adding tests"
+    echo "⚠️  No test projects found: consider adding tests"
     WARNINGS=$((WARNINGS + 1))
 fi
 
@@ -67,7 +67,7 @@ if [[ "$CSPROJ_COUNT" -gt 0 ]]; then
     )
     TFM_COUNT=$(printf '%s\n' "$BASE_TFMS" | grep -c . || true)
     if [[ "${TFM_COUNT:-0}" -gt 1 ]]; then
-        echo "⚠️  Mixed target frameworks detected ($(printf '%s' "$BASE_TFMS" | paste -sd, -)) — consider aligning all projects"
+        echo "⚠️  Mixed target frameworks detected ($(printf '%s' "$BASE_TFMS" | paste -sd, -)): consider aligning all projects"
         WARNINGS=$((WARNINGS + 1))
     fi
 fi
@@ -75,10 +75,10 @@ fi
 # Summary
 echo ""
 if [[ $ERRORS -gt 0 ]]; then
-    echo "🔴 $ERRORS error(s) found — fix before building"
+    echo "🔴 $ERRORS error(s) found: fix before building"
     exit 1
 elif [[ $WARNINGS -gt 0 ]]; then
-    echo "⚠️  $WARNINGS warning(s) — consider addressing these"
+    echo "⚠️  $WARNINGS warning(s): consider addressing these"
     exit 0
 else
     echo "✓ Project structure looks good"
