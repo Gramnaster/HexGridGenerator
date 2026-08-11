@@ -10,9 +10,15 @@ public class MainFormTests
         // Arrange
         using MainForm form = NewOffscreenForm();
 
-        // Act & Assert
-        ShowAndPump(form);
-        form.Close();
+        // Act
+        Exception? exception = Record.Exception(() =>
+        {
+            ShowAndPump(form);
+            form.Close();
+        });
+
+        // Assert
+        Assert.Null(exception);
     });
 
     [Fact]
