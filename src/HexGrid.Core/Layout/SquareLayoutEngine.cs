@@ -63,31 +63,30 @@ public static class SquareLayoutEngine
 
     /// <summary>Builds the final square cells once the convergence loop in <see cref="GridLayoutEngine"/> has settled.</summary>
     internal static (IReadOnlyList<GridCell> Cells, double[] ColumnCenterXs, double[] RowCenterYs, RectangleF GridBounds) BuildCells(
-        GridSettings s, UnitScale scale, int columns, int rows, double side, RectangleF clip,
-        string[] columnLabels, string[] rowLabels, string separator)
+        GridSettings s, UnitScale scale, SquareFit fit, string[] columnLabels, string[] rowLabels, string separator)
     {
-        double spanX = (columns - 1) * side;
-        double spanY = (rows - 1) * side;
-        double half = side / 2.0;
-        (double firstX, double firstY) = ResolveBlockOrigin(s, scale, columns, rows, side, clip, spanX, spanY);
+        double spanX = (fit.Columns - 1) * fit.Side;
+        double spanY = (fit.Rows - 1) * fit.Side;
+        double half = fit.Side / 2.0;
+        (double firstX, double firstY) = ResolveBlockOrigin(s, scale, fit);
 
-        var cells = new List<GridCell>(columns * rows);
-        var columnCenterXs = new double[columns];
-        var rowCenterYs = new double[rows];
+        var cells = new List<GridCell>(fit.Columns * fit.Rows);
+        var columnCenterXs = new double[fit.Columns];
+        var rowCenterYs = new double[fit.Rows];
 
-        for (int c = 0; c < columns; c++)
+        for (int c = 0; c < fit.Columns; c++)
         {
-            columnCenterXs[c] = firstX + (c * side);
+            columnCenterXs[c] = firstX + (c * fit.Side);
         }
 
-        for (int r = 0; r < rows; r++)
+        for (int r = 0; r < fit.Rows; r++)
         {
-            rowCenterYs[r] = firstY + (r * side);
+            rowCenterYs[r] = firstY + (r * fit.Side);
         }
 
-        for (int c = 0; c < columns; c++)
+        for (int c = 0; c < fit.Columns; c++)
         {
-            for (int r = 0; r < rows; r++)
+            for (int r = 0; r < fit.Rows; r++)
             {
                 double cx = columnCenterXs[c];
                 double cy = rowCenterYs[r];
@@ -97,7 +96,7 @@ public static class SquareLayoutEngine
                     Column = c,
                     Row = r,
                     Center = new PointF((float)cx, (float)cy),
-                    Vertices = Vertices(cx, cy, side),
+                    Vertices = Vertices(cx, cy, fit.Side),
                     Label = CoordinateLabeller.Combine(columnLabels[c], rowLabels[r], separator),
                 });
             }
@@ -119,24 +118,27 @@ public static class SquareLayoutEngine
     /// centres the span of cell CENTRES instead, so the outermost squares overhang the clip and are
     /// cut, matching HexLayoutEngine.ComputeOrigin's "fill the walls" behaviour.
     /// </summary>
-    private static (double FirstX, double FirstY) ResolveBlockOrigin(
-        GridSettings s, UnitScale scale, int columns, int rows, double side, RectangleF clip, double spanX, double spanY)
+    private static (double FirstX, double FirstY) ResolveBlockOrigin(GridSettings s, UnitScale scale, SquareFit fit)
     {
+        RectangleF clip = fit.Clip;
+
         if (!s.AutoFitSquares)
         {
+            double spanX = (fit.Columns - 1) * fit.Side;
+            double spanY = (fit.Rows - 1) * fit.Side;
             double fillX = clip.Left + ((clip.Width - spanX) / 2.0) + scale.ToPx(s.GridOffsetX);
             double fillY = clip.Top + ((clip.Height - spanY) / 2.0) + scale.ToPx(s.GridOffsetY);
             return (fillX, fillY);
         }
 
-        double half = side / 2.0;
+        double half = fit.Side / 2.0;
         bool originLeft = s.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.BottomLeft;
         bool originTop = s.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.TopRight;
         bool flushX = s.FlushAxis is FlushAxis.Horizontal or FlushAxis.Both;
         bool flushY = s.FlushAxis is FlushAxis.Vertical or FlushAxis.Both;
 
-        double firstX = BlockOrigin(clip.Left, clip.Width, columns * side, half, flushX, originLeft) + scale.ToPx(s.GridOffsetX);
-        double firstY = BlockOrigin(clip.Top, clip.Height, rows * side, half, flushY, originTop) + scale.ToPx(s.GridOffsetY);
+        double firstX = BlockOrigin(clip.Left, clip.Width, fit.Columns * fit.Side, half, flushX, originLeft) + scale.ToPx(s.GridOffsetX);
+        double firstY = BlockOrigin(clip.Top, clip.Height, fit.Rows * fit.Side, half, flushY, originTop) + scale.ToPx(s.GridOffsetY);
         return (firstX, firstY);
     }
 
@@ -285,4 +287,12 @@ public static class SquareLayoutEngine
     // path or interop boundary.
     [StructLayout(LayoutKind.Auto)]
     private readonly record struct SquareFitCandidate(int Columns, int Rows, double SidePx, double GapPx);
+
+    // Columns, Rows, Side and Clip always travel together as the outcome of a solved pass - bundled
+    // here so BuildCells/ResolveBlockOrigin take one parameter instead of four, staying under the
+    // analyzer's parameter-count limit. Internal, not private: GridLayoutEngine constructs one to
+    // call BuildCells. MA0008 wants an explicit StructLayoutAttribute; see CanvasSpec.cs for the
+    // rationale for Auto over Sequential/Explicit - not a hot path or interop boundary.
+    [StructLayout(LayoutKind.Auto)]
+    internal readonly record struct SquareFit(int Columns, int Rows, double Side, RectangleF Clip);
 }

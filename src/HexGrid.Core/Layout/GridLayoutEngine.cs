@@ -132,7 +132,7 @@ public static class GridLayoutEngine
         if (s.GridType == GridType.Square)
         {
             var (cells, columnCenterXs, rowCenterYs, gridBounds) =
-                SquareLayoutEngine.BuildCells(s, scale, columns, rows, sizePx, clip, columnLabels, rowLabels, separator);
+                SquareLayoutEngine.BuildCells(s, scale, new SquareLayoutEngine.SquareFit(columns, rows, sizePx, clip), columnLabels, rowLabels, separator);
             return (cells, columnCenterXs, rowCenterYs, gridBounds, sizePx, sizePx);
         }
 
