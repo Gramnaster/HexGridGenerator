@@ -366,25 +366,47 @@ public sealed class MainForm : Form
     {
         var scale = new UnitScale(settings.Unit, settings.Dpi);
         SquareFitSuggestion fit = SquareLayoutEngine.RecommendFit(settings, layout.ClipBounds);
-        double gapEachSideNow = scale.FromPx(fit.CurrentGapPx / 2.0);
+        string unit = UnitSuffix(settings.Unit);
 
-        if (gapEachSideNow < 0.05)
+        // FlushAxis moves the whole leftover onto one side instead of splitting it - report the full
+        // residual and name that side, rather than the "half on each side" wording centred mode gets.
+        (bool columnsBound, _) = SquareLayoutEngine.SizingBindingHint(settings, layout.ClipBounds);
+        bool verticalGap = columnsBound;
+        bool flushed = settings.AutoFitSquares &&
+            (settings.FlushAxis == FlushAxis.Both || settings.FlushAxis == (verticalGap ? FlushAxis.Vertical : FlushAxis.Horizontal));
+        string sideDescription = flushed ? $"on the {FarSideName(settings, verticalGap)}" : "on two sides";
+
+        double gapNow = scale.FromPx(flushed ? fit.CurrentGapPx : fit.CurrentGapPx / 2.0);
+        if (gapNow < 0.05)
         {
             return string.Empty;
         }
 
         if (!fit.HasTighterFit)
         {
-            return F($"  ·  ≈{gapEachSideNow:0.##} {UnitSuffix(settings.Unit)} gap on two sides (canvas doesn't divide evenly by {settings.Columns} × {settings.Rows})");
+            return F($"  ·  ≈{gapNow:0.##} {unit} gap {sideDescription} (canvas doesn't divide evenly by {settings.Columns} × {settings.Rows})");
         }
 
         if (fit.GapPx <= 0)
         {
-            return F($"  ·  ≈{gapEachSideNow:0.##} {UnitSuffix(settings.Unit)} gap - try {fit.Columns} × {fit.Rows} for no gap");
+            return F($"  ·  ≈{gapNow:0.##} {unit} gap {sideDescription} - try {fit.Columns} × {fit.Rows} for no gap");
         }
 
-        double gapEachSideAfter = scale.FromPx(fit.GapPx / 2.0);
-        return F($"  ·  ≈{gapEachSideNow:0.##} {UnitSuffix(settings.Unit)} gap - try {fit.Columns} × {fit.Rows} for ≈{gapEachSideAfter:0.##} {UnitSuffix(settings.Unit)}");
+        double gapAfter = scale.FromPx(flushed ? fit.GapPx : fit.GapPx / 2.0);
+        return F($"  ·  ≈{gapNow:0.##} {unit} gap {sideDescription} - try {fit.Columns} × {fit.Rows} for ≈{gapAfter:0.##} {unit}");
+    }
+
+    /// <summary>The side that receives the whole leftover margin when FlushAxis is on for this axis: opposite CoordinateOrigin.</summary>
+    private static string FarSideName(GridSettings settings, bool verticalAxis)
+    {
+        if (verticalAxis)
+        {
+            bool originTop = settings.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.TopRight;
+            return originTop ? "bottom" : "top";
+        }
+
+        bool originLeft = settings.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.BottomLeft;
+        return originLeft ? "right" : "left";
     }
 
     private static string SquareRecommendedSizeHint(GridSettings settings, GridLayout layout)

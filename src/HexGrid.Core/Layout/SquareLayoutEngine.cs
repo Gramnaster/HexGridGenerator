@@ -68,17 +68,8 @@ public static class SquareLayoutEngine
     {
         double spanX = (columns - 1) * side;
         double spanY = (rows - 1) * side;
-
-        // AutoFitSquares centres the whole block (leftover space becomes an even margin); off centres
-        // the span of cell CENTRES instead, so the outermost squares overhang the clip and are cut,
-        // matching HexLayoutEngine.ComputeOrigin's "fill the walls" behaviour.
-        double firstX = s.AutoFitSquares
-            ? clip.Left + ((clip.Width - (columns * side)) / 2.0) + (side / 2.0) + scale.ToPx(s.GridOffsetX)
-            : clip.Left + ((clip.Width - spanX) / 2.0) + scale.ToPx(s.GridOffsetX);
-
-        double firstY = s.AutoFitSquares
-            ? clip.Top + ((clip.Height - (rows * side)) / 2.0) + (side / 2.0) + scale.ToPx(s.GridOffsetY)
-            : clip.Top + ((clip.Height - spanY) / 2.0) + scale.ToPx(s.GridOffsetY);
+        double half = side / 2.0;
+        (double firstX, double firstY) = ResolveBlockOrigin(s, scale, columns, rows, side, clip, spanX, spanY);
 
         var cells = new List<GridCell>(columns * rows);
         var columnCenterXs = new double[columns];
@@ -112,7 +103,6 @@ public static class SquareLayoutEngine
             }
         }
 
-        double half = side / 2.0;
         var gridBounds = RectangleF.FromLTRB(
             (float)(firstX - half),
             (float)(firstY - half),
@@ -120,6 +110,50 @@ public static class SquareLayoutEngine
             (float)(firstY + spanY + half));
 
         return (cells, columnCenterXs, rowCenterYs, gridBounds);
+    }
+
+    /// <summary>
+    /// AutoFitSquares centres the whole block by default: leftover space becomes an even margin.
+    /// FlushAxis instead pushes that block toward the side of the axis away from CoordinateOrigin, so
+    /// the origin side sits flush with no gap and the whole leftover lands on the far side. Off
+    /// centres the span of cell CENTRES instead, so the outermost squares overhang the clip and are
+    /// cut, matching HexLayoutEngine.ComputeOrigin's "fill the walls" behaviour.
+    /// </summary>
+    private static (double FirstX, double FirstY) ResolveBlockOrigin(
+        GridSettings s, UnitScale scale, int columns, int rows, double side, RectangleF clip, double spanX, double spanY)
+    {
+        if (!s.AutoFitSquares)
+        {
+            double fillX = clip.Left + ((clip.Width - spanX) / 2.0) + scale.ToPx(s.GridOffsetX);
+            double fillY = clip.Top + ((clip.Height - spanY) / 2.0) + scale.ToPx(s.GridOffsetY);
+            return (fillX, fillY);
+        }
+
+        double half = side / 2.0;
+        bool originLeft = s.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.BottomLeft;
+        bool originTop = s.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.TopRight;
+        bool flushX = s.FlushAxis is FlushAxis.Horizontal or FlushAxis.Both;
+        bool flushY = s.FlushAxis is FlushAxis.Vertical or FlushAxis.Both;
+
+        double firstX = BlockOrigin(clip.Left, clip.Width, columns * side, half, flushX, originLeft) + scale.ToPx(s.GridOffsetX);
+        double firstY = BlockOrigin(clip.Top, clip.Height, rows * side, half, flushY, originTop) + scale.ToPx(s.GridOffsetY);
+        return (firstX, firstY);
+    }
+
+    /// <summary>
+    /// Centre of the first (leftmost/topmost) cell along one axis of an AutoFitSquares block. Not
+    /// flushed: the leftover between the block and the clip is split evenly on both sides, as before.
+    /// Flushed: the block's edge on <paramref name="towardStart"/>'s side sits exactly on the clip
+    /// edge (no gap there) and the whole leftover is pushed to the far side instead.
+    /// </summary>
+    private static double BlockOrigin(double clipStart, double clipSize, double blockSize, double half, bool flush, bool towardStart)
+    {
+        if (!flush)
+        {
+            return clipStart + ((clipSize - blockSize) / 2.0) + half;
+        }
+
+        return towardStart ? clipStart + half : clipStart + clipSize - blockSize + half;
     }
 
     private static PointF[] Vertices(double cx, double cy, double side)

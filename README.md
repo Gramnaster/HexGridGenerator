@@ -101,6 +101,16 @@ set directly, it reports the nearby square size that produces a "no gap" or tigh
 The search only looks near the current request. A pair far away might coincidentally fit tighter
 still, but recommending it would change the grid density far more than "close the gap" implies.
 
+**Flush axis** offers a different fix for the same problem: instead of shrinking the leftover, it
+moves it. By default the leftover on a non-binding axis is centred, split evenly between, say, the
+top and bottom margins. Setting Flush axis to Vertical, Horizontal or Both instead pushes the whole
+leftover to one side, so the opposite side sits exactly flush against the frame with no gap there
+at all. Which side is flush follows **Coordinate origin**: the grid flushes toward the origin
+corner (so the A1 corner is always the clean one) and the leftover lands on the far corner instead.
+This only applies when AutoFitSquares is on. It changes nothing about the total leftover, only
+where it goes, so it composes with the Columns/Rows or square-size recommendation above rather than
+replacing it.
+
 ## Units
 
 Every **length** in the options (canvas size, margins, hex width, line thickness, dot radius,

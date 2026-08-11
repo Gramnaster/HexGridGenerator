@@ -81,6 +81,12 @@ public sealed class GridSettings : ICustomTypeDescriptor
     public bool AutoFitSquares { get; set; } = true;
 
     [Category("2 · Grid")]
+    [DisplayName("Flush axis")]
+    [Description("Only applies when Auto-fit squares is on. When the grid doesn't divide the map area evenly, None splits the leftover margin evenly on both sides of the affected axis (the default). Vertical, Horizontal or Both instead push the whole leftover to one side, away from Coordinate origin, so the grid sits flush against the frame on the origin side with no gap there. Default: None.")]
+    [DefaultValue(FlushAxis.None)]
+    public FlushAxis FlushAxis { get; set; } = FlushAxis.None;
+
+    [Category("2 · Grid")]
     [DisplayName("Sizing mode")]
     [Description("AutoFitRowsColumns: rows and columns set the hex size. FixedHexWidth: the hex width sets how many rows and columns there are. Either way the grid fills the map area and is clipped at the frame, so counts may come out slightly higher than requested. Default: AutoFitRowsColumns.")]
     [DefaultValue(GridSizingMode.AutoFitRowsColumns)]
@@ -436,7 +442,7 @@ public sealed class GridSettings : ICustomTypeDescriptor
 
     private static bool IsHiddenFor(GridType gridType, string propertyName) => gridType switch
     {
-        GridType.Hex => propertyName is nameof(SquareSize) or nameof(AutoFitSquares),
+        GridType.Hex => propertyName is nameof(SquareSize) or nameof(AutoFitSquares) or nameof(FlushAxis),
         GridType.Square => propertyName is nameof(HexOrientation) or nameof(HexWidth),
         _ => false,
     };
