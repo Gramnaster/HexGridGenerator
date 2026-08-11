@@ -50,6 +50,9 @@ public static class GridLayoutEngine
         (IReadOnlyList<GridCell> cells, double[] columnCenterXs, double[] rowCenterYs, RectangleF gridBounds, double cellWidthPx, double cellHeightPx) =
             BuildCells(s, scale, columns, rows, sizePx, radiusPx, clip, columnLabels, rowLabelsFinal, s.CoordinateSeparator);
 
+        double insetPx = Math.Max(0, scale.ToPx(s.GridInset));
+        (frameBounds, clip) = ShrinkFrameToFlushedGrid(s, insetPx, frameBounds, clip, gridBounds);
+
         return new GridLayout
         {
             CanvasWidthPx = canvasWpx,
@@ -152,6 +155,61 @@ public static class GridLayoutEngine
             (s.MarginalLabelSides.HasFlag(LabelSides.Top) ? vertical : 0) + half,
             (s.MarginalLabelSides.HasFlag(LabelSides.Right) ? horizontal : 0) + half,
             (s.MarginalLabelSides.HasFlag(LabelSides.Bottom) ? vertical : 0) + half);
+    }
+
+    /// <summary>
+    /// AutoFitSquares + FlushAxis pushes the grid's leftover slack entirely to the side away from
+    /// CoordinateOrigin (see SquareLayoutEngine.ResolveBlockOrigin), but SolveGrid sizes the frame
+    /// for the nominal map area, not the grid's actual footprint - so that leftover still shows up
+    /// as dead space between the grid and the frame rule. This re-derives the map area (clip) on the
+    /// flushed-away side to touch the grid exactly, then re-inflates the frame from that using the
+    /// same clip-to-frame relationship SolveGrid used, just applied to the real footprint instead of
+    /// the nominal one. The border and the edge-label band (both driven by FrameBounds) then hug the
+    /// actual grid with exactly GridInset of space, not the leftover. Hex grids and squares that
+    /// aren't both AutoFitSquares and flushed are returned unchanged.
+    /// </summary>
+    private static (RectangleF FrameBounds, RectangleF ClipBounds) ShrinkFrameToFlushedGrid(
+        GridSettings s, double insetPx, RectangleF frameBounds, RectangleF clip, RectangleF gridBounds)
+    {
+        if (s.GridType != GridType.Square || !s.AutoFitSquares || s.FlushAxis == FlushAxis.None)
+        {
+            return (frameBounds, clip);
+        }
+
+        bool originLeft = s.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.BottomLeft;
+        bool originTop = s.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.TopRight;
+        float left = clip.Left;
+        float top = clip.Top;
+        float right = clip.Right;
+        float bottom = clip.Bottom;
+
+        if (s.FlushAxis is FlushAxis.Vertical or FlushAxis.Both)
+        {
+            if (originTop)
+            {
+                bottom = gridBounds.Bottom;
+            }
+            else
+            {
+                top = gridBounds.Top;
+            }
+        }
+
+        if (s.FlushAxis is FlushAxis.Horizontal or FlushAxis.Both)
+        {
+            if (originLeft)
+            {
+                right = gridBounds.Right;
+            }
+            else
+            {
+                left = gridBounds.Left;
+            }
+        }
+
+        RectangleF newClip = RectangleF.FromLTRB(left, top, right, bottom);
+        RectangleF newFrame = Deflate(newClip, -insetPx, -insetPx, -insetPx, -insetPx);
+        return (newFrame, newClip);
     }
 
     private static RectangleF Deflate(RectangleF r, double left, double top, double right, double bottom) =>

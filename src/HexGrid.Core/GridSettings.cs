@@ -82,7 +82,7 @@ public sealed class GridSettings : ICustomTypeDescriptor
 
     [Category("2 · Grid")]
     [DisplayName("Flush axis")]
-    [Description("Only applies when Auto-fit squares is on. When the grid doesn't divide the map area evenly, None splits the leftover margin evenly on both sides of the affected axis (the default). Vertical, Horizontal or Both instead push the whole leftover to one side, away from Coordinate origin, so the grid sits flush against the frame on the origin side with no gap there. Default: None.")]
+    [Description("Only applies when Auto-fit squares is on. When the grid doesn't divide the map area evenly, None splits the leftover evenly as a margin on both sides of the affected axis (the default). Vertical, Horizontal or Both instead shrink the frame itself to hug the grid on the side away from Coordinate origin, closing the gap entirely. The border and edge labels move with it, and the freed space becomes extra room between the frame and the canvas edge instead of dead space inside it. Default: None.")]
     [DefaultValue(FlushAxis.None)]
     public FlushAxis FlushAxis { get; set; } = FlushAxis.None;
 

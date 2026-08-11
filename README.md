@@ -101,15 +101,18 @@ set directly, it reports the nearby square size that produces a "no gap" or tigh
 The search only looks near the current request. A pair far away might coincidentally fit tighter
 still, but recommending it would change the grid density far more than "close the gap" implies.
 
-**Flush axis** offers a different fix for the same problem: instead of shrinking the leftover, it
-moves it. By default the leftover on a non-binding axis is centred, split evenly between, say, the
-top and bottom margins. Setting Flush axis to Vertical, Horizontal or Both instead pushes the whole
-leftover to one side, so the opposite side sits exactly flush against the frame with no gap there
-at all. Which side is flush follows **Coordinate origin**: the grid flushes toward the origin
-corner (so the A1 corner is always the clean one) and the leftover lands on the far corner instead.
-This only applies when AutoFitSquares is on. It changes nothing about the total leftover, only
-where it goes, so it composes with the Columns/Rows or square-size recommendation above rather than
-replacing it.
+**Flush axis** closes the gap outright rather than just shrinking or relocating it. By default the
+leftover on a non-binding axis is centred, split evenly between, say, the top and bottom margins,
+as dead space *inside* the frame. Setting Flush axis to Vertical, Horizontal or Both instead shrinks
+the frame itself on the side away from **Coordinate origin** until it touches the grid exactly
+(plus Grid inset, if set). The border rule and that side's edge-label band move with it, since both
+are drawn from the frame's bounds. The space that used to be a gap inside the frame becomes, instead,
+extra room between the (now smaller) frame and the canvas edge: visible, but outside the map area
+rather than an awkward pocket inside it. Which side shrinks follows Coordinate origin: the frame
+stays put on the origin side (so the A1 corner's margin is unchanged) and pulls in on the far side.
+This only applies when AutoFitSquares is on, and only reshapes the frame on the axis or axes
+flushed. Combine it with the Columns/Rows or square-size recommendation above to close gaps on both
+axes at once, or leave the other axis centred if a symmetric margin there is preferred.
 
 ## Units
 
