@@ -14,12 +14,15 @@ Requires the .NET 10 SDK. No NuGet packages, so restore cannot fail.
 **Visual Studio.** Open `HexGridGenerator.sln`, set `HexGrid.App` as the startup project,
 build. The exe lands in `src\HexGrid.App\bin\Release\net10.0-windows\HexGridGenerator.exe`.
 
-**Command line.** Run `build.cmd`, which publishes a single-file exe to `publish\`:
+**Command line.** Two scripts, each publishing a single-file exe:
 
 | Command | Output | Needs |
 | --- | --- | --- |
-| `build.cmd` | ~280 KB exe | .NET 10 Desktop Runtime installed |
-| `build.cmd standalone` | ~47 MB exe | nothing |
+| `build.cmd` | `publish\HexGridGenerator.exe`, ~280 KB | .NET 10 Desktop Runtime installed |
+| `build-standalone.cmd` | `publish-standalone\HexGridGenerator.exe`, ~47 MB | nothing |
+
+`build.cmd` is for local iteration. `build-standalone.cmd` is the release build: self-contained,
+runs on any Windows machine, and is what gets attached to a GitHub release.
 
 ## Layout
 

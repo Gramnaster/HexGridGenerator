@@ -18,9 +18,9 @@ public class MainFormTests
     [Fact]
     public void Show_AppliesThePreferredSplitterDistance() => StaThread.Run(() =>
     {
-        // Arrange: regression guard for the SplitContainer construction-order crash documented in
-        // HANDOFF.md (SplitterDistance was computed before the control was parented/sized).
-        // TrySetPreferredSplit's own catch swallows an InvalidOperationException silently by design
+        // Arrange: regression guard for the SplitContainer construction-order crash BuildSplit() and
+        // TrySetPreferredSplit document in MainForm.cs (SplitterDistance was computed before the
+        // control was parented/sized). TrySetPreferredSplit's own catch swallows the exception silently by design
         // (a too-narrow window must never crash the app), so a regression there would NOT surface as
         // a thrown exception - only as the distance silently never landing, which is what this checks.
         using MainForm form = NewOffscreenForm();

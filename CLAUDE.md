@@ -63,6 +63,6 @@ SVG output, preset round-tripping. `HexGrid.App.Tests` covers the WinForms shell
 
 ## WinForms gotchas already hit in this codebase
 
-See `HANDOFF.md` for a documented root-cause writeup of a `SplitContainer` construction-order
-crash (`SplitterDistance` computed before the control is parented/sized). Read it before
-touching `MainForm.BuildUi()` so history doesn't repeat.
+`MainForm.BuildUi()` has already hit a `SplitContainer` construction-order crash once
+(`SplitterDistance` computed before the control is parented/sized) — see the comments around
+`TrySetPreferredSplit` in `MainForm.cs` before changing that method.

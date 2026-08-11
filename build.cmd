@@ -1,33 +1,21 @@
 @echo off
 setlocal
 
-REM  HexGrid Generator build script.
+REM  HexGrid Generator local build script - framework-dependent exe (~280 KB), needs the
+REM  .NET 10 Desktop Runtime installed. For the standalone release build, see build-standalone.cmd.
 REM
-REM    build.cmd              framework-dependent exe (~280 KB, needs the .NET 10 Desktop Runtime)
-REM    build.cmd standalone   self-contained exe (~47 MB, runs on any Windows machine)
-REM
-REM  Either way, publish\ also contains the loose DLLs and .pdb/.deps.json/.runtimeconfig.json
-REM  files dotnet publish uses to build the bundle - PublishSingleFile does not delete them from
-REM  the output folder. Only HexGridGenerator.exe itself is needed to run or redistribute the app;
-REM  it was verified to run standalone from an otherwise-empty folder in both modes.
+REM  publish\ also contains the loose DLLs and .pdb/.deps.json/.runtimeconfig.json files dotnet
+REM  publish uses to build the bundle - PublishSingleFile does not delete them from the output
+REM  folder. Only HexGridGenerator.exe itself is needed to run or redistribute the app; it was
+REM  verified to run standalone from an otherwise-empty folder.
 
-set MODE=%1
 set OUTDIR=%~dp0publish
 
-if /I "%MODE%"=="standalone" (
-    echo Building standalone ^(self-contained^) exe...
-    dotnet publish "%~dp0src\HexGrid.App\HexGrid.App.csproj" ^
-        -c Release -r win-x64 --self-contained true ^
-        -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true ^
-        -p:EnableCompressionInSingleFile=true ^
-        -o "%OUTDIR%"
-) else (
-    echo Building framework-dependent exe...
-    dotnet publish "%~dp0src\HexGrid.App\HexGrid.App.csproj" ^
-        -c Release -r win-x64 --self-contained false ^
-        -p:PublishSingleFile=true ^
-        -o "%OUTDIR%"
-)
+echo Building framework-dependent exe...
+dotnet publish "%~dp0src\HexGrid.App\HexGrid.App.csproj" ^
+    -c Release -r win-x64 --self-contained false ^
+    -p:PublishSingleFile=true ^
+    -o "%OUTDIR%"
 
 if errorlevel 1 (
     echo.

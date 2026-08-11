@@ -182,17 +182,16 @@ public sealed class MainForm : Form
     {
         // Only safe once the container has a real width. The default split from BuildSplit() above
         // is usable on its own, so a too-narrow window is not fatal - just logged in case the
-        // underlying cause is something other than "window too narrow" (see HANDOFF.md for the
-        // SplitContainer construction-order bug this project already hit once).
+        // underlying cause is something other than "window too narrow" (BuildSplit() above has the
+        // construction-order bug this SplitContainer already hit once).
         try
         {
             split.SplitterDistance = 430;
         }
         catch (InvalidOperationException ex)
         {
-            // Confirmed exception type for this target framework: HANDOFF.md's own captured crash
-            // log shows SplitContainer.set_SplitterDistance throwing InvalidOperationException when
-            // the distance falls outside Panel1MinSize..Width-Panel2MinSize.
+            // SplitContainer.set_SplitterDistance throws InvalidOperationException when the distance
+            // falls outside Panel1MinSize..Width-Panel2MinSize.
             Program.WriteCrashLog(ex);
         }
     }
