@@ -8,9 +8,8 @@ description: >
 
 # Testing Rules
 
-There is no test project in this solution yet (see project root `CLAUDE.md`). These
-conventions apply once one is added — most likely xUnit against `HexGrid.Core`, which is
-pure geometry/labelling/SVG logic with no I/O.
+`HexGrid.Core.Tests` and `HexGrid.App.Tests` are xUnit test projects (see project root
+`CLAUDE.md`). These conventions apply to both.
 
 ## Test Structure
 

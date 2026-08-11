@@ -56,10 +56,10 @@ messaging) doesn't map onto a two-project GDI+ tool.
 
 ## Testing
 
-No test project exists yet. If one is added, target `HexGrid.Core` first — it's pure logic
-with no I/O, no WinForms dependency, and the highest-value surface to cover (hex tiling,
-clipping, label placement, SVG output). See `rules/testing.md` for conventions once that
-exists.
+`HexGrid.Core.Tests` and `HexGrid.App.Tests` are xUnit test projects, run with `dotnet test`.
+`HexGrid.Core.Tests` covers the highest-value surface: hex tiling, clipping, label placement,
+SVG output, preset round-tripping. `HexGrid.App.Tests` covers the WinForms shell. See
+`rules/testing.md` for naming and structure conventions.
 
 ## WinForms gotchas already hit in this codebase
 
