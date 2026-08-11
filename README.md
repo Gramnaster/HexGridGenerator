@@ -1,6 +1,6 @@
 # HexGrid Generator
 
-A Windows desktop utility that produces publication-quality hex grid overlays for map art —
+A Windows desktop utility that produces publication-quality hex grid overlays for map art:
 transparent PNG for Photoshop, Affinity Photo, Krita and GIMP, or SVG for anything vector.
 
 It is deliberately not a map editor and not a cartographic decoration tool. There is no title
@@ -11,10 +11,10 @@ onto someone else's artwork.
 
 Requires the .NET 10 SDK. No NuGet packages, so restore cannot fail.
 
-**Visual Studio** — open `HexGridGenerator.sln`, set `HexGrid.App` as the startup project,
+**Visual Studio.** Open `HexGridGenerator.sln`, set `HexGrid.App` as the startup project,
 build. The exe lands in `src\HexGrid.App\bin\Release\net10.0-windows\HexGridGenerator.exe`.
 
-**Command line** — run `build.cmd`, which publishes a single-file exe to `publish\`:
+**Command line.** Run `build.cmd`, which publishes a single-file exe to `publish\`:
 
 | Command | Output | Needs |
 | --- | --- | --- |
@@ -25,16 +25,18 @@ build. The exe lands in `src\HexGrid.App\bin\Release\net10.0-windows\HexGridGene
 
 ```
 src/
-  HexGrid.Core/     net10.0        geometry, labelling, SVG. No Windows dependency.
-    Units/          canvas presets, unit and DPI conversion
-    Layout/         hex maths, fit solver, clipping bounds
-    Labels/         column letters, row numbers, origin corners
-    Scene/          renderer-agnostic draw items grouped into layers
-    Rendering/      SVG writer
-    Presets/        JSON save and load
-    Naming/         filename token expansion
-  HexGrid.App/      net10.0-windows  WinForms shell
-    Rendering/      GDI+ rasteriser (live preview and PNG export), export service
+  HexGrid.Core/        net10.0          geometry, labelling, SVG. No Windows dependency.
+    Units/             canvas presets, unit and DPI conversion
+    Layout/            hex maths, fit solver, clipping bounds
+    Labels/            column letters, row numbers, origin corners
+    Scene/             renderer-agnostic draw items grouped into layers
+    Rendering/         SVG writer
+    Presets/           JSON save and load
+    Naming/            filename token expansion
+  HexGrid.App/         net10.0-windows  WinForms shell
+    Rendering/         GDI+ rasteriser (live preview and PNG export), export service
+  HexGrid.Core.Tests/  net10.0          xUnit tests for HexGrid.Core
+  HexGrid.App.Tests/   net10.0-windows  xUnit tests for HexGrid.App
 ```
 
 The layout engine produces plain numbers and knows nothing about drawing. `SceneBuilder` turns
@@ -53,39 +55,39 @@ canvas edge
   map area             the grid, clipped at the frame
 ```
 
-The grid **always fills the map area**. Every hex centre lands inside the map area and the
+The grid always fills the map area. Every hex centre lands inside the map area and the
 outermost hexes overhang it and are clipped, so the grid meets the frame on all four sides with
-no gap. Set **Grid inset** above 0 if you want a deliberate gap instead.
+no gap. Set **Grid inset** above 0 for a deliberate gap instead.
 
-A consequence worth knowing: row and column counts are a *minimum*, not an exact request. The
-axis that constrains the hex size comes out exactly as asked; the other axis gains however many
-hexes it takes to reach the frame. The status bar always reports the counts you actually got.
+Row and column counts are a minimum, not an exact request. The axis that constrains the hex
+size comes out exactly as asked; the other axis gains however many hexes it takes to reach the
+frame. The status bar reports the counts actually produced.
 
 ## Units
 
-Every **length** in the options — canvas size, margins, hex width, line thickness, dot radius,
-label padding, offsets — is expressed in whatever `Unit` is set to. Every **font size** is in
+Every **length** in the options (canvas size, margins, hex width, line thickness, dot radius,
+label padding, offsets) is expressed in whatever `Unit` is set to. Every **font size** is in
 points, because points are resolution-independent and convert cleanly through `DPI`.
 
-`DPI` is what ties physical units to pixels. Use 300 for print, 96 for screen work. It has no
-effect when `Unit` is Pixels and the canvas is a screen preset, except on font sizes.
+`DPI` ties physical units to pixels. Use 300 for print, 96 for screen work. It has no effect
+when `Unit` is Pixels and the canvas is a screen preset, except on font sizes.
 
 ## Sizing modes
 
-**AutoFitRowsColumns** — rows and columns set the hex size. Use this for paper: "A3, 40 x 26,
+**AutoFitRowsColumns.** Rows and columns set the hex size. Used for paper: "A3, 40 x 26,
 fill it".
 
-**FixedHexWidth** — the hex width sets how many rows and columns there are. Use this for screen
+**FixedHexWidth.** The hex width sets how many rows and columns there are. Used for screen
 overlays: "4K, 64 px hexes, as many as fit". At 4K with no margins that yields 81 x 39 flat-top
 hexes.
 
-Hex width means corner-to-corner for flat-top and flat-to-flat for pointy-top — the horizontal
+Hex width means corner-to-corner for flat-top and flat-to-flat for pointy-top: the horizontal
 extent either way.
 
 ## Coordinates
 
 Column letters roll over spreadsheet-style: A, B, ... Z, AA, AB. **Skip letters I and O** is on
-by default, which is standard military-mapping practice because they read as 1 and 0.
+by default, standard military-mapping practice because they read as 1 and 0.
 
 **Coordinate origin** picks which physical corner is A1, so the same grid serves conventions
 that count from the top-left or the bottom-left.
@@ -106,17 +108,23 @@ the hexes are trimmed at the frame in vector form too.
 Background can be transparent, white, black or custom. Antialiasing can be switched off for
 pixel-art workflows.
 
-**Export layers separately** writes one transparent PNG per layer alongside the flattened image
-— `..._HexGrid.png`, `..._CenterDots.png`, `..._EdgeLabels.png`, `..._Border.png` — ready to
-stack as Photoshop layers.
+**Export layers separately** writes one transparent PNG per layer alongside the flattened
+image: `..._HexGrid.png`, `..._CenterDots.png`, `..._EdgeLabels.png`, `..._Border.png`, ready
+to stack as Photoshop layers.
 
 Filenames are generated from a token pattern: `{preset} {w} {h} {cols} {rows} {hexw} {hexwu}
 {dpi} {orient}`.
 
 ## Presets
 
-**Save preset** and **Load preset** write the whole settings object as readable JSON, colours as
-hex strings. Keep one per campaign map.
+**Save preset** and **Load preset** write the whole settings object as readable JSON, colours
+as hex strings. Keep one per campaign map.
+
+## Testing
+
+`HexGrid.Core.Tests` and `HexGrid.App.Tests` are xUnit test projects covering hex tiling,
+clipping, label placement, SVG output, preset round-tripping and the WinForms shell. Run them
+with `dotnet test`.
 
 ## Correctness notes
 
@@ -125,8 +133,8 @@ hex strings. Keep one per campaign map.
   darker than the outer edges and thickens them under antialiasing. The scene builder emits a
   deduplicated edge set instead, so line weight and opacity are uniform across the whole grid.
 - Hexes are always regular. The grid fills the page by clipping, never by stretching.
-- Edge-label gutters are reserved from an estimate of text width rather than a real measurement,
-  so the geometry layer stays free of font dependencies. Increase **Padding from frame** if a
-  long label ever crowds the band.
+- Edge-label gutters are reserved from an estimate of text width rather than a real
+  measurement, so the geometry layer stays free of font dependencies. Increase **Padding from
+  frame** if a long label ever crowds the band.
 - Very large canvases are memory-hungry to rasterise. A0 at 300 dpi is 139 megapixels, roughly
   0.6 GB while rendering; the app warns above 100 megapixels. SVG has no such limit.
