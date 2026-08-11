@@ -91,7 +91,7 @@ public class GenerationPipelineTests
 
     private static string Render(GridSettings s, out GridLayout layout)
     {
-        layout = HexLayoutEngine.Build(s);
+        layout = GridLayoutEngine.Build(s);
         DrawScene scene = SceneBuilder.Build(s, layout);
         return SvgRenderer.Render(scene);
     }

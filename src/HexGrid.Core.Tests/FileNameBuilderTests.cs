@@ -99,7 +99,7 @@ public class FileNameBuilderTests
         Assert.Throws<ArgumentNullException>(() => FileNameBuilder.Build(TestSettings.Minimal(), null!));
     }
 
-    /// <summary>Hand-built layout so these tests exercise only <see cref="FileNameBuilder"/>, not <see cref="HexLayoutEngine"/>.</summary>
+    /// <summary>Hand-built layout so these tests exercise only <see cref="FileNameBuilder"/>, not <see cref="GridLayoutEngine"/>.</summary>
     private static GridLayout FakeLayout(
         double canvasW = 100, double canvasH = 100, int columns = 1, int rows = 1, double hexWidthPx = 10) => new()
     {
@@ -109,9 +109,9 @@ public class FileNameBuilderTests
         CanvasHeightMm = canvasH,
         Columns = columns,
         Rows = rows,
-        HexRadiusPx = hexWidthPx / 2,
-        HexWidthPx = hexWidthPx,
-        HexHeightPx = hexWidthPx,
+        CellRadiusPx = hexWidthPx / 2,
+        CellWidthPx = hexWidthPx,
+        CellHeightPx = hexWidthPx,
         FrameBounds = RectangleF.Empty,
         ClipBounds = RectangleF.Empty,
         GridBounds = RectangleF.Empty,

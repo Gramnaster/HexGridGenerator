@@ -11,7 +11,7 @@ public class SceneBuilderTests
     {
         // Arrange
         GridSettings s = TestSettings.Minimal();
-        GridLayout layout = HexLayoutEngine.Build(s);
+        GridLayout layout = GridLayoutEngine.Build(s);
 
         // Act
         DrawScene scene = SceneBuilder.Build(s, layout);
@@ -31,7 +31,7 @@ public class SceneBuilderTests
         // whole polygon instead would double-stroke each shared edge, which is the regression this
         // guards against (see the "Every hex edge is stroked exactly once" note in README.md).
         GridSettings s = TestSettings.Minimal();
-        GridLayout layout = HexLayoutEngine.Build(s);
+        GridLayout layout = GridLayoutEngine.Build(s);
 
         // Act
         DrawScene scene = SceneBuilder.Build(s, layout);

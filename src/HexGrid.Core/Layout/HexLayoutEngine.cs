@@ -5,22 +5,13 @@ using HexGrid.Core.Units;
 namespace HexGrid.Core.Layout;
 
 /// <summary>
-/// Solves the grid geometry for a set of settings. Knows nothing about SVG, GDI+ or any other renderer.
+/// Hex-specific geometry: sizing the hex from the requested rows/columns or width, and laying out
+/// hex cells within an already-solved clip rect. The canvas/frame/label-gutter framing shared with
+/// the square engine lives in <see cref="GridLayoutEngine"/>, which calls into this class.
 /// </summary>
-/// <remarks>
-/// Working outward from the canvas edge: safe margin, coordinate-label band, frame rule, map area.
-/// The grid always fills the map area (every hex centre lands inside it and the outermost hexes
-/// overhang and get clipped), so the grid meets the frame on all four sides with no gap.
-/// </remarks>
 public static class HexLayoutEngine
 {
     private static readonly double Sqrt3 = Math.Sqrt(3.0);
-
-    /// <summary>Rough advance width of one glyph as a fraction of the font size, for gutter reservation.</summary>
-    private const double AverageGlyphWidthRatio = 0.62;
-
-    /// <summary>Cap-height-ish line box as a fraction of the font size.</summary>
-    private const double LineHeightRatio = 1.0;
 
     /// <summary>
     /// The resolved per-hex spacing and the position of the first (top-left) hex centre, bundled so
@@ -39,121 +30,71 @@ public static class HexLayoutEngine
         double SpanX,
         double SpanY);
 
-    public static GridLayout Build(GridSettings s)
+    /// <summary>Solves the hex radius and resulting column/row counts for one convergence pass.</summary>
+    internal static (int Columns, int Rows, double CellWidthPx, double CellHeightPx, double? RadiusPx) Solve(
+        GridSettings s, UnitScale scale, RectangleF clip)
     {
-        ArgumentNullException.ThrowIfNull(s);
-
-        var scale = new UnitScale(s.Unit, s.Dpi);
-        (double canvasWpx, double canvasHpx, double canvasWmm, double canvasHmm) = ResolveCanvas(s, scale);
-
-        double safePx = Math.Max(0, scale.ToPx(s.SafeMargin));
-        RectangleF safeRect = Deflate(
-            new RectangleF(0, 0, (float)canvasWpx, (float)canvasHpx), safePx, safePx, safePx, safePx);
-
-        if (safeRect.Width <= 0 || safeRect.Height <= 0)
-        {
-            throw new InvalidOperationException("The safe margin consumes the whole canvas. Reduce it or enlarge the canvas.");
-        }
-
         bool flat = s.HexOrientation == HexOrientation.FlatTop;
 
-        (int columns, int rows, double radiusPx, RectangleF frameBounds, RectangleF clip) =
-            SolveGrid(s, scale, safeRect, flat);
+        double radiusPx = s.SizingMode == GridSizingMode.AutoFitRowsColumns
+            ? FitRadius(flat, Math.Max(1, s.Columns), Math.Max(1, s.Rows), clip.Width, clip.Height)
+            : RadiusFromHexWidth(flat, Math.Max(1e-6, scale.ToPx(s.HexWidth)));
 
-        GridGeometry geometry = ComputeOrigin(s, scale, flat, columns, rows, radiusPx, clip);
-
-        (string[] columnLabels, string[] rowLabelsFinal) = CoordinateLabeller.BuildAxes(
-            columns, rows, s.LabelScheme, s.CoordinateOrigin, s.SkipLettersIO, s.ZeroPadNumbers);
-
-        (List<HexCell> cells, double[] columnCenterXs, double[] rowCenterYs) =
-            BuildCells(geometry, columnLabels, rowLabelsFinal, s.CoordinateSeparator);
-
-        return new GridLayout
+        if (radiusPx <= 0 || double.IsNaN(radiusPx) || double.IsInfinity(radiusPx))
         {
-            CanvasWidthPx = canvasWpx,
-            CanvasHeightPx = canvasHpx,
-            CanvasWidthMm = canvasWmm,
-            CanvasHeightMm = canvasHmm,
-            Columns = columns,
-            Rows = rows,
-            HexRadiusPx = radiusPx,
-            HexWidthPx = flat ? 2 * radiusPx : Sqrt3 * radiusPx,
-            HexHeightPx = flat ? Sqrt3 * radiusPx : 2 * radiusPx,
-            FrameBounds = frameBounds,
-            ClipBounds = clip,
-            GridBounds = ComputeGridBounds(geometry),
-            Cells = cells,
-            ColumnCenterXs = columnCenterXs,
-            RowCenterYs = rowCenterYs,
-            ColumnLabels = columnLabels,
-            RowLabels = rowLabelsFinal,
-        };
-    }
-
-    /// <summary>
-    /// Solves columns, rows, hex radius and the frame/clip rectangles by converging on the label
-    /// gutter width. The label gutter depends on how many characters the labels run to, which
-    /// depends on the row and column counts, which depend on the gutter. Three passes converge.
-    /// </summary>
-    private static (int Columns, int Rows, double RadiusPx, RectangleF FrameBounds, RectangleF ClipBounds) SolveGrid(
-        GridSettings s, UnitScale scale, RectangleF safeRect, bool flat)
-    {
-        double framePx = s.BorderStyle == MapBorderStyle.None ? 0 : Math.Max(0, scale.ToPx(s.BorderThickness));
-        double insetPx = Math.Max(0, scale.ToPx(s.GridInset));
-        double labelPadPx = Math.Max(0, scale.ToPx(s.LabelPadding));
-        double marginalFontPx = scale.PointsToPx(s.MarginalFontSize);
-
-        int columns = Math.Max(1, s.Columns);
-        int rows = Math.Max(1, s.Rows);
-        double radiusPx = 0;
-        RectangleF frameBounds = safeRect;
-        RectangleF clip = safeRect;
-
-        for (int pass = 0; pass < 3; pass++)
-        {
-            (string[] colLabels, string[] rowLabels) = CoordinateLabeller.BuildAxes(
-                columns, rows, s.LabelScheme, s.CoordinateOrigin, s.SkipLettersIO, s.ZeroPadNumbers);
-            (_, int rowChars) = CoordinateLabeller.MaxLabelLengths(colLabels, rowLabels);
-
-            double horizontal = labelPadPx + (rowChars * marginalFontPx * AverageGlyphWidthRatio);
-            double vertical = labelPadPx + (marginalFontPx * LineHeightRatio);
-
-            frameBounds = ComputeFrameBounds(s, safeRect, framePx, horizontal, vertical);
-            clip = Deflate(frameBounds, insetPx, insetPx, insetPx, insetPx);
-
-            if (clip.Width <= 0 || clip.Height <= 0)
-            {
-                throw new InvalidOperationException(
-                    "The margins, frame and edge labels leave no room for the grid. Reduce the label font size, padding or margins.");
-            }
-
-            radiusPx = s.SizingMode == GridSizingMode.AutoFitRowsColumns
-                ? FitRadius(flat, Math.Max(1, s.Columns), Math.Max(1, s.Rows), clip.Width, clip.Height)
-                : RadiusFromHexWidth(flat, Math.Max(1e-6, scale.ToPx(s.HexWidth)));
-
-            if (radiusPx <= 0 || double.IsNaN(radiusPx) || double.IsInfinity(radiusPx))
-            {
-                throw new InvalidOperationException("The requested hex size does not resolve to a usable grid.");
-            }
-
-            (columns, rows) = CoverCounts(flat, radiusPx, clip.Width, clip.Height);
+            throw new InvalidOperationException("The requested hex size does not resolve to a usable grid.");
         }
 
-        return (columns, rows, radiusPx, frameBounds, clip);
+        (int columns, int rows) = CoverCounts(flat, radiusPx, clip.Width, clip.Height);
+        double widthPx = flat ? 2 * radiusPx : Sqrt3 * radiusPx;
+        double heightPx = flat ? Sqrt3 * radiusPx : 2 * radiusPx;
+        return (columns, rows, widthPx, heightPx, radiusPx);
     }
 
-    /// <summary>Deflates the safe-margin rect by the frame rule and whichever edge-label gutters are enabled.</summary>
-    private static RectangleF ComputeFrameBounds(
-        GridSettings s, RectangleF safeRect, double framePx, double horizontal, double vertical)
+    /// <summary>Builds the final hex cells once the convergence loop in <see cref="GridLayoutEngine"/> has settled.</summary>
+    internal static (IReadOnlyList<GridCell> Cells, double[] ColumnCenterXs, double[] RowCenterYs, RectangleF GridBounds) BuildCells(
+        GridSettings s, UnitScale scale, int columns, int rows, double radiusPx, RectangleF clip,
+        string[] columnLabels, string[] rowLabels, string separator)
     {
-        double half = framePx / 2.0;
-        return Deflate(
-            safeRect,
-            (s.MarginalLabelSides.HasFlag(LabelSides.Left) ? horizontal : 0) + half,
-            (s.MarginalLabelSides.HasFlag(LabelSides.Top) ? vertical : 0) + half,
-            (s.MarginalLabelSides.HasFlag(LabelSides.Right) ? horizontal : 0) + half,
-            (s.MarginalLabelSides.HasFlag(LabelSides.Bottom) ? vertical : 0) + half);
+        bool flat = s.HexOrientation == HexOrientation.FlatTop;
+        GridGeometry g = ComputeOrigin(s, scale, flat, columns, rows, radiusPx, clip);
+
+        var cells = new List<GridCell>(g.Columns * g.Rows);
+        var columnCenterXs = new double[g.Columns];
+        var rowCenterYs = new double[g.Rows];
+
+        for (int c = 0; c < g.Columns; c++)
+        {
+            columnCenterXs[c] = g.FirstX + (c * g.ColSpacing);
+        }
+
+        for (int r = 0; r < g.Rows; r++)
+        {
+            rowCenterYs[r] = g.FirstY + (r * g.RowSpacing);
+        }
+
+        for (int c = 0; c < g.Columns; c++)
+        {
+            for (int r = 0; r < g.Rows; r++)
+            {
+                double cx = columnCenterXs[c] + (!g.Flat && r % 2 == 1 ? g.ColSpacing / 2.0 : 0);
+                double cy = rowCenterYs[r] + (g.Flat && c % 2 == 1 ? g.RowSpacing / 2.0 : 0);
+
+                cells.Add(new GridCell
+                {
+                    Column = c,
+                    Row = r,
+                    Center = new PointF((float)cx, (float)cy),
+                    Vertices = Vertices(cx, cy, g.RadiusPx, g.Flat),
+                    Label = CoordinateLabeller.Combine(columnLabels[c], rowLabels[r], separator),
+                });
+            }
+        }
+
+        return (cells, columnCenterXs, rowCenterYs, ComputeGridBounds(g));
     }
+
+    // ---------------------------------------------------------------- geometry
 
     /// <summary>Spacing between hex centres and the position of the first (top-left) hex centre.</summary>
     private static GridGeometry ComputeOrigin(
@@ -182,46 +123,6 @@ public static class HexLayoutEngine
             (float)(g.FirstX + g.SpanX + halfW),
             (float)(g.FirstY + g.SpanY + halfH));
     }
-
-    private static (List<HexCell> Cells, double[] ColumnCenterXs, double[] RowCenterYs) BuildCells(
-        GridGeometry g, string[] columnLabels, string[] rowLabels, string separator)
-    {
-        var cells = new List<HexCell>(g.Columns * g.Rows);
-        var columnCenterXs = new double[g.Columns];
-        var rowCenterYs = new double[g.Rows];
-
-        for (int c = 0; c < g.Columns; c++)
-        {
-            columnCenterXs[c] = g.FirstX + (c * g.ColSpacing);
-        }
-
-        for (int r = 0; r < g.Rows; r++)
-        {
-            rowCenterYs[r] = g.FirstY + (r * g.RowSpacing);
-        }
-
-        for (int c = 0; c < g.Columns; c++)
-        {
-            for (int r = 0; r < g.Rows; r++)
-            {
-                double cx = columnCenterXs[c] + (!g.Flat && r % 2 == 1 ? g.ColSpacing / 2.0 : 0);
-                double cy = rowCenterYs[r] + (g.Flat && c % 2 == 1 ? g.RowSpacing / 2.0 : 0);
-
-                cells.Add(new HexCell
-                {
-                    Column = c,
-                    Row = r,
-                    Center = new PointF((float)cx, (float)cy),
-                    Vertices = Vertices(cx, cy, g.RadiusPx, g.Flat),
-                    Label = CoordinateLabeller.Combine(columnLabels[c], rowLabels[r], separator),
-                });
-            }
-        }
-
-        return (cells, columnCenterXs, rowCenterYs);
-    }
-
-    // ---------------------------------------------------------------- geometry
 
     private static PointF[] Vertices(double cx, double cy, double r, bool flatTop)
     {
@@ -341,42 +242,5 @@ public static class HexLayoutEngine
 
         static int Steps(double available, double spacing) =>
             Math.Max(1, (int)Math.Floor((available / spacing) + Tolerance) + 1);
-    }
-
-    private static RectangleF Deflate(RectangleF r, double left, double top, double right, double bottom) =>
-        RectangleF.FromLTRB(
-            (float)(r.Left + left),
-            (float)(r.Top + top),
-            (float)(r.Right - right),
-            (float)(r.Bottom - bottom));
-
-    // ------------------------------------------------------------------ canvas
-
-    private static (double WidthPx, double HeightPx, double WidthMm, double HeightMm) ResolveCanvas(
-        GridSettings s, UnitScale scale)
-    {
-        if (s.Preset == CanvasPreset.Custom)
-        {
-            double wPx = scale.ToPx(s.CustomWidth);
-            double hPx = scale.ToPx(s.CustomHeight);
-            return (wPx, hPx, UnitScale.PxToMm(wPx, s.Dpi), UnitScale.PxToMm(hPx, s.Dpi));
-        }
-
-        CanvasSpec spec = CanvasPresets.Resolve(s.Preset);
-        if (spec.IsPaper)
-        {
-            double wMm = spec.WidthMm!.Value;
-            double hMm = spec.HeightMm!.Value;
-            if (s.PageOrientation == PageOrientation.Landscape)
-            {
-                (wMm, hMm) = (hMm, wMm);
-            }
-
-            return (UnitScale.MmToPx(wMm, s.Dpi), UnitScale.MmToPx(hMm, s.Dpi), wMm, hMm);
-        }
-
-        double px = spec.WidthPx!.Value;
-        double py = spec.HeightPx!.Value;
-        return (px, py, UnitScale.PxToMm(px, s.Dpi), UnitScale.PxToMm(py, s.Dpi));
     }
 }

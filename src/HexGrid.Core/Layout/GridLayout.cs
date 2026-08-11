@@ -26,13 +26,13 @@ public sealed class GridLayout
 
     public required int Rows { get; init; }
 
-    /// <summary>Centre to vertex distance.</summary>
-    public required double HexRadiusPx { get; init; }
+    /// <summary>Centre to vertex distance. Null for a square grid - squares have no circumradius.</summary>
+    public required double? CellRadiusPx { get; init; }
 
-    /// <summary>Corner-to-corner for flat-top, flat-to-flat for pointy-top.</summary>
-    public required double HexWidthPx { get; init; }
+    /// <summary>Hex: corner-to-corner for flat-top, flat-to-flat for pointy-top. Square: the side length.</summary>
+    public required double CellWidthPx { get; init; }
 
-    public required double HexHeightPx { get; init; }
+    public required double CellHeightPx { get; init; }
 
     /// <summary>Centreline of the frame rule. Equal to <see cref="ClipBounds"/> when the grid inset is 0.</summary>
     public required RectangleF FrameBounds { get; init; }
@@ -40,10 +40,10 @@ public sealed class GridLayout
     /// <summary>The map area. Grid layers are clipped to this; hexes overhang it and are cut off.</summary>
     public required RectangleF ClipBounds { get; init; }
 
-    /// <summary>Tight bounding box of the untrimmed hex block. Larger than <see cref="ClipBounds"/>.</summary>
+    /// <summary>Tight bounding box of the untrimmed cell block. Larger than <see cref="ClipBounds"/> unless AutoFitSquares kept every cell inside it.</summary>
     public required RectangleF GridBounds { get; init; }
 
-    public required IReadOnlyList<HexCell> Cells { get; init; }
+    public required IReadOnlyList<GridCell> Cells { get; init; }
 
     /// <summary>X centre of each column, for top and bottom edge labels. All lie inside <see cref="ClipBounds"/>.</summary>
     public required double[] ColumnCenterXs { get; init; }
