@@ -114,7 +114,19 @@ public sealed class MainForm : Form
         _properties.PropertySort = PropertySort.Categorized;
         _properties.ToolbarVisible = false;
         _properties.HelpVisible = true;
-        _properties.PropertyValueChanged += (_, _) => ScheduleRebuild();
+        _properties.PropertyValueChanged += (_, e) =>
+        {
+            if (string.Equals(e.ChangedItem?.PropertyDescriptor?.Name, nameof(GridSettings.GridType), StringComparison.Ordinal))
+            {
+                // GridType changes which rows the descriptor exposes and how they're labelled.
+                // Refresh() alone doesn't re-run GetProperties(), so the category list is stale
+                // until the grid re-binds to the same object.
+                _properties.SelectedObject = null;
+                _properties.SelectedObject = _settings;
+            }
+
+            ScheduleRebuild();
+        };
         split.Panel1.Controls.Add(_properties);
 
         _preview.Dock = DockStyle.Fill;
@@ -215,7 +227,7 @@ public sealed class MainForm : Form
     {
         try
         {
-            _layout = HexLayoutEngine.Build(_settings);
+            _layout = GridLayoutEngine.Build(_settings);
             _scene = SceneBuilder.Build(_settings, _layout);
             _preview.SetMessage(message: null);
 
@@ -293,17 +305,14 @@ public sealed class MainForm : Form
                 ? " " + _settings.PageOrientation.ToString().ToLowerInvariant()
                 : string.Empty;
 
-        // AutoFitRowsColumns only: Columns and Rows share one resolved radius, so whichever implies
-        // the smaller radius wins and the other is inert. Surfaces which one currently drives the
-        // grid and the value the other needs to reach before nudging it does anything.
-        string sizingHint = string.Empty;
-        if (_settings.SizingMode == GridSizingMode.AutoFitRowsColumns)
-        {
-            (bool columnsBound, int threshold) = HexLayoutEngine.SizingBindingHint(_settings, _layout.ClipBounds);
-            sizingHint = columnsBound
-                ? F($"  ·  Rows need ≥ {threshold} to matter")
-                : F($"  ·  Columns need ≥ {threshold} to matter");
-        }
+        bool hexGrid = _settings.GridType != GridType.Square;
+        string sizingHint = SizingHint(_settings, _layout, hexGrid);
+        string cellsWord = hexGrid ? "hexes" : "squares";
+        string sizeLine = hexGrid
+            ? F($"hex {_layout.CellWidthPx:0.#} × {_layout.CellHeightPx:0.#} px ") +
+              F($"({scale.FromPx(_layout.CellWidthPx):0.##} {unit} wide)  ·  ")
+            : F($"square {_layout.CellWidthPx:0.#} px ") +
+              F($"({scale.FromPx(_layout.CellWidthPx):0.##} {unit} side)  ·  ");
 
         // MA0076: number formatting here is deliberately locale-aware (this is status text read by a
         // local interactive user, not machine-parsed output, unlike SvgRenderer's InvariantCulture,
@@ -313,10 +322,33 @@ public sealed class MainForm : Form
         _status.Text =
             F($"{canvas}  ·  {_layout.CanvasWidthPx:0} × {_layout.CanvasHeightPx:0} px @ {_settings.Dpi} dpi ") +
             F($"({_layout.CanvasWidthMm:0.#} × {_layout.CanvasHeightMm:0.#} mm)  ·  ") +
-            F($"{_layout.Columns} × {_layout.Rows} hexes") + sizingHint + F($"  ·  ") +
-            F($"hex {_layout.HexWidthPx:0.#} × {_layout.HexHeightPx:0.#} px ") +
-            F($"({scale.FromPx(_layout.HexWidthPx):0.##} {unit} wide)  ·  ") +
+            F($"{_layout.Columns} × {_layout.Rows} {cellsWord}") + sizingHint + F($"  ·  ") +
+            sizeLine +
             F($"{_layout.Cells.Count} cells");
+
+        static string F(FormattableString s) => s.ToString(CultureInfo.CurrentCulture);
+    }
+
+    // AutoFitRowsColumns only: Columns and Rows share one resolved cell size, so whichever axis
+    // implies the smaller size wins and the other is inert. Surfaces which one currently drives
+    // the grid and the value the other needs to reach before nudging it does anything. For
+    // squares this hint only covers AutoFitSquares on - see SquareLayoutEngine.SizingBindingHint.
+    private static string SizingHint(GridSettings settings, GridLayout layout, bool hexGrid)
+    {
+        if (settings.SizingMode != GridSizingMode.AutoFitRowsColumns || (!hexGrid && !settings.AutoFitSquares))
+        {
+            return string.Empty;
+        }
+
+        (bool columnsBound, int threshold) = hexGrid
+            ? HexLayoutEngine.SizingBindingHint(settings, layout.ClipBounds)
+            : SquareLayoutEngine.SizingBindingHint(settings, layout.ClipBounds);
+
+        // MA0076: explicit CurrentCulture, matching UpdateStatus's own F() helper - this is status
+        // text read by a local interactive user, not machine-parsed output.
+        return columnsBound
+            ? F($"  ·  Rows need ≥ {threshold} to matter")
+            : F($"  ·  Columns need ≥ {threshold} to matter");
 
         static string F(FormattableString s) => s.ToString(CultureInfo.CurrentCulture);
     }
