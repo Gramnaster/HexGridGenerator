@@ -1,6 +1,9 @@
+using System.ComponentModel;
+
 namespace HexGrid.Core;
 
-/// <summary>How the hex size is decided.</summary>
+/// <summary>How the cell size is decided.</summary>
+[TypeConverter(typeof(GridSizingModeConverter))]
 public enum GridSizingMode
 {
     /// <summary>You give rows x columns; the largest hex that fits the drawable area is computed.</summary>
