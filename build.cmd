@@ -3,8 +3,13 @@ setlocal
 
 REM  HexGrid Generator build script.
 REM
-REM    build.cmd              framework-dependent exe (~200 KB, needs the .NET 10 Desktop Runtime)
-REM    build.cmd standalone   self-contained exe (~150 MB, runs on any Windows machine)
+REM    build.cmd              framework-dependent exe (~280 KB, needs the .NET 10 Desktop Runtime)
+REM    build.cmd standalone   self-contained exe (~47 MB, runs on any Windows machine)
+REM
+REM  Either way, publish\ also contains the loose DLLs and .pdb/.deps.json/.runtimeconfig.json
+REM  files dotnet publish uses to build the bundle - PublishSingleFile does not delete them from
+REM  the output folder. Only HexGridGenerator.exe itself is needed to run or redistribute the app;
+REM  it was verified to run standalone from an otherwise-empty folder in both modes.
 
 set MODE=%1
 set OUTDIR=%~dp0publish

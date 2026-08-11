@@ -18,8 +18,8 @@ build. The exe lands in `src\HexGrid.App\bin\Release\net10.0-windows\HexGridGene
 
 | Command | Output | Needs |
 | --- | --- | --- |
-| `build.cmd` | ~200 KB exe | .NET 10 Desktop Runtime installed |
-| `build.cmd standalone` | ~150 MB exe | nothing |
+| `build.cmd` | ~280 KB exe | .NET 10 Desktop Runtime installed |
+| `build.cmd standalone` | ~47 MB exe | nothing |
 
 ## Layout
 
