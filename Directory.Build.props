@@ -11,7 +11,7 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <Company>JP Villalon</Company>
     <Product>HexGrid Generator</Product>
-    <Version>1.0.0</Version>
+    <Version>0.0.1</Version>
   </PropertyGroup>
 
   <!-- Analyzers, mirrored from HotelListing.App's Directory.Build.props. Versions come from
