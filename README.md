@@ -77,14 +77,29 @@ no gap. Set **Grid inset** above 0 for a deliberate gap instead.
 
 **Square grids** can do the same edge-to-edge, clip-the-partials behaviour (**AutoFitSquares**
 off), or fit exactly whole squares only, centred in the map area with the leftover slack pushed
-out into an even margin on all four sides (**AutoFitSquares** on, the default) — squares, unlike
-hexes, tile a rectangle exactly, so nothing has to be clipped.
+out into a margin (**AutoFitSquares** on, the default). Squares, unlike hexes, tile a rectangle
+exactly, so nothing has to be clipped.
 
 Row and column counts are a minimum, not an exact request, except for a fitted square grid
 (AutoFitSquares on), where they are exact: the axis that constrains the cell size comes out
 exactly as asked; the other axis gains however many cells it takes to reach the frame (or, for a
 fitted square grid, is simply the count requested). The status bar reports the counts actually
 produced, plus a hint for which axis is currently driving the size.
+
+A fitted square grid's margin is only even on *both sides of the same axis* (left = right, top =
+bottom). It is not generally even *between* the two axes: unless Columns:Rows happens to match
+the map area's aspect ratio, one axis ends up flush against the frame while the other carries all
+the leftover slack, which can look like a lopsided gap rather than a clean border. Exact zero gap
+needs the counts and the canvas's aspect ratio to line up exactly, which for an arbitrary request
+is a coincidence, not something to expect from the numbers you typed in.
+
+When the gap is visible, the status bar searches nearby whole (Columns, Rows) pairs, a window on
+either side of what's currently set, for the one that leaves the least leftover, and reports it:
+a "no gap" pair when the search finds one, otherwise the tightest one it found and the residual
+size. In Fixed square size mode, where Columns/Rows are computed from the square size rather than
+set directly, it reports the nearby square size that produces a "no gap" or tightest grid instead.
+The search only looks near the current request. A pair far away might coincidentally fit tighter
+still, but recommending it would change the grid density far more than "close the gap" implies.
 
 ## Units
 

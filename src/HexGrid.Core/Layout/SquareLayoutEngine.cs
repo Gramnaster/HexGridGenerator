@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Runtime.InteropServices;
 using HexGrid.Core.Labels;
 using HexGrid.Core.Units;
 
@@ -168,4 +169,86 @@ public static class SquareLayoutEngine
 
         return (columnsBound, (int)Math.Ceiling(threshold));
     }
+
+    // How far from the requested count RecommendFit is willing to search on each axis. Exact zero
+    // gap needs Columns/Rows to exactly equal clip.Width/clip.Height, which for arbitrary canvas
+    // sizes and margins is a coincidence, not something to count on - but nearby whole-number pairs
+    // are a genuine Diophantine approximation problem (best rational approximation of the aspect
+    // ratio with a bounded denominator), and brute-forcing a small window around the request solves
+    // it exactly rather than guessing at one nudge. A wider window would usually find an even
+    // smaller gap, but at a Columns x Rows far enough from the request to defeat the point of asking
+    // for roughly that many cells.
+    private const int SearchWindow = 20;
+
+    // Below this, the leftover is sub-pixel at any real print DPI - i.e. not actually visible - so
+    // it is reported as no gap rather than a residual size.
+    private const double NoGapTolerancePx = 0.5;
+
+    /// <summary>
+    /// AutoFitSquares centres whichever axis is bound by <see cref="SizingBindingHint"/> and leaves
+    /// the other axis's leftover space as a margin. Searches a window of nearby whole (Columns, Rows)
+    /// pairs - varying columns and matching the tightest rows via <see cref="MatchRows"/>, then vice
+    /// versa via <see cref="MatchColumns"/> - and returns whichever candidate found, including the
+    /// requested counts themselves, leaves the smallest gap.
+    /// </summary>
+    public static SquareFitSuggestion RecommendFit(GridSettings s, RectangleF clip)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+
+        int reqCols = Math.Max(1, s.Columns);
+        int reqRows = Math.Max(1, s.Rows);
+        SquareFitCandidate current = EvaluateCandidate(reqCols, reqRows, clip);
+        SquareFitCandidate best = current;
+
+        for (int cols = Math.Max(1, reqCols - SearchWindow); cols <= reqCols + SearchWindow; cols++)
+        {
+            best = Tighter(best, MatchRows(cols, clip));
+        }
+
+        for (int rows = Math.Max(1, reqRows - SearchWindow); rows <= reqRows + SearchWindow; rows++)
+        {
+            best = Tighter(best, MatchColumns(rows, clip));
+        }
+
+        bool hasTighterFit = best.GapPx < current.GapPx - Tolerance;
+        var suggestion = new SquareFitSuggestion(hasTighterFit, best.Columns, best.Rows, best.SidePx, best.GapPx, current.GapPx);
+        return suggestion.GapPx < NoGapTolerancePx ? suggestion with { GapPx = 0 } : suggestion;
+    }
+
+    /// <summary>For a fixed column count, the row count (floor or ceiling of the exact ratio) that ties the fit.</summary>
+    private static SquareFitCandidate MatchRows(int columns, RectangleF clip)
+    {
+        double idealRows = clip.Height * columns / clip.Width;
+        return Tighter(
+            EvaluateCandidate(columns, Math.Max(1, (int)Math.Floor(idealRows)), clip),
+            EvaluateCandidate(columns, Math.Max(1, (int)Math.Ceiling(idealRows)), clip));
+    }
+
+    /// <summary>For a fixed row count, the column count (floor or ceiling of the exact ratio) that ties the fit.</summary>
+    private static SquareFitCandidate MatchColumns(int rows, RectangleF clip)
+    {
+        double idealCols = clip.Width * rows / clip.Height;
+        return Tighter(
+            EvaluateCandidate(Math.Max(1, (int)Math.Floor(idealCols)), rows, clip),
+            EvaluateCandidate(Math.Max(1, (int)Math.Ceiling(idealCols)), rows, clip));
+    }
+
+    private static SquareFitCandidate Tighter(SquareFitCandidate a, SquareFitCandidate b) =>
+        b.GapPx < a.GapPx ? b : a;
+
+    /// <summary>Side and total leftover gap (on whichever axis isn't bound) for one candidate (Columns, Rows) pair.</summary>
+    private static SquareFitCandidate EvaluateCandidate(int columns, int rows, RectangleF clip)
+    {
+        double byWidth = clip.Width / columns;
+        double byHeight = clip.Height / rows;
+        double side = Math.Min(byWidth, byHeight);
+        double gapPx = byWidth <= byHeight ? clip.Height - (rows * side) : clip.Width - (columns * side);
+        return new SquareFitCandidate(columns, rows, side, gapPx);
+    }
+
+    // MA0008 wants an explicit StructLayoutAttribute; see CanvasSpec.cs for the rationale for Auto
+    // over Sequential/Explicit - this is a plain value type from a UI hint calculation, not a hot
+    // path or interop boundary.
+    [StructLayout(LayoutKind.Auto)]
+    private readonly record struct SquareFitCandidate(int Columns, int Rows, double SidePx, double GapPx);
 }

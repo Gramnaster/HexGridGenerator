@@ -325,33 +325,91 @@ public sealed class MainForm : Form
             F($"{_layout.Columns} × {_layout.Rows} {cellsWord}") + sizingHint + F($"  ·  ") +
             sizeLine +
             F($"{_layout.Cells.Count} cells");
-
-        static string F(FormattableString s) => s.ToString(CultureInfo.CurrentCulture);
     }
 
-    // AutoFitRowsColumns only: Columns and Rows share one resolved cell size, so whichever axis
-    // implies the smaller size wins and the other is inert. Surfaces which one currently drives
-    // the grid and the value the other needs to reach before nudging it does anything. For
-    // squares this hint only covers AutoFitSquares on - see SquareLayoutEngine.SizingBindingHint.
+    // Hex: AutoFitRowsColumns only. Columns and Rows share one resolved hex size, so whichever axis
+    // implies the smaller size wins and the other is inert; hexes always fill the frame by
+    // overhanging and clipping, so there is no gap to report, just which axis currently matters.
+    //
+    // Square + AutoFitSquares: unlike hex, the non-binding axis leaves a real, visible margin
+    // instead of overhanging - see SquareLayoutEngine.RecommendFit. In AutoFitRowsColumns mode this
+    // reports the tightest achievable (Columns, Rows) and its leftover gap; in FixedHexWidth mode
+    // it reports the square size that would produce that same tight fit for the stored Columns/Rows.
     private static string SizingHint(GridSettings settings, GridLayout layout, bool hexGrid)
     {
-        if (settings.SizingMode != GridSizingMode.AutoFitRowsColumns || (!hexGrid && !settings.AutoFitSquares))
+        if (hexGrid)
+        {
+            return settings.SizingMode == GridSizingMode.AutoFitRowsColumns
+                ? HexSizingHint(settings, layout)
+                : string.Empty;
+        }
+
+        if (!settings.AutoFitSquares)
         {
             return string.Empty;
         }
 
-        (bool columnsBound, int threshold) = hexGrid
-            ? HexLayoutEngine.SizingBindingHint(settings, layout.ClipBounds)
-            : SquareLayoutEngine.SizingBindingHint(settings, layout.ClipBounds);
+        return settings.SizingMode == GridSizingMode.AutoFitRowsColumns
+            ? SquareFitHint(settings, layout)
+            : SquareRecommendedSizeHint(settings, layout);
+    }
 
-        // MA0076: explicit CurrentCulture, matching UpdateStatus's own F() helper - this is status
-        // text read by a local interactive user, not machine-parsed output.
+    private static string HexSizingHint(GridSettings settings, GridLayout layout)
+    {
+        (bool columnsBound, int threshold) = HexLayoutEngine.SizingBindingHint(settings, layout.ClipBounds);
         return columnsBound
             ? F($"  ·  Rows need ≥ {threshold} to matter")
             : F($"  ·  Columns need ≥ {threshold} to matter");
-
-        static string F(FormattableString s) => s.ToString(CultureInfo.CurrentCulture);
     }
+
+    private static string SquareFitHint(GridSettings settings, GridLayout layout)
+    {
+        var scale = new UnitScale(settings.Unit, settings.Dpi);
+        SquareFitSuggestion fit = SquareLayoutEngine.RecommendFit(settings, layout.ClipBounds);
+        double gapEachSideNow = scale.FromPx(fit.CurrentGapPx / 2.0);
+
+        if (gapEachSideNow < 0.05)
+        {
+            return string.Empty;
+        }
+
+        if (!fit.HasTighterFit)
+        {
+            return F($"  ·  ≈{gapEachSideNow:0.##} {UnitSuffix(settings.Unit)} gap on two sides (canvas doesn't divide evenly by {settings.Columns} × {settings.Rows})");
+        }
+
+        if (fit.GapPx <= 0)
+        {
+            return F($"  ·  ≈{gapEachSideNow:0.##} {UnitSuffix(settings.Unit)} gap - try {fit.Columns} × {fit.Rows} for no gap");
+        }
+
+        double gapEachSideAfter = scale.FromPx(fit.GapPx / 2.0);
+        return F($"  ·  ≈{gapEachSideNow:0.##} {UnitSuffix(settings.Unit)} gap - try {fit.Columns} × {fit.Rows} for ≈{gapEachSideAfter:0.##} {UnitSuffix(settings.Unit)}");
+    }
+
+    private static string SquareRecommendedSizeHint(GridSettings settings, GridLayout layout)
+    {
+        var scale = new UnitScale(settings.Unit, settings.Dpi);
+        SquareFitSuggestion fit = SquareLayoutEngine.RecommendFit(settings, layout.ClipBounds);
+        double recommendedSize = scale.FromPx(fit.SidePx);
+
+        return fit.GapPx <= 0
+            ? F($"  ·  {fit.Columns} × {fit.Rows} squares at {recommendedSize:0.##} {UnitSuffix(settings.Unit)} side gives no gap")
+            : F($"  ·  {fit.Columns} × {fit.Rows} squares fit tightest at {recommendedSize:0.##} {UnitSuffix(settings.Unit)} side");
+    }
+
+    private static string UnitSuffix(LengthUnit unit) => unit switch
+    {
+        LengthUnit.Pixels => "px",
+        LengthUnit.Millimeters => "mm",
+        LengthUnit.Centimeters => "cm",
+        LengthUnit.Inches => "in",
+        _ => "px",
+    };
+
+    // MA0076: explicit CurrentCulture - this is status text read by a local interactive user, not
+    // machine-parsed output. Shared by every status-bar/hint builder in this file.
+    private static string F(FormattableString s) => s.ToString(CultureInfo.CurrentCulture);
 
     // ----------------------------------------------------------------- actions
 
@@ -372,9 +430,6 @@ public sealed class MainForm : Form
         }
 
         double gb = pixels * 4.0 / (1024 * 1024 * 1024);
-
-        // MA0076: same reasoning as UpdateStatus: explicit CurrentCulture, not implicit.
-        static string F(FormattableString s) => s.ToString(CultureInfo.CurrentCulture);
 
         string message =
             F($"This export is {_layout.CanvasWidthPx:0} × {_layout.CanvasHeightPx:0} px ({pixels / 1_000_000.0:0} megapixels). ") +
