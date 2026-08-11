@@ -1,10 +1,17 @@
 # HexGrid Generator
 
-A Windows desktop utility (WinForms, .NET 10) that produces publication-quality hex grid
-overlays for map art: transparent PNG or SVG, dropped onto artwork made elsewhere. It is a
+A Windows desktop utility (WinForms, .NET 10) that produces publication-quality hex or square
+grid overlays for map art: transparent PNG or SVG, dropped onto artwork made elsewhere. It is a
 grid generator, not a map editor: geometric correctness of the grid comes before every other
 concern. Full behavioural spec is in `README.md`; do not restate it here. Read it before
 touching grid math, labelling, or export.
+
+Two grid types share one settings object (`GridSettings`) and one PropertyGrid: switching
+**Grid Type** between Hex and Square relabels shared properties in place via
+`ICustomTypeDescriptor` rather than duplicating them. Property names and their JSON preset keys
+never change with grid type — only the displayed `DisplayName`/`Description`/`Category` do. Keep
+that boundary when touching `GridSettings`, `RelabelledPropertyDescriptor` or
+`GridSizingModeConverter`.
 
 ## Solution shape
 

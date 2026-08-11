@@ -1,11 +1,11 @@
 # HexGrid Generator
 
-A Windows desktop utility that produces publication-quality hex grid overlays for map art:
-transparent PNG for Photoshop, Affinity Photo, Krita and GIMP, or SVG for anything vector.
+A Windows desktop utility that produces publication-quality hex or square grid overlays for map
+art: transparent PNG for Photoshop, Affinity Photo, Krita and GIMP, or SVG for anything vector.
 
 It is deliberately not a map editor and not a cartographic decoration tool. There is no title
-block, no legend and no scale bar: every option exists to get a geometrically correct hex grid
-onto someone else's artwork.
+block, no legend and no scale bar: every option exists to get a geometrically correct grid onto
+someone else's artwork.
 
 ## Build
 
@@ -30,7 +30,7 @@ runs on any Windows machine, and is what gets attached to a GitHub release.
 src/
   HexGrid.Core/        net10.0          geometry, labelling, SVG. No Windows dependency.
     Units/             canvas presets, unit and DPI conversion
-    Layout/            hex maths, fit solver, clipping bounds
+    Layout/            hex and square maths, fit solver, clipping bounds
     Labels/            column letters, row numbers, origin corners
     Scene/             renderer-agnostic draw items grouped into layers
     Rendering/         SVG writer
@@ -46,6 +46,19 @@ The layout engine produces plain numbers and knows nothing about drawing. `Scene
 those numbers into layered draw items. Renderers consume the layers. Adding a PDF or EPS export
 later means writing one more renderer and touching nothing else.
 
+## Grid types
+
+**Grid Type**, at the top of the options panel, switches the whole tool between **Hex** and
+**Square**. Every other option that makes sense for both shapes carries over — fill colour,
+line style, in-cell labels, centre dots, edge labels, frame, export — and simply relabels itself
+for the shape in use (a hex-specific option like Hex Width becomes Square Size). Options that
+only apply to one shape (hex orientation; the square-only AutoFitSquares fit behaviour) appear
+only in that mode.
+
+Saved presets and their JSON are unaffected by which mode the panel is currently showing:
+switching Grid Type never renames or discards a setting, it only changes how that setting is
+presented and which shape it drives.
+
 ## Page structure
 
 Working inward from the canvas edge:
@@ -58,13 +71,20 @@ canvas edge
   map area             the grid, clipped at the frame
 ```
 
-The grid always fills the map area. Every hex centre lands inside the map area and the
+**Hex grids** always fill the map area. Every hex centre lands inside the map area and the
 outermost hexes overhang it and are clipped, so the grid meets the frame on all four sides with
 no gap. Set **Grid inset** above 0 for a deliberate gap instead.
 
-Row and column counts are a minimum, not an exact request. The axis that constrains the hex
-size comes out exactly as asked; the other axis gains however many hexes it takes to reach the
-frame. The status bar reports the counts actually produced.
+**Square grids** can do the same edge-to-edge, clip-the-partials behaviour (**AutoFitSquares**
+off), or fit exactly whole squares only, centred in the map area with the leftover slack pushed
+out into an even margin on all four sides (**AutoFitSquares** on, the default) — squares, unlike
+hexes, tile a rectangle exactly, so nothing has to be clipped.
+
+Row and column counts are a minimum, not an exact request, except for a fitted square grid
+(AutoFitSquares on), where they are exact: the axis that constrains the cell size comes out
+exactly as asked; the other axis gains however many cells it takes to reach the frame (or, for a
+fitted square grid, is simply the count requested). The status bar reports the counts actually
+produced, plus a hint for which axis is currently driving the size.
 
 ## Units
 
@@ -77,15 +97,17 @@ when `Unit` is Pixels and the canvas is a screen preset, except on font sizes.
 
 ## Sizing modes
 
-**AutoFitRowsColumns.** Rows and columns set the hex size. Used for paper: "A3, 40 x 26,
+**AutoFitRowsColumns.** Rows and columns set the cell size. Used for paper: "A3, 40 x 26,
 fill it".
 
-**FixedHexWidth.** The hex width sets how many rows and columns there are. Used for screen
-overlays: "4K, 64 px hexes, as many as fit". At 4K with no margins that yields 81 x 39 flat-top
-hexes.
+**FixedHexWidth** (Fixed square size in Square mode). The cell size sets how many rows and
+columns there are. Used for screen overlays: "4K, 64 px hexes, as many as fit". At 4K with no
+margins that yields 81 x 39 flat-top hexes.
 
-Hex width means corner-to-corner for flat-top and flat-to-flat for pointy-top: the horizontal
-extent either way.
+For hexes, width means corner-to-corner for flat-top and flat-to-flat for pointy-top: the
+horizontal extent either way. For squares it is simply the side length, and combines with
+**AutoFitSquares** the same way AutoFitRowsColumns does: on gives whole squares only (floor
+division, no clipping), off fills edge to edge and clips the outermost partial squares.
 
 ## Coordinates
 
@@ -112,11 +134,14 @@ Background can be transparent, white, black or custom. Antialiasing can be switc
 pixel-art workflows.
 
 **Export layers separately** writes one transparent PNG per layer alongside the flattened
-image: `..._HexGrid.png`, `..._CenterDots.png`, `..._EdgeLabels.png`, `..._Border.png`, ready
-to stack as Photoshop layers.
+image: `..._HexGrid.png`, `..._CenterDots.png`, `..._EdgeLabels.png`, `..._Border.png` for a hex
+grid, or `..._SquareGrid.png`, `..._SquareFill.png`, `..._SquareLabels.png` and so on for a
+square grid, ready to stack as Photoshop layers.
 
-Filenames are generated from a token pattern: `{preset} {w} {h} {cols} {rows} {hexw} {hexwu}
-{dpi} {orient}`.
+Filenames are generated from a token pattern: `{grid} {preset} {w} {h} {cols} {rows} {cellw}
+{cellwu} {dpi} {orient}`. `{grid}` expands to `Hex` or `Square`; `{orient}` is empty in Square
+mode. `{hexw}`/`{hexwu}` still work as aliases for `{cellw}`/`{cellwu}`, so presets saved before
+Square support keep producing the same filenames.
 
 ## Presets
 
@@ -125,17 +150,20 @@ as hex strings. Keep one per campaign map.
 
 ## Testing
 
-`HexGrid.Core.Tests` and `HexGrid.App.Tests` are xUnit test projects covering hex tiling,
-clipping, label placement, SVG output, preset round-tripping and the WinForms shell. Run them
-with `dotnet test`.
+`HexGrid.Core.Tests` and `HexGrid.App.Tests` are xUnit test projects covering hex and square
+tiling, clipping, label placement, SVG output, preset round-tripping and the WinForms shell. Run
+them with `dotnet test`.
 
 ## Correctness notes
 
-- **Every hex edge is stroked exactly once.** Adjacent hexes share an edge; stroking whole
-  polygons would draw internal edges twice, which at reduced line opacity makes them visibly
-  darker than the outer edges and thickens them under antialiasing. The scene builder emits a
-  deduplicated edge set instead, so line weight and opacity are uniform across the whole grid.
-- Hexes are always regular. The grid fills the page by clipping, never by stretching.
+- **Every cell edge is stroked exactly once**, hex or square. Adjacent cells share an edge;
+  stroking whole polygons would draw internal edges twice, which at reduced line opacity makes
+  them visibly darker than the outer edges and thickens them under antialiasing. The scene
+  builder emits a deduplicated edge set instead, so line weight and opacity are uniform across
+  the whole grid.
+- Hexes and squares are always regular. A hex grid fills the page by clipping, never by
+  stretching. A square grid does the same unless AutoFitSquares is on, in which case it fits
+  exactly and centres with a margin instead of clipping.
 - Edge-label gutters are reserved from an estimate of text width rather than a real
   measurement, so the geometry layer stays free of font dependencies. Increase **Padding from
   frame** if a long label ever crowds the band.
