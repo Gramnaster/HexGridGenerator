@@ -21,20 +21,21 @@ public static class SceneBuilder
             HeightMm = layout.CanvasHeightMm,
             Dpi = s.Dpi,
             ClipBounds = layout.ClipBounds,
+            GridType = s.GridType,
         };
 
-        AddHexes(scene, s, layout, scale);
+        AddCells(scene, s, layout, scale);
         AddCenterDots(scene, s, layout, scale);
-        AddHexLabels(scene, s, layout, scale);
+        AddCellLabels(scene, s, layout, scale);
         AddEdgeLabels(scene, s, layout, scale);
         AddFrame(scene, s, layout, scale);
 
         return scene;
     }
 
-    // -------------------------------------------------------------------- hexes
+    // -------------------------------------------------------------------- cells
 
-    private static void AddHexes(DrawScene scene, GridSettings s, GridLayout layout, UnitScale scale)
+    private static void AddCells(DrawScene scene, GridSettings s, GridLayout layout, UnitScale scale)
     {
         Color stroke = Paint.WithOpacity(s.LineColor, s.LineOpacity);
         Color fill = Paint.WithOpacity(s.HexFillColor, s.HexFillOpacity);
@@ -43,7 +44,7 @@ public static class SceneBuilder
         if (!Paint.IsInvisible(fill))
         {
             SceneLayer fillLayer = scene.Layer(LayerKind.HexFill);
-            foreach (HexCell cell in layout.Cells)
+            foreach (GridCell cell in layout.Cells)
             {
                 fillLayer.Items.Add(new PathItem(cell.Vertices, Closed: true, Stroke: null, 0, fill));
             }
@@ -53,13 +54,13 @@ public static class SceneBuilder
         {
             SceneLayer gridLayer = scene.Layer(LayerKind.HexGrid);
 
-            // Adjacent hexes share an edge. Drawing whole polygons would stroke every internal edge
+            // Adjacent cells share an edge. Drawing whole polygons would stroke every internal edge
             // twice, which at less than full opacity makes internal edges darker than the outer ones
             // and thickens them under antialiasing. Emit each edge exactly once instead.
             var seen = new HashSet<(long, long, long, long)>(layout.Cells.Count * 3);
 
             // S3267 asks for this to become a LINQ Select/Where chain. Deliberately not applied:
-            // this runs on every live-preview rebuild over every hex x 6 edges (thousands of
+            // this runs on every live-preview rebuild over every cell x its edges (thousands of
             // iterations on large grids), and the CSharp/CLAUDE.md performance doctrine is explicit
             // that LINQ is avoided on hot paths because of enumerator/closure allocation. S3267 also
             // has a documented history of false positives on loops with a side-effecting filter
@@ -68,12 +69,13 @@ public static class SceneBuilder
             // https://github.com/SonarSource/sonar-dotnet/issues/8356 and the Sonar Community thread
             // "False positives on S3267: These loops can not be simplified using LINQ".
 #pragma warning disable S3267
-            foreach (HexCell cell in layout.Cells)
+            foreach (GridCell cell in layout.Cells)
             {
-                for (int i = 0; i < 6; i++)
+                int vertexCount = cell.Vertices.Length;
+                for (int i = 0; i < vertexCount; i++)
                 {
                     PointF a = cell.Vertices[i];
-                    PointF b = cell.Vertices[(i + 1) % 6];
+                    PointF b = cell.Vertices[(i + 1) % vertexCount];
                     if (seen.Add(EdgeKey(a, b)))
                     {
                         gridLayer.Items.Add(new PathItem([a, b], Closed: false, stroke, thickness, Fill: null));
@@ -115,13 +117,13 @@ public static class SceneBuilder
         }
 
         SceneLayer layer = scene.Layer(LayerKind.CenterDots);
-        foreach (HexCell cell in layout.Cells)
+        foreach (GridCell cell in layout.Cells)
         {
             layer.Items.Add(new CircleItem(cell.Center, radius, dot));
         }
     }
 
-    private static void AddHexLabels(DrawScene scene, GridSettings s, GridLayout layout, UnitScale scale)
+    private static void AddCellLabels(DrawScene scene, GridSettings s, GridLayout layout, UnitScale scale)
     {
         if (!s.ShowHexLabels)
         {
@@ -139,14 +141,14 @@ public static class SceneBuilder
 
         // HexLabelMargin is the gap from the label to the near edge, not from the centre, so the
         // inset from centre is the remaining distance after that gap is subtracted from the half-height.
-        double inset = layout.HexHeightPx * (0.5 - (Math.Clamp(s.HexLabelMargin, 0, 50) / 100.0));
+        double inset = layout.CellHeightPx * (0.5 - (Math.Clamp(s.HexLabelMargin, 0, 50) / 100.0));
 
         // Centred labels would sit right on top of the centre dot and become unreadable, so when a
         // dot is present the label is lifted to rest just clear of it. With no dot there is nothing
         // to avoid and the label is centred properly.
         double dotClearance = s.ShowCenterDots ? scale.ToPx(s.DotRadius) + (fontPx * 0.2) : 0;
 
-        foreach (HexCell cell in layout.Cells)
+        foreach (GridCell cell in layout.Cells)
         {
             (float y, TextBaseline baseline) = s.HexLabelPosition switch
             {

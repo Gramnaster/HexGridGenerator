@@ -167,5 +167,6 @@ public class SvgRendererTests
         HeightMm = heightMm,
         Dpi = 300,
         ClipBounds = new RectangleF(0, 0, (float)widthPx, (float)heightPx),
+        GridType = GridType.Hex,
     };
 }

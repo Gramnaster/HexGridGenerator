@@ -1,4 +1,5 @@
 using HexGrid.App.Rendering;
+using HexGrid.Core;
 using HexGrid.Core.Scene;
 
 namespace HexGrid.App.Tests;
@@ -111,5 +112,6 @@ public class SceneRasterizerTests
         HeightMm = heightPx,
         Dpi = 96,
         ClipBounds = clip ?? new RectangleF(0, 0, (float)widthPx, (float)heightPx),
+        GridType = GridType.Hex,
     };
 }

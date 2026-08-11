@@ -14,17 +14,27 @@ public static class FileNameBuilder
         ArgumentNullException.ThrowIfNull(layout);
 
         var scale = new UnitScale(s.Unit, s.Dpi);
+        string cellWidth = Round(layout.CellWidthPx);
+        string cellWidthUnit = Trim(scale.FromPx(layout.CellWidthPx));
+        string orient = s.GridType switch
+        {
+            GridType.Square => string.Empty,
+            _ => s.HexOrientation == HexOrientation.FlatTop ? "flat" : "pointy",
+        };
 
         string raw = s.FileNamePattern
+            .Replace("{grid}", s.GridType == GridType.Square ? "Square" : "Hex", StringComparison.OrdinalIgnoreCase)
             .Replace("{preset}", CanvasPresets.ShortName(s.Preset), StringComparison.OrdinalIgnoreCase)
             .Replace("{w}", Round(layout.CanvasWidthPx), StringComparison.OrdinalIgnoreCase)
             .Replace("{h}", Round(layout.CanvasHeightPx), StringComparison.OrdinalIgnoreCase)
             .Replace("{cols}", layout.Columns.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase)
             .Replace("{rows}", layout.Rows.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase)
-            .Replace("{hexw}", Round(layout.HexWidthPx), StringComparison.OrdinalIgnoreCase)
-            .Replace("{hexwu}", Trim(scale.FromPx(layout.HexWidthPx)), StringComparison.OrdinalIgnoreCase)
+            .Replace("{cellw}", cellWidth, StringComparison.OrdinalIgnoreCase)
+            .Replace("{cellwu}", cellWidthUnit, StringComparison.OrdinalIgnoreCase)
+            .Replace("{hexw}", cellWidth, StringComparison.OrdinalIgnoreCase)
+            .Replace("{hexwu}", cellWidthUnit, StringComparison.OrdinalIgnoreCase)
             .Replace("{dpi}", s.Dpi.ToString(CultureInfo.InvariantCulture), StringComparison.OrdinalIgnoreCase)
-            .Replace("{orient}", s.HexOrientation == HexOrientation.FlatTop ? "flat" : "pointy", StringComparison.OrdinalIgnoreCase);
+            .Replace("{orient}", orient, StringComparison.OrdinalIgnoreCase);
 
         string cleaned = Sanitise(raw).Trim('_', '-', ' ');
         return cleaned.Length == 0 ? "HexGrid" : cleaned;

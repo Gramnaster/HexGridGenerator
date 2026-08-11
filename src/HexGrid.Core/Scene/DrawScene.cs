@@ -22,6 +22,9 @@ public sealed class DrawScene
     /// <summary>The map area. Layers where <see cref="LayerRules.IsClipped"/> is true are clipped to it.</summary>
     public required RectangleF ClipBounds { get; init; }
 
+    /// <summary>Which shape the cell layers hold, so their exported names read "Square..." instead of "Hex...".</summary>
+    public required GridType GridType { get; init; }
+
     public IReadOnlyList<SceneLayer> Layers => layers;
 
     public SceneLayer Layer(LayerKind kind)
@@ -32,9 +35,25 @@ public sealed class DrawScene
             return existing;
         }
 
-        var layer = new SceneLayer(kind, kind.ToString());
+        var layer = new SceneLayer(kind, LayerName(kind));
         layers.Add(layer);
         layers.Sort((a, b) => a.Kind.CompareTo(b.Kind));
         return layer;
+    }
+
+    private string LayerName(LayerKind kind)
+    {
+        if (GridType != GridType.Square)
+        {
+            return kind.ToString();
+        }
+
+        return kind switch
+        {
+            LayerKind.HexFill => "SquareFill",
+            LayerKind.HexGrid => "SquareGrid",
+            LayerKind.HexLabels => "SquareLabels",
+            _ => kind.ToString(),
+        };
     }
 }

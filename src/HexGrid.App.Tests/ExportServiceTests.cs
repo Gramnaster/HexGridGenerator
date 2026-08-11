@@ -130,5 +130,6 @@ public class ExportServiceTests
         HeightMm = 40,
         Dpi = 96,
         ClipBounds = new RectangleF(0, 0, 50, 40),
+        GridType = GridType.Hex,
     };
 }

@@ -345,9 +345,9 @@ public sealed class GridSettings : ICustomTypeDescriptor
 
     [Category("8 · Export")]
     [DisplayName("Filename pattern")]
-    [Description("Tokens: {preset} {w} {h} {cols} {rows} {hexw} {hexwu} {dpi} {orient}. Extension is added automatically. Default: HexGrid_{preset}_{cols}x{rows}_{hexw}px.")]
-    [DefaultValue("HexGrid_{preset}_{cols}x{rows}_{hexw}px")]
-    public string FileNamePattern { get; set; } = "HexGrid_{preset}_{cols}x{rows}_{hexw}px";
+    [Description("Tokens: {grid} {preset} {w} {h} {cols} {rows} {cellw} {cellwu} {dpi} {orient}. {hexw}/{hexwu} still work as aliases for {cellw}/{cellwu}. Extension is added automatically. Default: {grid}Grid_{preset}_{cols}x{rows}_{cellw}px.")]
+    [DefaultValue("{grid}Grid_{preset}_{cols}x{rows}_{cellw}px")]
+    public string FileNamePattern { get; set; } = "{grid}Grid_{preset}_{cols}x{rows}_{cellw}px";
 
     public GridSettings Clone() => (GridSettings)MemberwiseClone();
 
