@@ -154,6 +154,18 @@ public sealed class GridSettings : ICustomTypeDescriptor
     public double LineThickness { get; set; } = 0.25;
 
     [Category("3 · Appearance")]
+    [DisplayName("Line style")]
+    [Description("Solid draws every edge in full. Crosshair draws only a short arm at each end of every edge, so a vertex shows as a plus (square) or three-legged mark (hex) instead of a full outline. Default: Solid.")]
+    [DefaultValue(LineStyle.Solid)]
+    public LineStyle LineStyle { get; set; } = LineStyle.Solid;
+
+    [Category("3 · Appearance")]
+    [DisplayName("Crosshair arm length")]
+    [Description("Length of each arm from its intersection, in Unit. Clamped per edge to at most half that edge's length, so opposite arms never overlap and darken at reduced opacity. Only used when Line style = Crosshair. Default: 1.5.")]
+    [DefaultValue(1.5)]
+    public double CrosshairArmLength { get; set; } = 1.5;
+
+    [Category("3 · Appearance")]
     [DisplayName("Hex fill colour")]
     [Description("Fill for the hex interior. Leave the opacity at 0 for a pure overlay. Default: White.")]
     public Color HexFillColor { get; set; } = Color.White;
