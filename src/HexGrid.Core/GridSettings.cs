@@ -38,7 +38,7 @@ public sealed class GridSettings : ICustomTypeDescriptor
 
     [Category("1 · Canvas")]
     [DisplayName("Page orientation")]
-    [Description("Applies to paper presets only. Screen presets and Custom are used exactly as given. Default: Landscape.")]
+    [Description("Applies to paper and screen presets alike, swapping width and height for Portrait. Custom is used exactly as given. Default: Landscape.")]
     [DefaultValue(PageOrientation.Landscape)]
     public PageOrientation PageOrientation { get; set; } = PageOrientation.Landscape;
 

@@ -246,6 +246,11 @@ public static class GridLayoutEngine
 
         double px = spec.WidthPx!.Value;
         double py = spec.HeightPx!.Value;
+        if (s.PageOrientation == PageOrientation.Portrait)
+        {
+            (px, py) = (py, px);
+        }
+
         return (px, py, UnitScale.PxToMm(px, s.Dpi), UnitScale.PxToMm(py, s.Dpi));
     }
 }
