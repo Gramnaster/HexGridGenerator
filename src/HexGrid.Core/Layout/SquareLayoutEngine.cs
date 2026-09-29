@@ -21,10 +21,12 @@ public static class SquareLayoutEngine
     {
         int reqCols = Math.Max(1, s.Columns);
         int reqRows = Math.Max(1, s.Rows);
+        double gapX = Math.Max(0.0, scale.ToPx(s.CellGapX));
+        double gapY = Math.Max(0.0, scale.ToPx(s.CellGapY));
 
         (int columns, int rows, double side) = s.SizingMode == GridSizingMode.AutoFitRowsColumns
-            ? SolveFromCounts(s.AutoFitSquares, reqCols, reqRows, clip)
-            : SolveFromSize(s.AutoFitSquares, Math.Max(1e-6, scale.ToPx(s.SquareSize)), clip);
+            ? SolveFromCounts(s.AutoFitSquares, reqCols, reqRows, clip, gapX, gapY)
+            : SolveFromSize(s.AutoFitSquares, Math.Max(1e-6, scale.ToPx(s.SquareSize)), clip, gapX, gapY);
 
         if (side <= 0 || double.IsNaN(side) || double.IsInfinity(side))
         {
@@ -34,41 +36,57 @@ public static class SquareLayoutEngine
         return (columns, rows, side, side, null);
     }
 
-    /// <summary>AutoFitRowsColumns: the requested column/row counts drive the side length.</summary>
+    /// <summary>
+    /// AutoFitRowsColumns: the requested column/row counts drive the side length exactly as if there
+    /// were no gap - the square's own size never shrinks for the gap. Gap X/Gap Y then widen the
+    /// pitch used to count how many of that exact-sized square actually fit in the map area, so a
+    /// large enough gap can mean fewer whole squares than requested (see <see cref="FloorFit"/>).
+    /// </summary>
     private static (int Columns, int Rows, double Side) SolveFromCounts(
-        bool autoFit, int reqCols, int reqRows, RectangleF clip)
+        bool autoFit, int reqCols, int reqRows, RectangleF clip, double gapX, double gapY)
     {
         if (autoFit)
         {
             // Fit the walls: the whole reqCols x reqRows block must fit inside the map area, so the
-            // side is whichever axis is tighter. No clipping - the counts requested are the counts drawn.
+            // side is whichever axis is tighter. No clipping - the counts requested are a target.
+            // Gap can bring the actual count below it (FloorFit), never above.
             double side = Math.Min(clip.Width / reqCols, clip.Height / reqRows);
-            return (reqCols, reqRows, side);
+            int columns = Math.Min(reqCols, FloorFit(clip.Width, side, gapX));
+            int rows = Math.Min(reqRows, FloorFit(clip.Height, side, gapY));
+            return (columns, rows, side);
         }
 
         // Fill the walls, same shape as the hex grid: centres span the map area edge to edge and the
-        // outermost squares overhang it and are clipped.
+        // outermost squares overhang it and are clipped. The square's own size still comes from the
+        // gap-free pitch implied by the requested counts; Gap only widens the pitch used to place them.
         double byWidth = reqCols > 1 ? clip.Width / (reqCols - 1) : double.PositiveInfinity;
         double byHeight = reqRows > 1 ? clip.Height / (reqRows - 1) : double.PositiveInfinity;
         double side2 = Math.Min(byWidth, byHeight);
         side2 = double.IsInfinity(side2) ? Math.Min(clip.Width, clip.Height) : side2;
-        return (Steps(clip.Width, side2), Steps(clip.Height, side2), side2);
+        return (Steps(clip.Width, side2 + gapX), Steps(clip.Height, side2 + gapY), side2);
     }
 
-    /// <summary>FixedHexWidth: the square size setting drives the column/row counts.</summary>
-    private static (int Columns, int Rows, double Side) SolveFromSize(bool autoFit, double side, RectangleF clip) =>
+    /// <summary>
+    /// FixedHexWidth: the configured square size drives the column/row counts and is drawn exactly as
+    /// entered, regardless of Gap. Gap X/Gap Y widen the pitch used to count how many fit.
+    /// </summary>
+    private static (int Columns, int Rows, double Side) SolveFromSize(bool autoFit, double side, RectangleF clip, double gapX, double gapY) =>
         autoFit
-            ? (Math.Max(1, FloorCount(clip.Width, side)), Math.Max(1, FloorCount(clip.Height, side)), side)
-            : (Steps(clip.Width, side), Steps(clip.Height, side), side);
+            ? (Math.Max(1, FloorFit(clip.Width, side, gapX)), Math.Max(1, FloorFit(clip.Height, side, gapY)), side)
+            : (Steps(clip.Width, side + gapX), Steps(clip.Height, side + gapY), side);
 
     /// <summary>Builds the final square cells once the convergence loop in <see cref="GridLayoutEngine"/> has settled.</summary>
     internal static (IReadOnlyList<GridCell> Cells, double[] ColumnCenterXs, double[] RowCenterYs, RectangleF GridBounds) BuildCells(
         GridSettings s, UnitScale scale, SquareFit fit, string[] columnLabels, string[] rowLabels, string separator)
     {
-        double spanX = (fit.Columns - 1) * fit.Side;
-        double spanY = (fit.Rows - 1) * fit.Side;
+        // The square is always drawn at fit.Side - unaffected by the gap - so it can never become a
+        // rectangle. Gap X/Gap Y only widen the pitch used to place its centre, independently per axis.
+        double pitchX = fit.Side + Math.Max(0.0, scale.ToPx(s.CellGapX));
+        double pitchY = fit.Side + Math.Max(0.0, scale.ToPx(s.CellGapY));
+        double spanX = (fit.Columns - 1) * pitchX;
+        double spanY = (fit.Rows - 1) * pitchY;
         double half = fit.Side / 2.0;
-        (double firstX, double firstY) = ResolveBlockOrigin(s, scale, fit);
+        (double firstX, double firstY) = ResolveBlockOrigin(s, scale, fit, pitchX, pitchY);
 
         var cells = new List<GridCell>(fit.Columns * fit.Rows);
         var columnCenterXs = new double[fit.Columns];
@@ -76,12 +94,12 @@ public static class SquareLayoutEngine
 
         for (int c = 0; c < fit.Columns; c++)
         {
-            columnCenterXs[c] = firstX + (c * fit.Side);
+            columnCenterXs[c] = firstX + (c * pitchX);
         }
 
         for (int r = 0; r < fit.Rows; r++)
         {
-            rowCenterYs[r] = firstY + (r * fit.Side);
+            rowCenterYs[r] = firstY + (r * pitchY);
         }
 
         for (int c = 0; c < fit.Columns; c++)
@@ -118,14 +136,14 @@ public static class SquareLayoutEngine
     /// centres the span of cell CENTRES instead, so the outermost squares overhang the clip and are
     /// cut, matching HexLayoutEngine.ComputeOrigin's "fill the walls" behaviour.
     /// </summary>
-    private static (double FirstX, double FirstY) ResolveBlockOrigin(GridSettings s, UnitScale scale, SquareFit fit)
+    private static (double FirstX, double FirstY) ResolveBlockOrigin(GridSettings s, UnitScale scale, SquareFit fit, double pitchX, double pitchY)
     {
         RectangleF clip = fit.Clip;
+        double spanX = (fit.Columns - 1) * pitchX;
+        double spanY = (fit.Rows - 1) * pitchY;
 
         if (!s.AutoFitSquares)
         {
-            double spanX = (fit.Columns - 1) * fit.Side;
-            double spanY = (fit.Rows - 1) * fit.Side;
             double fillX = clip.Left + ((clip.Width - spanX) / 2.0) + scale.ToPx(s.GridOffsetX);
             double fillY = clip.Top + ((clip.Height - spanY) / 2.0) + scale.ToPx(s.GridOffsetY);
             return (fillX, fillY);
@@ -137,8 +155,8 @@ public static class SquareLayoutEngine
         bool flushX = s.FlushAxis is FlushAxis.Horizontal or FlushAxis.Both;
         bool flushY = s.FlushAxis is FlushAxis.Vertical or FlushAxis.Both;
 
-        double firstX = BlockOrigin(clip.Left, clip.Width, fit.Columns * fit.Side, half, flushX, originLeft) + scale.ToPx(s.GridOffsetX);
-        double firstY = BlockOrigin(clip.Top, clip.Height, fit.Rows * fit.Side, half, flushY, originTop) + scale.ToPx(s.GridOffsetY);
+        double firstX = BlockOrigin(clip.Left, clip.Width, spanX + fit.Side, half, flushX, originLeft) + scale.ToPx(s.GridOffsetX);
+        double firstY = BlockOrigin(clip.Top, clip.Height, spanY + fit.Side, half, flushY, originTop) + scale.ToPx(s.GridOffsetY);
         return (firstX, firstY);
     }
 
@@ -172,8 +190,13 @@ public static class SquareLayoutEngine
         ];
     }
 
-    private static int FloorCount(double available, double side) =>
-        (int)Math.Floor((available / side) + Tolerance);
+    /// <summary>
+    /// How many <paramref name="side"/>-sized squares, each pair separated by <paramref name="gap"/>,
+    /// fit within <paramref name="available"/>: the largest n such that n*side + (n-1)*gap &lt;=
+    /// available. Reduces to the old gap-free floor(available / side) when gap is 0.
+    /// </summary>
+    private static int FloorFit(double available, double side, double gap) =>
+        (int)Math.Floor(((available + gap) / (side + gap)) + Tolerance);
 
     /// <summary>
     /// How many columns and rows of side <paramref name="spacing"/> it takes to place a centre across

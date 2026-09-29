@@ -137,6 +137,30 @@ horizontal extent either way. For squares it is simply the side length, and comb
 **AutoFitSquares** the same way AutoFitRowsColumns does: on gives whole squares only (floor
 division, no clipping), off fills edge to edge and clips the outermost partial squares.
 
+## Cell gap
+
+**Gap X** and **Gap Y** open a deliberate channel between adjacent cells, the way Illustrator's or
+InDesign's grid tools use a gutter. The cell's own size is never touched by the gap: whatever
+Columns/Rows or Square Size/Hex Width solved for the cell is exactly what gets drawn. The gap
+instead widens the *pitch* — the centre-to-centre spacing used to place cells — on top of that
+size, the way a CSS Grid `gap` works. Because the cell size is fixed and only the spacing between
+cells grows, a square is always drawn as a real square no matter what Gap X/Gap Y are set to, and
+a hex is always drawn as a real regular hexagon — differing gap values can never distort either
+shape into something irregular.
+
+One consequence follows directly from that: the gap and the map area now compete for the same
+space. Columns/Rows (and, for a fixed cell size, the whole-cell AutoFit counts) are normally
+exact or a guaranteed minimum, but a large enough gap can eat enough of the map area that fewer
+whole cells fit than requested — the status bar's reported count is always what actually fits.
+
+For squares, Gap X and Gap Y widen the horizontal and vertical pitch independently, so unequal
+values just space columns and rows apart by different amounts; the square itself stays square.
+
+For hexes there's only one shared **Gap** value (Gap X relabelled; Gap Y is hidden), because every
+edge-adjacent neighbour in a regular hex tiling sits at the same centre-to-centre distance
+regardless of which of the six edges it shares — one value widens that same neighbour spacing by
+exactly the same amount in every direction, keeping the tiling uniform.
+
 ## Coordinates
 
 Column letters roll over spreadsheet-style: A, B, ... Z, AA, AB. **Skip letters I and O** is on

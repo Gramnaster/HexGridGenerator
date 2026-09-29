@@ -134,6 +134,18 @@ public sealed class GridSettings : ICustomTypeDescriptor
     [DefaultValue(0.0)]
     public double GridOffsetY { get; set; }
 
+    [Category("2 · Grid")]
+    [DisplayName("Gap X")]
+    [Description("Horizontal gap between adjacent squares, in Unit. The square's own size is unchanged; this widens the horizontal spacing between square centres on top of it, so a large enough gap can mean fewer columns fit than requested. Default: 0.")]
+    [DefaultValue(0.0)]
+    public double CellGapX { get; set; }
+
+    [Category("2 · Grid")]
+    [DisplayName("Gap Y")]
+    [Description("Vertical gap between adjacent squares, in Unit. The square's own size is unchanged; this widens the vertical spacing between square centres on top of it, so a large enough gap can mean fewer rows fit than requested. Default: 0.")]
+    [DefaultValue(0.0)]
+    public double CellGapY { get; set; }
+
     // ------------------------------------------------------------ 3 Appearance
 
     [Category("3 · Appearance")]
@@ -399,6 +411,15 @@ public sealed class GridSettings : ICustomTypeDescriptor
         [nameof(ExportLayersSeparately)] = (null, "Write one PNG per layer (grid, dots, square labels, edge labels, frame) alongside the flattened image, ready to stack in Photoshop. Default: False.", null),
     };
 
+    // A regular hexagon's six neighbours all sit at the same centre-to-centre distance, so unlike a
+    // square there is no separate "horizontal" and "vertical" gap to portray without distorting the
+    // hex into an irregular shape. CellGapX alone is reused as that one gap value; CellGapY is hidden
+    // for Hex in IsHiddenFor below.
+    private static readonly Dictionary<string, (string? DisplayName, string? Description, string? Category)> HexText = new(StringComparer.Ordinal)
+    {
+        [nameof(CellGapX)] = ("Gap", "Gap between adjacent hexes, in Unit. The hex's own size is unchanged; this widens the spacing between hex centres on top of it. A regular hexagon's six neighbours all sit at the same distance, so one value widens that spacing equally in every direction - a large enough gap can mean fewer hexes fit than requested. Default: 0.", null),
+    };
+
     AttributeCollection ICustomTypeDescriptor.GetAttributes() =>
         TypeDescriptor.GetAttributes(this, noCustomTypeDesc: true);
 
@@ -444,7 +465,8 @@ public sealed class GridSettings : ICustomTypeDescriptor
                 continue;
             }
 
-            visible.Add(GridType == GridType.Square && SquareText.TryGetValue(prop.Name, out var text)
+            var textMap = GridType == GridType.Square ? SquareText : HexText;
+            visible.Add(textMap.TryGetValue(prop.Name, out var text)
                 ? new RelabelledPropertyDescriptor(prop, text.DisplayName, text.Description, text.Category)
                 : prop);
         }
@@ -454,7 +476,7 @@ public sealed class GridSettings : ICustomTypeDescriptor
 
     private static bool IsHiddenFor(GridType gridType, string propertyName) => gridType switch
     {
-        GridType.Hex => propertyName is nameof(SquareSize) or nameof(AutoFitSquares) or nameof(FlushAxis),
+        GridType.Hex => propertyName is nameof(SquareSize) or nameof(AutoFitSquares) or nameof(FlushAxis) or nameof(CellGapY),
         GridType.Square => propertyName is nameof(HexOrientation) or nameof(HexWidth),
         _ => false,
     };

@@ -45,7 +45,9 @@ public static class HexLayoutEngine
             throw new InvalidOperationException("The requested hex size does not resolve to a usable grid.");
         }
 
-        (int columns, int rows) = CoverCounts(flat, radiusPx, clip.Width, clip.Height);
+        // The hex itself is always drawn at radiusPx, unaffected by the gap - only how many of them
+        // fit (via the wider pitch below) changes. See PitchRadius for the derivation.
+        (int columns, int rows) = CoverCounts(flat, PitchRadius(s, scale, radiusPx), clip.Width, clip.Height);
         double widthPx = flat ? 2 * radiusPx : Sqrt3 * radiusPx;
         double heightPx = flat ? Sqrt3 * radiusPx : 2 * radiusPx;
         return (columns, rows, widthPx, heightPx, radiusPx);
@@ -100,8 +102,9 @@ public static class HexLayoutEngine
     private static GridGeometry ComputeOrigin(
         GridSettings s, UnitScale scale, bool flat, int columns, int rows, double radiusPx, RectangleF clip)
     {
-        double colSpacing = flat ? 1.5 * radiusPx : Sqrt3 * radiusPx;
-        double rowSpacing = flat ? Sqrt3 * radiusPx : 1.5 * radiusPx;
+        double pitchRadiusPx = PitchRadius(s, scale, radiusPx);
+        double colSpacing = flat ? 1.5 * pitchRadiusPx : Sqrt3 * pitchRadiusPx;
+        double rowSpacing = flat ? Sqrt3 * pitchRadiusPx : 1.5 * pitchRadiusPx;
 
         // Distance covered by the hex CENTRES, which is what gets centred inside the map area.
         double spanX = ((columns - 1) * colSpacing) + (!flat && rows > 1 ? colSpacing / 2.0 : 0);
@@ -113,10 +116,22 @@ public static class HexLayoutEngine
         return new GridGeometry(flat, columns, rows, radiusPx, colSpacing, rowSpacing, firstX, firstY, spanX, spanY);
     }
 
+    /// <summary>
+    /// The hex's own drawn size (<paramref name="radiusPx"/>) never changes because of Gap - only the
+    /// spacing between hex centres does. In a regular hex tiling every edge-adjacent neighbour sits
+    /// at the same centre-to-centre distance, r * sqrt(3), regardless of which of the six edges it
+    /// shares, so growing that pitch by gap / sqrt(3) opens exactly `gap` of perpendicular space on
+    /// every side equally without touching the hex's own shape or size.
+    /// </summary>
+    private static double PitchRadius(GridSettings s, UnitScale scale, double radiusPx) =>
+        radiusPx + (Math.Max(0.0, scale.ToPx(s.CellGapX)) / Sqrt3);
+
     private static RectangleF ComputeGridBounds(GridGeometry g)
     {
-        double halfW = g.Flat ? g.RadiusPx : g.ColSpacing / 2.0;
-        double halfH = g.Flat ? g.RowSpacing / 2.0 : g.RadiusPx;
+        // Sized from the hex's own drawn radius, not the (possibly wider, gapped) centre spacing -
+        // the outermost hexes are still their normal size, just spaced further apart.
+        double halfW = g.Flat ? g.RadiusPx : (Sqrt3 * g.RadiusPx) / 2.0;
+        double halfH = g.Flat ? (Sqrt3 * g.RadiusPx) / 2.0 : g.RadiusPx;
         return RectangleF.FromLTRB(
             (float)(g.FirstX - halfW),
             (float)(g.FirstY - halfH),
