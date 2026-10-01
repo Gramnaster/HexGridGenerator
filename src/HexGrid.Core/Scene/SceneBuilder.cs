@@ -28,7 +28,7 @@ public static class SceneBuilder
         AddCenterDots(scene, s, layout, scale);
         AddCellLabels(scene, s, layout, scale);
         AddEdgeLabels(scene, s, layout, scale);
-        AddFrame(scene, s, layout, scale);
+        AddFrame(scene, s, layout);
 
         return scene;
     }
@@ -227,7 +227,7 @@ public static class SceneBuilder
         Color color = s.MarginalColor;
         double fontPx = scale.PointsToPx(s.MarginalFontSize);
         double pad = scale.ToPx(s.LabelPadding);
-        double half = (s.BorderStyle == MapBorderStyle.None ? 0 : scale.ToPx(s.BorderThickness)) / 2.0;
+        double half = layout.FrameRuleWidthPx / 2.0;
         if (Paint.IsInvisible(color) || fontPx <= 0)
         {
             return;
@@ -277,14 +277,14 @@ public static class SceneBuilder
 
     // ------------------------------------------------------------------- frame
 
-    private static void AddFrame(DrawScene scene, GridSettings s, GridLayout layout, UnitScale scale)
+    private static void AddFrame(DrawScene scene, GridSettings s, GridLayout layout)
     {
         if (s.BorderStyle == MapBorderStyle.None)
         {
             return;
         }
 
-        double t = scale.ToPx(s.BorderThickness);
+        double t = layout.FrameRuleWidthPx;
         if (t <= 0 || Paint.IsInvisible(s.BorderColor))
         {
             return;

@@ -16,7 +16,7 @@ public static class SquareLayoutEngine
     private const double Tolerance = 1e-6;
 
     /// <summary>Solves the square side and resulting column/row counts for one convergence pass.</summary>
-    internal static (int Columns, int Rows, double CellWidthPx, double CellHeightPx, double? RadiusPx) Solve(
+    internal static CellFit Solve(
         GridSettings s, UnitScale scale, RectangleF clip)
     {
         int reqCols = Math.Max(1, s.Columns);
@@ -33,7 +33,7 @@ public static class SquareLayoutEngine
             throw new InvalidOperationException("The requested square size does not resolve to a usable grid.");
         }
 
-        return (columns, rows, side, side, null);
+        return new CellFit(columns, rows, side, side, RadiusPx: null);
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ public static class SquareLayoutEngine
         double byHeight = reqRows > 1 ? clip.Height / (reqRows - 1) : double.PositiveInfinity;
         double side2 = Math.Min(byWidth, byHeight);
         side2 = double.IsInfinity(side2) ? Math.Min(clip.Width, clip.Height) : side2;
-        return (Steps(clip.Width, side2 + gapX), Steps(clip.Height, side2 + gapY), side2);
+        return (GridAxis.CoverCount(clip.Width, side2 + gapX), GridAxis.CoverCount(clip.Height, side2 + gapY), side2);
     }
 
     /// <summary>
@@ -73,34 +73,25 @@ public static class SquareLayoutEngine
     private static (int Columns, int Rows, double Side) SolveFromSize(bool autoFit, double side, RectangleF clip, double gapX, double gapY) =>
         autoFit
             ? (Math.Max(1, FloorFit(clip.Width, side, gapX)), Math.Max(1, FloorFit(clip.Height, side, gapY)), side)
-            : (Steps(clip.Width, side + gapX), Steps(clip.Height, side + gapY), side);
+            : (GridAxis.CoverCount(clip.Width, side + gapX), GridAxis.CoverCount(clip.Height, side + gapY), side);
 
     /// <summary>Builds the final square cells once the convergence loop in <see cref="GridLayoutEngine"/> has settled.</summary>
     internal static (IReadOnlyList<GridCell> Cells, double[] ColumnCenterXs, double[] RowCenterYs, RectangleF GridBounds) BuildCells(
-        GridSettings s, UnitScale scale, SquareFit fit, string[] columnLabels, string[] rowLabels, string separator)
+        GridSettings s, UnitScale scale, CellFit fit, RectangleF clip, string[] columnLabels, string[] rowLabels)
     {
-        // The square is always drawn at fit.Side - unaffected by the gap - so it can never become a
-        // rectangle. Gap X/Gap Y only widen the pitch used to place its centre, independently per axis.
-        double pitchX = fit.Side + Math.Max(0.0, scale.ToPx(s.CellGapX));
-        double pitchY = fit.Side + Math.Max(0.0, scale.ToPx(s.CellGapY));
+        // The square is always drawn at its fitted side - unaffected by the gap - so it can never become
+        // a rectangle. Gap X/Gap Y only widen the pitch used to place its centre, independently per axis.
+        double side = fit.CellWidthPx;
+        double pitchX = side + Math.Max(0.0, scale.ToPx(s.CellGapX));
+        double pitchY = side + Math.Max(0.0, scale.ToPx(s.CellGapY));
         double spanX = (fit.Columns - 1) * pitchX;
         double spanY = (fit.Rows - 1) * pitchY;
-        double half = fit.Side / 2.0;
-        (double firstX, double firstY) = ResolveBlockOrigin(s, scale, fit, pitchX, pitchY);
+        double half = side / 2.0;
+        (double firstX, double firstY) = ResolveBlockOrigin(s, scale, fit, clip, pitchX, pitchY);
 
         var cells = new List<GridCell>(fit.Columns * fit.Rows);
-        var columnCenterXs = new double[fit.Columns];
-        var rowCenterYs = new double[fit.Rows];
-
-        for (int c = 0; c < fit.Columns; c++)
-        {
-            columnCenterXs[c] = firstX + (c * pitchX);
-        }
-
-        for (int r = 0; r < fit.Rows; r++)
-        {
-            rowCenterYs[r] = firstY + (r * pitchY);
-        }
+        double[] columnCenterXs = GridAxis.Centres(firstX, pitchX, fit.Columns);
+        double[] rowCenterYs = GridAxis.Centres(firstY, pitchY, fit.Rows);
 
         for (int c = 0; c < fit.Columns; c++)
         {
@@ -114,8 +105,8 @@ public static class SquareLayoutEngine
                     Column = c,
                     Row = r,
                     Center = new PointF((float)cx, (float)cy),
-                    Vertices = Vertices(cx, cy, fit.Side),
-                    Label = CoordinateLabeller.Combine(columnLabels[c], rowLabels[r], separator),
+                    Vertices = Vertices(cx, cy, side),
+                    Label = CoordinateLabeller.Combine(columnLabels[c], rowLabels[r], s.CoordinateSeparator),
                 });
             }
         }
@@ -136,27 +127,26 @@ public static class SquareLayoutEngine
     /// centres the span of cell CENTRES instead, so the outermost squares overhang the clip and are
     /// cut, matching HexLayoutEngine.ComputeOrigin's "fill the walls" behaviour.
     /// </summary>
-    private static (double FirstX, double FirstY) ResolveBlockOrigin(GridSettings s, UnitScale scale, SquareFit fit, double pitchX, double pitchY)
+    private static (double FirstX, double FirstY) ResolveBlockOrigin(
+        GridSettings s, UnitScale scale, CellFit fit, RectangleF clip, double pitchX, double pitchY)
     {
-        RectangleF clip = fit.Clip;
         double spanX = (fit.Columns - 1) * pitchX;
         double spanY = (fit.Rows - 1) * pitchY;
 
         if (!s.AutoFitSquares)
         {
-            double fillX = clip.Left + ((clip.Width - spanX) / 2.0) + scale.ToPx(s.GridOffsetX);
-            double fillY = clip.Top + ((clip.Height - spanY) / 2.0) + scale.ToPx(s.GridOffsetY);
+            double fillX = GridAxis.CentredStart(clip.Left, clip.Width, spanX) + scale.ToPx(s.GridOffsetX);
+            double fillY = GridAxis.CentredStart(clip.Top, clip.Height, spanY) + scale.ToPx(s.GridOffsetY);
             return (fillX, fillY);
         }
 
-        double half = fit.Side / 2.0;
-        bool originLeft = s.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.BottomLeft;
-        bool originTop = s.CoordinateOrigin is CoordinateOrigin.TopLeft or CoordinateOrigin.TopRight;
-        bool flushX = s.FlushAxis is FlushAxis.Horizontal or FlushAxis.Both;
-        bool flushY = s.FlushAxis is FlushAxis.Vertical or FlushAxis.Both;
+        double side = fit.CellWidthPx;
+        double half = side / 2.0;
+        bool flushX = s.FlushAxis.FlushesHorizontally();
+        bool flushY = s.FlushAxis.FlushesVertically();
 
-        double firstX = BlockOrigin(clip.Left, clip.Width, spanX + fit.Side, half, flushX, originLeft) + scale.ToPx(s.GridOffsetX);
-        double firstY = BlockOrigin(clip.Top, clip.Height, spanY + fit.Side, half, flushY, originTop) + scale.ToPx(s.GridOffsetY);
+        double firstX = BlockOrigin(clip.Left, clip.Width, spanX + side, half, flushX, s.CoordinateOrigin.IsLeft()) + scale.ToPx(s.GridOffsetX);
+        double firstY = BlockOrigin(clip.Top, clip.Height, spanY + side, half, flushY, s.CoordinateOrigin.IsTop()) + scale.ToPx(s.GridOffsetY);
         return (firstX, firstY);
     }
 
@@ -197,14 +187,6 @@ public static class SquareLayoutEngine
     /// </summary>
     private static int FloorFit(double available, double side, double gap) =>
         (int)Math.Floor(((available + gap) / (side + gap)) + Tolerance);
-
-    /// <summary>
-    /// How many columns and rows of side <paramref name="spacing"/> it takes to place a centre across
-    /// the whole map area. Mirrors <see cref="HexLayoutEngine"/>'s CoverCounts. The first and last
-    /// centres sit inside the area; their squares overhang it.
-    /// </summary>
-    private static int Steps(double available, double spacing) =>
-        Math.Max(1, (int)Math.Floor((available / spacing) + Tolerance) + 1);
 
     /// <summary>
     /// Square counterpart to <see cref="HexLayoutEngine.SizingBindingHint"/>, for AutoFitRowsColumns
@@ -310,12 +292,4 @@ public static class SquareLayoutEngine
     // path or interop boundary.
     [StructLayout(LayoutKind.Auto)]
     private readonly record struct SquareFitCandidate(int Columns, int Rows, double SidePx, double GapPx);
-
-    // Columns, Rows, Side and Clip always travel together as the outcome of a solved pass - bundled
-    // here so BuildCells/ResolveBlockOrigin take one parameter instead of four, staying under the
-    // analyzer's parameter-count limit. Internal, not private: GridLayoutEngine constructs one to
-    // call BuildCells. MA0008 wants an explicit StructLayoutAttribute; see CanvasSpec.cs for the
-    // rationale for Auto over Sequential/Explicit - not a hot path or interop boundary.
-    [StructLayout(LayoutKind.Auto)]
-    internal readonly record struct SquareFit(int Columns, int Rows, double Side, RectangleF Clip);
 }

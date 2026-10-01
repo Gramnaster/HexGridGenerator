@@ -13,9 +13,6 @@ public static class SvgRenderer
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-    /// <summary>Nominal ascent as a fraction of the em, used to place text baselines.</summary>
-    public const double AscentRatio = 0.80;
-
     private const string ClipId = "mapArea";
 
     public static string Render(DrawScene scene, Color? background = null)
@@ -151,7 +148,7 @@ public static class SvgRenderer
 
     private static void WriteText(StringBuilder sb, TextItem t)
     {
-        double baselineY = BaselineY(t.At.Y, t.FontSizePx, t.Baseline);
+        double baselineY = TextMetrics.BaselineY(t.At.Y, t.FontSizePx, t.Baseline);
         string anchor = t.Anchor switch
         {
             TextAnchor.Start => "start",
@@ -168,18 +165,6 @@ public static class SvgRenderer
           .Append(Escape(t.Text))
           .Append("</text>\n");
     }
-
-    /// <summary>
-    /// Converts a box-relative vertical anchor into an alphabetic baseline position. Shared with the
-    /// GDI+ renderer so PNG and SVG place text identically.
-    /// </summary>
-    public static double BaselineY(double y, double fontSizePx, TextBaseline baseline) => baseline switch
-    {
-        TextBaseline.Top => y + (AscentRatio * fontSizePx),
-        TextBaseline.Bottom => y - ((1 - AscentRatio) * fontSizePx),
-        TextBaseline.Middle => y + ((AscentRatio - 0.5) * fontSizePx),
-        _ => y + ((AscentRatio - 0.5) * fontSizePx),
-    };
 
     // ----------------------------------------------------------------- helpers
 

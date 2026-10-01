@@ -2,7 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
-using HexGrid.Core.Rendering;
+using HexGrid.Core;
 using HexGrid.Core.Scene;
 
 namespace HexGrid.App.Rendering;
@@ -200,10 +200,10 @@ public sealed class SceneRasterizer : IDisposable
         FontFamily family = font.FontFamily;
 
         float emHeight = family.GetEmHeight(font.Style);
-        float ascent = emHeight > 0 ? font.Size * family.GetCellAscent(font.Style) / emHeight : font.Size * 0.8f;
+        float ascent = emHeight > 0 ? font.Size * family.GetCellAscent(font.Style) / emHeight : (float)(font.Size * TextMetrics.AscentRatio);
 
         // Shared with the SVG writer so both exports place text identically.
-        double baselineY = SvgRenderer.BaselineY(t.At.Y, t.FontSizePx, t.Baseline);
+        double baselineY = TextMetrics.BaselineY(t.At.Y, t.FontSizePx, t.Baseline);
 
         SizeF size = _measure.MeasureString(t.Text, font, PointF.Empty, _typographic);
         float x = t.Anchor switch

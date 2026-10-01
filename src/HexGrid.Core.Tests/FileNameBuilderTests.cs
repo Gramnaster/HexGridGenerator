@@ -112,6 +112,7 @@ public class FileNameBuilderTests
         CellRadiusPx = hexWidthPx / 2,
         CellWidthPx = hexWidthPx,
         CellHeightPx = hexWidthPx,
+        FrameRuleWidthPx = 0,
         FrameBounds = RectangleF.Empty,
         ClipBounds = RectangleF.Empty,
         GridBounds = RectangleF.Empty,

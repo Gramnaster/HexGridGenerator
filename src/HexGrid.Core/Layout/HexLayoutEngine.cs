@@ -31,7 +31,7 @@ public static class HexLayoutEngine
         double SpanY);
 
     /// <summary>Solves the hex radius and resulting column/row counts for one convergence pass.</summary>
-    internal static (int Columns, int Rows, double CellWidthPx, double CellHeightPx, double? RadiusPx) Solve(
+    internal static CellFit Solve(
         GridSettings s, UnitScale scale, RectangleF clip)
     {
         bool flat = s.HexOrientation == HexOrientation.FlatTop;
@@ -50,30 +50,19 @@ public static class HexLayoutEngine
         (int columns, int rows) = CoverCounts(flat, PitchRadius(s, scale, radiusPx), clip.Width, clip.Height);
         double widthPx = flat ? 2 * radiusPx : Sqrt3 * radiusPx;
         double heightPx = flat ? Sqrt3 * radiusPx : 2 * radiusPx;
-        return (columns, rows, widthPx, heightPx, radiusPx);
+        return new CellFit(columns, rows, widthPx, heightPx, radiusPx);
     }
 
     /// <summary>Builds the final hex cells once the convergence loop in <see cref="GridLayoutEngine"/> has settled.</summary>
     internal static (IReadOnlyList<GridCell> Cells, double[] ColumnCenterXs, double[] RowCenterYs, RectangleF GridBounds) BuildCells(
-        GridSettings s, UnitScale scale, int columns, int rows, double radiusPx, RectangleF clip,
-        string[] columnLabels, string[] rowLabels, string separator)
+        GridSettings s, UnitScale scale, CellFit fit, RectangleF clip, string[] columnLabels, string[] rowLabels)
     {
         bool flat = s.HexOrientation == HexOrientation.FlatTop;
-        GridGeometry g = ComputeOrigin(s, scale, flat, columns, rows, radiusPx, clip);
+        GridGeometry g = ComputeOrigin(s, scale, flat, fit.Columns, fit.Rows, fit.RadiusPx!.Value, clip);
 
         var cells = new List<GridCell>(g.Columns * g.Rows);
-        var columnCenterXs = new double[g.Columns];
-        var rowCenterYs = new double[g.Rows];
-
-        for (int c = 0; c < g.Columns; c++)
-        {
-            columnCenterXs[c] = g.FirstX + (c * g.ColSpacing);
-        }
-
-        for (int r = 0; r < g.Rows; r++)
-        {
-            rowCenterYs[r] = g.FirstY + (r * g.RowSpacing);
-        }
+        double[] columnCenterXs = GridAxis.Centres(g.FirstX, g.ColSpacing, g.Columns);
+        double[] rowCenterYs = GridAxis.Centres(g.FirstY, g.RowSpacing, g.Rows);
 
         for (int c = 0; c < g.Columns; c++)
         {
@@ -88,7 +77,7 @@ public static class HexLayoutEngine
                     Row = r,
                     Center = new PointF((float)cx, (float)cy),
                     Vertices = Vertices(cx, cy, g.RadiusPx, g.Flat),
-                    Label = CoordinateLabeller.Combine(columnLabels[c], rowLabels[r], separator),
+                    Label = CoordinateLabeller.Combine(columnLabels[c], rowLabels[r], s.CoordinateSeparator),
                 });
             }
         }
@@ -110,8 +99,8 @@ public static class HexLayoutEngine
         double spanX = ((columns - 1) * colSpacing) + (!flat && rows > 1 ? colSpacing / 2.0 : 0);
         double spanY = ((rows - 1) * rowSpacing) + (flat && columns > 1 ? rowSpacing / 2.0 : 0);
 
-        double firstX = clip.Left + ((clip.Width - spanX) / 2.0) + scale.ToPx(s.GridOffsetX);
-        double firstY = clip.Top + ((clip.Height - spanY) / 2.0) + scale.ToPx(s.GridOffsetY);
+        double firstX = GridAxis.CentredStart(clip.Left, clip.Width, spanX) + scale.ToPx(s.GridOffsetX);
+        double firstY = GridAxis.CentredStart(clip.Top, clip.Height, spanY) + scale.ToPx(s.GridOffsetY);
 
         return new GridGeometry(flat, columns, rows, radiusPx, colSpacing, rowSpacing, firstX, firstY, spanX, spanY);
     }
@@ -238,24 +227,17 @@ public static class HexLayoutEngine
         double colSpacing = flatTop ? 1.5 * r : Sqrt3 * r;
         double rowSpacing = flatTop ? Sqrt3 * r : 1.5 * r;
 
-        // The auto-fit radius is solved so the requested count lands exactly on the boundary, which
-        // rounds the wrong way often enough to matter. Nudge before flooring.
-        const double Tolerance = 1e-6;
-
         if (flatTop)
         {
-            int cols = Steps(availW, colSpacing);
+            int cols = GridAxis.CoverCount(availW, colSpacing);
             double usable = availH - (cols > 1 ? rowSpacing / 2.0 : 0);
-            return (cols, Steps(usable, rowSpacing));
+            return (cols, GridAxis.CoverCount(usable, rowSpacing));
         }
         else
         {
-            int rows = Steps(availH, rowSpacing);
+            int rows = GridAxis.CoverCount(availH, rowSpacing);
             double usable = availW - (rows > 1 ? colSpacing / 2.0 : 0);
-            return (Steps(usable, colSpacing), rows);
+            return (GridAxis.CoverCount(usable, colSpacing), rows);
         }
-
-        static int Steps(double available, double spacing) =>
-            Math.Max(1, (int)Math.Floor((available / spacing) + Tolerance) + 1);
     }
 }

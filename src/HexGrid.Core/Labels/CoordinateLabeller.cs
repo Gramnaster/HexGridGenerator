@@ -66,8 +66,8 @@ public static class CoordinateLabeller
         bool lettersOnColumns = scheme == LabelScheme.LettersNumbers;
         bool numbersOnBoth = scheme == LabelScheme.NumbersNumbers;
 
-        bool countColumnsRightToLeft = origin is CoordinateOrigin.TopRight or CoordinateOrigin.BottomRight;
-        bool countRowsBottomToTop = origin is CoordinateOrigin.BottomLeft or CoordinateOrigin.BottomRight;
+        bool countColumnsRightToLeft = !origin.IsLeft();
+        bool countRowsBottomToTop = !origin.IsTop();
 
         var columnLabels = new string[columns];
         for (int c = 0; c < columns; c++)
