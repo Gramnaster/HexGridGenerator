@@ -26,17 +26,9 @@ public static class GridLayoutEngine
         var scale = new UnitScale(s.Unit, s.Dpi);
         (double canvasWpx, double canvasHpx, double canvasWmm, double canvasHmm) = ResolveCanvas(s, scale);
 
-        double safePx = Math.Max(0, scale.ToPx(s.SafeMargin));
-        RectangleF safeRect = Deflate(
-            new RectangleF(0, 0, (float)canvasWpx, (float)canvasHpx), safePx, safePx, safePx, safePx);
-
-        if (safeRect.Width <= 0 || safeRect.Height <= 0)
-        {
-            throw new InvalidOperationException("The safe margin consumes the whole canvas. Reduce it or enlarge the canvas.");
-        }
-
         double framePx = FrameRuleWidthPx(s, scale);
-        (CellFit fit, RectangleF frameBounds, RectangleF clip) = SolveGrid(s, scale, safeRect, framePx);
+        (CellFit fit, RectangleF frameBounds, RectangleF clip) =
+            SolveGrid(s, scale, SafeRect(s, scale, canvasWpx, canvasHpx), framePx);
 
         (string[] columnLabels, string[] rowLabels) = BuildAxes(s, fit.Columns, fit.Rows);
 
@@ -46,6 +38,7 @@ public static class GridLayoutEngine
             _ => HexLayoutEngine.BuildCells(s, scale, fit, clip, columnLabels, rowLabels),
         };
 
+        RectangleF nominalClip = clip;
         double insetPx = Math.Max(0, scale.ToPx(s.GridInset));
         (frameBounds, clip) = ShrinkFrameToFlushedGrid(s, insetPx, frameBounds, clip, gridBounds);
 
@@ -63,6 +56,7 @@ public static class GridLayoutEngine
             FrameRuleWidthPx = framePx,
             FrameBounds = frameBounds,
             ClipBounds = clip,
+            NominalClipBounds = nominalClip,
             GridBounds = gridBounds,
             Cells = cells,
             ColumnCenterXs = columnCenterXs,
@@ -70,6 +64,35 @@ public static class GridLayoutEngine
             ColumnLabels = columnLabels,
             RowLabels = rowLabels,
         };
+    }
+
+    /// <summary>
+    /// Solves only what <see cref="Build"/> solves before placing cells: the cell counts and size, and
+    /// the map area they were sized for (<see cref="GridLayout.NominalClipBounds"/>). For callers that
+    /// need to try many candidate settings exactly as Build would resolve them, without paying for
+    /// cells, labels and frame geometry each time.
+    /// </summary>
+    internal static (CellFit Fit, RectangleF NominalClip) SolveFit(GridSettings s)
+    {
+        var scale = new UnitScale(s.Unit, s.Dpi);
+        (double canvasWpx, double canvasHpx, _, _) = ResolveCanvas(s, scale);
+        (CellFit fit, _, RectangleF clip) =
+            SolveGrid(s, scale, SafeRect(s, scale, canvasWpx, canvasHpx), FrameRuleWidthPx(s, scale));
+        return (fit, clip);
+    }
+
+    private static RectangleF SafeRect(GridSettings s, UnitScale scale, double canvasWpx, double canvasHpx)
+    {
+        double safePx = Math.Max(0, scale.ToPx(s.SafeMargin));
+        RectangleF safeRect = Deflate(
+            new RectangleF(0, 0, (float)canvasWpx, (float)canvasHpx), safePx, safePx, safePx, safePx);
+
+        if (safeRect.Width <= 0 || safeRect.Height <= 0)
+        {
+            throw new InvalidOperationException("The safe margin consumes the whole canvas. Reduce it or enlarge the canvas.");
+        }
+
+        return safeRect;
     }
 
     /// <summary>

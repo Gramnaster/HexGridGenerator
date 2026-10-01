@@ -115,6 +115,7 @@ public class FileNameBuilderTests
         FrameRuleWidthPx = 0,
         FrameBounds = RectangleF.Empty,
         ClipBounds = RectangleF.Empty,
+        NominalClipBounds = RectangleF.Empty,
         GridBounds = RectangleF.Empty,
         Cells = [],
         ColumnCenterXs = [],

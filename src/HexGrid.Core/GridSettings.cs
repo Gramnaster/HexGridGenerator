@@ -379,7 +379,8 @@ public sealed class GridSettings : ICustomTypeDescriptor
     [DefaultValue("{grid}Grid_{preset}_{cols}x{rows}_{cellw}px")]
     public string FileNamePattern { get; set; } = "{grid}Grid_{preset}_{cols}x{rows}_{cellw}px";
 
-    public GridSettings Clone() => (GridSettings)MemberwiseClone();
+    /// <summary>Shallow copy. Every property is a value type or an immutable string, so it is a full copy.</summary>
+    internal GridSettings Clone() => (GridSettings)MemberwiseClone();
 
     // -------------------------------------------------- ICustomTypeDescriptor
     //

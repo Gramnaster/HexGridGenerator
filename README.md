@@ -101,6 +101,13 @@ set directly, it reports the nearby square size that produces a "no gap" or tigh
 The search only looks near the current request. A pair far away might coincidentally fit tighter
 still, but recommending it would change the grid density far more than "close the gap" implies.
 
+Every candidate is solved exactly as the grid itself would be, including Gap X/Gap Y and the wider
+label gutter that more rows or columns can need, so entering a suggestion produces exactly the
+leftover the hint promised. The suggested square size is rounded down, never up, to the two
+decimals shown, so the value displayed is a value that fits. With a gap set, both axes can carry
+leftover, and the hint reports each one (left and right, top and bottom, or the far side of a
+flushed axis).
+
 **Flush axis** closes the gap outright rather than just shrinking or relocating it. By default the
 leftover on a non-binding axis is centred, split evenly between, say, the top and bottom margins,
 as dead space *inside* the frame. Setting Flush axis to Vertical, Horizontal or Both instead shrinks
@@ -205,6 +212,20 @@ as hex strings. Keep one per campaign map.
 `HexGrid.Core.Tests` and `HexGrid.App.Tests` are xUnit test projects covering hex and square
 tiling, clipping, label placement, SVG output, preset round-tripping and the WinForms shell. Run
 them with `dotnet test`.
+
+## Benchmarks
+
+`HexGrid.Benchmarks` is a BenchmarkDotNet harness covering every live-preview stage (layout,
+scene, preview raster), SVG export, full-resolution PNG export and the square fit advisor, across
+a default grid, a 120 × 80 labelled grid and a gapped auto-fit square grid. It is a dev-time tool
+and never ships in the exe. Run it in Release from the repo root:
+
+```
+dotnet run -c Release --project src/HexGrid.Benchmarks -- --filter "*"
+```
+
+Narrow `--filter` to one class (for example `*PipelineBenchmarks*`) when iterating on a single
+stage. Any performance change should come with a before/after run.
 
 ## Correctness notes
 

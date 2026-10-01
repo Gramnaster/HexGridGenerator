@@ -11,8 +11,10 @@ description: >
 
 HexGrid.Core and HexGrid.App reference nothing beyond the BCL and the Windows Desktop
 framework (`System.Drawing`, `System.ComponentModel`, `System.Text.Json`). See project root
-`CLAUDE.md`. The only `PackageReference`s in the solution are dev-time Roslyn analyzers,
-applied via `Directory.Build.props`. **Do not add a runtime NuGet package to solve a problem
+`CLAUDE.md`. The only `PackageReference`s in the solution are dev-time: Roslyn analyzers
+(applied via `Directory.Build.props`), the xUnit test stack, and BenchmarkDotNet. BenchmarkDotNet
+is a user-approved exception scoped to `HexGrid.Benchmarks` only. It must never be referenced by
+`HexGrid.Core` or `HexGrid.App`. **Do not add a runtime NuGet package to solve a problem
 without confirming with the user first**. That decision has already been made deliberately.
 
 ## Always Use Latest Stable Versions

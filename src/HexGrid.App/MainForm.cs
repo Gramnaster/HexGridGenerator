@@ -333,7 +333,7 @@ public sealed class MainForm : Form
             return;
         }
 
-        RunGuarded(() => Report(ExportService.SavePng(_rasterizer, scene, _settings, path)));
+        RunGuarded("Export failed", () => Report(ExportService.SavePng(_rasterizer, scene, _settings, path)));
     }
 
     private void ExportSvg()
@@ -350,7 +350,7 @@ public sealed class MainForm : Form
             return;
         }
 
-        RunGuarded(() =>
+        RunGuarded("Export failed", () =>
         {
             ExportService.SaveSvg(scene, _settings, path);
             Report([path]);
@@ -371,7 +371,7 @@ public sealed class MainForm : Form
             return;
         }
 
-        RunGuarded(() =>
+        RunGuarded("Export failed", () =>
         {
             var written = new List<string>(ExportService.SavePng(_rasterizer, scene, _settings, path));
             string svgPath = Path.ChangeExtension(path, ".svg");
@@ -389,7 +389,7 @@ public sealed class MainForm : Form
             return;
         }
 
-        RunGuarded(() =>
+        RunGuarded("Saving preset failed", () =>
         {
             PresetIo.Save(_settings, path);
             _status.Text = $"Preset saved to {path}";
@@ -409,7 +409,7 @@ public sealed class MainForm : Form
             return;
         }
 
-        RunGuarded(() =>
+        RunGuarded("Loading preset failed", () =>
         {
             _settings = PresetIo.Load(dialog.FileName);
             _lastFolder = Path.GetDirectoryName(dialog.FileName);
@@ -449,7 +449,7 @@ public sealed class MainForm : Form
         return dialog.FileName;
     }
 
-    private void RunGuarded(Action action)
+    private void RunGuarded(string failureCaption, Action action)
     {
         var previous = Cursor;
         Cursor = Cursors.WaitCursor;
@@ -461,8 +461,8 @@ public sealed class MainForm : Form
         {
             // As in Rebuild(): friendly ex.Message for the UI, full exception to the crash log.
             Program.WriteCrashLog(ex);
-            MessageBox.Show(this, ex.Message, "Export failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            _status.Text = "Export failed: " + ex.Message;
+            MessageBox.Show(this, ex.Message, failureCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _status.Text = failureCaption + ": " + ex.Message;
         }
         finally
         {

@@ -98,7 +98,7 @@ public sealed class SceneRasterizer : IDisposable
                 continue;
             }
 
-            // Grid layers are cut off at the frame; labels, frame and scale bar are not.
+            // Grid layers are cut off at the frame; labels and the frame itself are not.
             if (LayerRules.IsClipped(layer.Kind))
             {
                 g.SetClip(scene.ClipBounds);
@@ -122,13 +122,6 @@ public sealed class SceneRasterizer : IDisposable
             case PathItem p when p.Points.Length >= 2:
                 DrawPathItem(g, p, minStrokeWorld);
                 break;
-
-            case LineItem l when l.Stroke.A > 0 && l.StrokeWidthPx > 0:
-            {
-                using var pen = MakePen(l.Stroke, l.StrokeWidthPx, minStrokeWorld);
-                g.DrawLine(pen, l.A, l.B);
-                break;
-            }
 
             case CircleItem c when c.Fill.A > 0 && c.RadiusPx > 0:
             {

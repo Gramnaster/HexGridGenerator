@@ -80,11 +80,6 @@ public static class SvgRenderer
                     i = WriteCircleRun(sb, items, i, firstCircle);
                     break;
 
-                case LineItem l:
-                    WriteLine(sb, l);
-                    i++;
-                    break;
-
                 case RectItem r:
                     WriteRect(sb, r);
                     i++;
@@ -134,11 +129,6 @@ public static class SvgRenderer
           .Append(" stroke=\"none\" />\n");
         return j;
     }
-
-    private static void WriteLine(StringBuilder sb, LineItem l) =>
-        sb.Append(Inv, $"    <line x1=\"{N(l.A.X)}\" y1=\"{N(l.A.Y)}\" x2=\"{N(l.B.X)}\" y2=\"{N(l.B.Y)}\"")
-          .Append(StrokeAttrs(l.Stroke, l.StrokeWidthPx))
-          .Append(" />\n");
 
     private static void WriteRect(StringBuilder sb, RectItem r) =>
         sb.Append(Inv, $"    <rect x=\"{N(r.Rect.X)}\" y=\"{N(r.Rect.Y)}\" width=\"{N(r.Rect.Width)}\" height=\"{N(r.Rect.Height)}\"")

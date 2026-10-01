@@ -6,7 +6,6 @@ namespace HexGrid.Core.Scene;
 /// </summary>
 public enum LayerKind
 {
-    Background,
     HexFill,
     HexGrid,
     CenterDots,

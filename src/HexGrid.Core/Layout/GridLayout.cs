@@ -43,6 +43,13 @@ public sealed class GridLayout
     /// <summary>The map area. Grid layers are clipped to this; hexes overhang it and are cut off.</summary>
     public required RectangleF ClipBounds { get; init; }
 
+    /// <summary>
+    /// The map area the cell counts and size were solved against. Equal to <see cref="ClipBounds"/>
+    /// unless <see cref="GridSettings.FlushAxis"/> shrank the frame to hug the grid, in which case
+    /// this still holds the full area, so fit hints can measure the leftover the flush moved outside the frame.
+    /// </summary>
+    public required RectangleF NominalClipBounds { get; init; }
+
     /// <summary>Tight bounding box of the untrimmed cell block. Larger than <see cref="ClipBounds"/> unless AutoFitSquares kept every cell inside it.</summary>
     public required RectangleF GridBounds { get; init; }
 

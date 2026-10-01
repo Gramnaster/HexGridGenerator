@@ -56,9 +56,9 @@ internal static class StatusText
     // overhanging and clipping, so there is no gap to report, just which axis currently matters.
     //
     // Square + AutoFitSquares: unlike hex, the non-binding axis leaves a real, visible margin
-    // instead of overhanging - see SquareLayoutEngine.RecommendFit. In AutoFitRowsColumns mode this
+    // instead of overhanging - see SquareFitAdvisor.RecommendFit. In AutoFitRowsColumns mode this
     // reports the tightest achievable (Columns, Rows) and its leftover gap; in FixedHexWidth mode
-    // it reports the square size that would produce that same tight fit for the stored Columns/Rows.
+    // it reports the square size, near the current one, that fits tightest.
     private static string SizingHint(GridSettings settings, GridLayout layout, bool hexGrid)
     {
         if (hexGrid)
@@ -80,7 +80,7 @@ internal static class StatusText
 
     private static string HexSizingHint(GridSettings settings, GridLayout layout)
     {
-        (bool columnsBound, int threshold) = HexLayoutEngine.SizingBindingHint(settings, layout.ClipBounds);
+        (bool columnsBound, int threshold) = HexLayoutEngine.SizingBindingHint(settings, layout.NominalClipBounds);
         return columnsBound
             ? F($"  ·  Rows need ≥ {threshold} to matter")
             : F($"  ·  Columns need ≥ {threshold} to matter");
@@ -89,35 +89,54 @@ internal static class StatusText
     private static string SquareFitHint(GridSettings settings, GridLayout layout)
     {
         var scale = new UnitScale(settings.Unit, settings.Dpi);
-        SquareFitSuggestion fit = SquareLayoutEngine.RecommendFit(settings, layout.ClipBounds);
-        string unit = UnitSuffix(settings.Unit);
+        SquareFitSuggestion fit = SquareFitAdvisor.RecommendFit(settings, layout);
 
-        // FlushAxis moves the whole leftover onto one side instead of splitting it - report the full
-        // residual and name that side, rather than the "half on each side" wording centred mode gets.
-        (bool columnsBound, _) = SquareLayoutEngine.SizingBindingHint(settings, layout.ClipBounds);
-        bool verticalGap = columnsBound;
-        bool flushed = settings.AutoFitSquares &&
-            (verticalGap ? settings.FlushAxis.FlushesVertically() : settings.FlushAxis.FlushesHorizontally());
-        string sideDescription = flushed ? $"on the {FarSideName(settings, verticalGap)}" : "on two sides";
-
-        double gapNow = scale.FromPx(flushed ? fit.CurrentGapPx : fit.CurrentGapPx / 2.0);
-        if (gapNow < 0.05)
+        string now = DescribeLeftover(settings, scale, fit.CurrentLeftover);
+        if (now.Length == 0)
         {
             return string.Empty;
         }
 
         if (!fit.HasTighterFit)
         {
-            return F($"  ·  ≈{gapNow:0.##} {unit} gap {sideDescription} (canvas doesn't divide evenly by {settings.Columns} × {settings.Rows})");
+            return F($"  ·  {now} (canvas doesn't divide evenly by {settings.Columns} × {settings.Rows})");
         }
 
-        if (fit.GapPx <= 0)
+        string after = DescribeLeftover(settings, scale, fit.Leftover);
+        return after.Length == 0
+            ? F($"  ·  {now} - try {fit.Columns} × {fit.Rows} for no gap")
+            : F($"  ·  {now} - try {fit.Columns} × {fit.Rows} for {after}");
+    }
+
+    /// <summary>
+    /// One phrase per axis with a visible leftover, e.g. "≈3.2 mm gap left and right". A centred axis
+    /// splits its leftover between both sides; a flushed axis puts all of it on the side away from
+    /// CoordinateOrigin. Empty when neither axis has a visible leftover.
+    /// </summary>
+    private static string DescribeLeftover(GridSettings settings, UnitScale scale, SquareLeftover leftover)
+    {
+        string unit = UnitSuffix(settings.Unit);
+        string horizontal = AxisGap(leftover.XPx, settings.FlushAxis.FlushesHorizontally(), verticalAxis: false, "left and right");
+        string vertical = AxisGap(leftover.YPx, settings.FlushAxis.FlushesVertically(), verticalAxis: true, "top and bottom");
+
+        if (horizontal.Length == 0 || vertical.Length == 0)
         {
-            return F($"  ·  ≈{gapNow:0.##} {unit} gap {sideDescription} - try {fit.Columns} × {fit.Rows} for no gap");
+            return horizontal + vertical;
         }
 
-        double gapAfter = scale.FromPx(flushed ? fit.GapPx : fit.GapPx / 2.0);
-        return F($"  ·  ≈{gapNow:0.##} {unit} gap {sideDescription} - try {fit.Columns} × {fit.Rows} for ≈{gapAfter:0.##} {unit}");
+        return horizontal + ", " + vertical;
+
+        string AxisGap(double px, bool flushed, bool verticalAxis, string bothSides)
+        {
+            double shown = scale.FromPx(flushed ? px : px / 2.0);
+            if (shown < 0.05)
+            {
+                return string.Empty;
+            }
+
+            string where = flushed ? "on the " + FarSideName(settings, verticalAxis) : bothSides;
+            return F($"≈{shown:0.##} {unit} gap {where}");
+        }
     }
 
     /// <summary>The side that receives the whole leftover margin when FlushAxis is on for this axis: opposite CoordinateOrigin.</summary>
@@ -134,10 +153,13 @@ internal static class StatusText
     private static string SquareRecommendedSizeHint(GridSettings settings, GridLayout layout)
     {
         var scale = new UnitScale(settings.Unit, settings.Dpi);
-        SquareFitSuggestion fit = SquareLayoutEngine.RecommendFit(settings, layout.ClipBounds);
+        SquareFitSuggestion fit = SquareFitAdvisor.RecommendFit(settings, layout);
+
+        // "0.##" matches SquareFitAdvisor.SuggestedSideDecimals, which already rounded the side
+        // down to this precision so the value shown is the value that fits.
         double recommendedSize = scale.FromPx(fit.SidePx);
 
-        return fit.GapPx <= 0
+        return fit.Leftover.TotalPx <= 0
             ? F($"  ·  {fit.Columns} × {fit.Rows} squares at {recommendedSize:0.##} {UnitSuffix(settings.Unit)} side gives no gap")
             : F($"  ·  {fit.Columns} × {fit.Rows} squares fit tightest at {recommendedSize:0.##} {UnitSuffix(settings.Unit)} side");
     }
