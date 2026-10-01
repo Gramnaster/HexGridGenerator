@@ -113,8 +113,7 @@ public static class GridLayoutEngine
 
         for (int pass = 0; pass < 3; pass++)
         {
-            (string[] colLabels, string[] rowLabels) = BuildAxes(s, fit.Columns, fit.Rows);
-            (_, int rowChars) = CoordinateLabeller.MaxLabelLengths(colLabels, rowLabels);
+            int rowChars = CoordinateLabeller.MaxRowLabelLength(fit.Rows, s.LabelScheme, s.SkipLettersIO);
 
             double horizontal = labelPadPx + TextMetrics.EstimateWidthPx(rowChars, marginalFontPx);
             double vertical = labelPadPx + TextMetrics.EstimateHeightPx(marginalFontPx);

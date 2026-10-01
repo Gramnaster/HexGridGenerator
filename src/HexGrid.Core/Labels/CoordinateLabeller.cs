@@ -93,21 +93,49 @@ public static class CoordinateLabeller
     public static string Combine(string columnLabel, string rowLabel, string separator) =>
         string.Concat(columnLabel, separator, rowLabel);
 
-    /// <summary>Longest label on each axis, used to reserve the edge-label gutters.</summary>
-    public static (int ColumnChars, int RowChars) MaxLabelLengths(string[] columnLabels, string[] rowLabels)
+    /// <summary>
+    /// Length of the longest row label <see cref="BuildAxes"/> would produce, computed without
+    /// building any labels. Reserves the left/right edge-label gutter, which the layout solve asks
+    /// for on every convergence pass. Numeric labels are as long as <paramref name="rows"/> itself
+    /// (zero-padding pads to exactly that width); letter labels never shrink as the index grows, so
+    /// the last one is the longest. Origin doesn't matter: it only reverses the order.
+    /// </summary>
+    public static int MaxRowLabelLength(int rows, LabelScheme scheme, bool skipIo)
     {
-        int c = 0;
-        foreach (string s in columnLabels)
+        ArgumentOutOfRangeException.ThrowIfLessThan(rows, 1);
+
+        // Mirrors BuildAxes: rows carry letters only in the NumbersLetters scheme.
+        if (scheme != LabelScheme.NumbersLetters)
         {
-            c = Math.Max(c, s.Length);
+            return DigitCount(rows);
         }
 
-        int r = 0;
-        foreach (string s in rowLabels)
+        int radix = (skipIo ? NoIoAlphabet : FullAlphabet).Length;
+        int length = 0;
+        int n = rows - 1;
+
+        // SS003: integer division is the algorithm - the same base-radix digit count ToLetters uses.
+#pragma warning disable SS003
+        do
         {
-            r = Math.Max(r, s.Length);
+            length++;
+            n = (n / radix) - 1;
+        }
+        while (n >= 0);
+#pragma warning restore SS003
+
+        return length;
+    }
+
+    private static int DigitCount(int value)
+    {
+        int digits = 1;
+        while (value >= 10)
+        {
+            value /= 10;
+            digits++;
         }
 
-        return (c, r);
+        return digits;
     }
 }
