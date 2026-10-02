@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>HexGrid.Benchmarks.LargeExportSpikeBenchmarks-20261002-211723</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValley2)
+12th Gen Intel Core i9-12900HX 2.30GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 10.0.401
+  [Host]     : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+  Job-FGEKWY : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code>IterationCount=3  LaunchCount=1  WarmupCount=1  
+</code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Canvas</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Gen2</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>Raster</td><td>A0</td><td>1,132.3 ms</td><td>1,050.9 ms</td><td>57.60 ms</td><td>-</td><td>-</td><td>-</td><td>504 B</td>
+</tr><tr><td>EncodePng</td><td>A0</td><td>1,573.8 ms</td><td>1,848.6 ms</td><td>101.33 ms</td><td>2000.0000</td><td>2000.0000</td><td>1000.0000</td><td>33490264 B</td>
+</tr><tr><td>Raster</td><td>TwoA0</td><td>3,249.3 ms</td><td>4,539.6 ms</td><td>248.83 ms</td><td>-</td><td>-</td><td>-</td><td>504 B</td>
+</tr><tr><td>EncodePng</td><td>TwoA0</td><td>3,089.0 ms</td><td>2,479.5 ms</td><td>135.91 ms</td><td>2000.0000</td><td>2000.0000</td><td>-</td><td>67044072 B</td>
+</tr><tr><td>Raster</td><td>Uhd16K</td><td>883.1 ms</td><td>881.1 ms</td><td>48.30 ms</td><td>-</td><td>-</td><td>-</td><td>504 B</td>
+</tr><tr><td>EncodePng</td><td>Uhd16K</td><td>1,465.0 ms</td><td>865.4 ms</td><td>47.44 ms</td><td>1000.0000</td><td>1000.0000</td><td>1000.0000</td><td>16713024 B</td>
+</tr></tbody></table>
+</body>
+</html>

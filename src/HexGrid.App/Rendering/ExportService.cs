@@ -1,5 +1,4 @@
 using System.Drawing;
-using System.Drawing.Imaging;
 using HexGrid.Core;
 using HexGrid.Core.Rendering;
 using HexGrid.Core.Scene;
@@ -71,11 +70,11 @@ public static class ExportService
         return written;
     }
 
-    /// <summary>Tags the bitmap with the export DPI so print workflows size it correctly, then saves it.</summary>
+    /// <summary>Saves the bitmap tagged with the export DPI so print workflows size it correctly.</summary>
     private static void WritePng(Bitmap bitmap, int dpi, string path)
     {
-        bitmap.SetResolution(dpi, dpi);
-        bitmap.Save(path, ImageFormat.Png);
+        using FileStream file = File.Create(path);
+        PngWriter.Write(bitmap, dpi, file);
     }
 
     /// <summary>Pixel count above which a full-resolution export is worth warning about.</summary>

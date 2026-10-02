@@ -23,6 +23,13 @@ internal static class Scenarios
             CellGapX = 0.5,
             CellGapY = 0.5,
         },
+        Scenario.A0HexLabelled => new GridSettings
+        {
+            Preset = CanvasPreset.A0,
+            SizingMode = GridSizingMode.FixedHexWidth,
+            HexWidth = 12,
+            ShowHexLabels = true,
+        },
         _ => throw new ArgumentOutOfRangeException(nameof(scenario), scenario, message: null),
     };
 }

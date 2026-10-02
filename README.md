@@ -37,7 +37,7 @@ src/
     Presets/           JSON save and load
     Naming/            filename token expansion
   HexGrid.App/         net10.0-windows  WinForms shell
-    Rendering/         GDI+ rasteriser (live preview and PNG export), export service
+    Rendering/         GDI+ rasteriser (live preview and PNG export), PNG encoder, export service
   HexGrid.Core.Tests/  net10.0          xUnit tests for HexGrid.Core
   HexGrid.App.Tests/   net10.0-windows  xUnit tests for HexGrid.App
 ```
@@ -191,8 +191,9 @@ Illustrator, Affinity and Inkscape read as real layers. The grid layers carry a 
 the hexes are trimmed at the frame in vector form too.
 
 **PNG** is rasterised through GDI+ at full resolution with the DPI written into the file.
-Background can be transparent, white, black or custom. Antialiasing can be switched off for
-pixel-art workflows.
+Encoding uses the app's own PNG writer rather than GDI+'s, which runs on one thread. The writer
+compresses bands of rows in parallel and decodes to exactly the pixels rendered. Background can
+be transparent, white, black or custom. Antialiasing can be switched off for pixel-art workflows.
 
 **Export layers separately** writes one transparent PNG per layer alongside the flattened
 image: `..._HexGrid.png`, `..._CenterDots.png`, `..._EdgeLabels.png`, `..._Border.png` for a hex
@@ -219,7 +220,8 @@ them with `dotnet test`.
 
 `HexGrid.Benchmarks` is a BenchmarkDotNet harness covering every live-preview stage (layout,
 scene, preview raster), SVG export, full-resolution PNG export and the square fit advisor, across
-a default grid, a 120 × 80 labelled grid and a gapped auto-fit square grid. It is a dev-time tool
+a default grid, a 120 × 80 labelled grid and a gapped auto-fit square grid, with an A0 labelled
+grid (139 megapixels) for the export path. It is a dev-time tool
 and never ships in the exe. Run it in Release from the repo root:
 
 ```

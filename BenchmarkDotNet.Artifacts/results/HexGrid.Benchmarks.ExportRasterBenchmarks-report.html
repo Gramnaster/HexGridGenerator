@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>HexGrid.Benchmarks.ExportRasterBenchmarks-20261002-193905</title>
+<title>HexGrid.Benchmarks.ExportRasterBenchmarks-20261002-213551</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -23,10 +23,11 @@ BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValle
 </code></pre>
 
 <table>
-<thead><tr><th>Method        </th><th>Scenario  </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Allocated</th>
+<thead><tr><th>Method</th><th>Scenario  </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>RasterFullResolution</td><td>DefaultHex</td><td>73.74 ms</td><td>2.212 ms</td><td>0.982 ms</td><td>464 B</td>
-</tr><tr><td>RasterFullResolution</td><td>LargeHexLabelled</td><td>644.03 ms</td><td>45.554 ms</td><td>16.245 ms</td><td>504 B</td>
+</thead><tbody><tr><td>SavePng</td><td>DefaultHex</td><td>262.9 ms</td><td>26.65 ms</td><td>13.94 ms</td><td>648 B</td>
+</tr><tr><td>SavePng</td><td>LargeHexLabelled</td><td>975.9 ms</td><td>88.22 ms</td><td>31.46 ms</td><td>680 B</td>
+</tr><tr><td>SavePng</td><td>A0HexLabelled</td><td>2,585.2 ms</td><td>288.11 ms</td><td>150.69 ms</td><td>680 B</td>
 </tr></tbody></table>
 </body>
 </html>

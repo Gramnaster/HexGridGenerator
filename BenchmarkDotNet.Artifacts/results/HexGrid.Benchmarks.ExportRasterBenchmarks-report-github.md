@@ -9,7 +9,8 @@ BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValle
 IterationCount=8  LaunchCount=1  WarmupCount=2  
 
 ```
-| Method               | Scenario         | Mean      | Error     | StdDev    | Allocated |
-|--------------------- |----------------- |----------:|----------:|----------:|----------:|
-| **RasterFullResolution** | **DefaultHex**       |  **73.74 ms** |  **2.212 ms** |  **0.982 ms** |     **464 B** |
-| **RasterFullResolution** | **LargeHexLabelled** | **644.03 ms** | **45.554 ms** | **16.245 ms** |     **504 B** |
+| Method  | Scenario         | Mean       | Error     | StdDev    | Allocated |
+|-------- |----------------- |-----------:|----------:|----------:|----------:|
+| **SavePng** | **DefaultHex**       |   **262.9 ms** |  **26.65 ms** |  **13.94 ms** |     **648 B** |
+| **SavePng** | **LargeHexLabelled** |   **975.9 ms** |  **88.22 ms** |  **31.46 ms** |     **680 B** |
+| **SavePng** | **A0HexLabelled**    | **2,585.2 ms** | **288.11 ms** | **150.69 ms** |     **680 B** |
