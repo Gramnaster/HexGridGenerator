@@ -58,6 +58,97 @@ public class MainFormTests
         Assert.Null(message);
     });
 
+    [Fact]
+    public void AdjustZoom_RapidNotches_DefersTheRedrawUntilTheDebounceFires() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        var preview = (PreviewPanel)GetInstanceField(form, "_preview")!;
+        object? before = GetInstanceField(preview, "_image");
+
+        // Act: three wheel notches in a row, faster than the debounce interval.
+        for (int i = 0; i < 3; i++)
+        {
+            InvokePrivate(form, "AdjustZoom", 1);
+        }
+
+        object? immediately = GetInstanceField(preview, "_image");
+        bool redrawn = PumpUntil(() => !ReferenceEquals(GetInstanceField(preview, "_image"), before));
+
+        // Assert
+        Assert.Same(before, immediately);
+        Assert.True(redrawn);
+    });
+
+    [Fact]
+    public void SaveInBackgroundAsync_WhileSaving_DisablesFileWritingButtonsAndShowsTheTag() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        using var gate = new ManualResetEventSlim();
+
+        // Act
+        Task saving = form.SaveInBackgroundAsync("grid.png", () =>
+        {
+            gate.Wait();
+            return ["grid.png"];
+        });
+
+        // Assert
+        Assert.False(FindButton(form, "Export PNG…").Enabled);
+        Assert.False(FindButton(form, "Export SVG…").Enabled);
+        Assert.False(FindButton(form, "Export both…").Enabled);
+        Assert.False(FindButton(form, "Save preset…").Enabled);
+        Assert.True(FindButton(form, "Load preset…").Enabled);
+        var tag = (Label)GetInstanceField(form, "_savingTag")!;
+        Assert.True(tag.Visible);
+        Assert.Contains("grid.png", tag.Text, StringComparison.Ordinal);
+
+        gate.Set();
+        PumpUntil(() => saving.IsCompleted);
+    });
+
+    [Fact]
+    public void SaveInBackgroundAsync_Finished_ReenablesButtonsAndHidesTheTag() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+
+        // Act
+        Task saving = form.SaveInBackgroundAsync("grid.png", () => ["grid.png"]);
+        bool finished = PumpUntil(() => saving.IsCompleted);
+
+        // Assert
+        Assert.True(finished);
+        Assert.True(FindButton(form, "Export PNG…").Enabled);
+        Assert.True(FindButton(form, "Save preset…").Enabled);
+        Assert.False(((Label)GetInstanceField(form, "_savingTag")!).Visible);
+    });
+
+    [Fact]
+    public void SaveInBackgroundAsync_Save_RunsOffTheUiThread() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        int uiThread = Environment.CurrentManagedThreadId;
+        int saveThread = uiThread;
+
+        // Act
+        Task saving = form.SaveInBackgroundAsync("grid.png", () =>
+        {
+            saveThread = Environment.CurrentManagedThreadId;
+            return ["grid.png"];
+        });
+        PumpUntil(() => saving.IsCompleted);
+
+        // Assert
+        Assert.NotEqual(uiThread, saveThread);
+    });
+
     private static MainForm NewOffscreenForm() => new()
     {
         StartPosition = FormStartPosition.Manual,
@@ -92,6 +183,48 @@ public class MainFormTests
 
         return null;
     }
+
+    /// <summary>Pumps the message loop until <paramref name="condition"/> holds or five seconds pass.</summary>
+    private static bool PumpUntil(Func<bool> condition)
+    {
+        DateTime deadline = DateTime.UtcNow.AddSeconds(5);
+        while (!condition())
+        {
+            if (DateTime.UtcNow > deadline)
+            {
+                return false;
+            }
+
+            Application.DoEvents();
+            Thread.Sleep(10);
+        }
+
+        return true;
+    }
+
+    private static Button FindButton(Control root, string text) =>
+        FindButtonOrNull(root, text) ?? throw new InvalidOperationException($"Button '{text}' not found.");
+
+    private static Button? FindButtonOrNull(Control root, string text)
+    {
+        foreach (Control child in root.Controls)
+        {
+            if (child is Button button && string.Equals(button.Text, text, StringComparison.Ordinal))
+            {
+                return button;
+            }
+
+            if (FindButtonOrNull(child, text) is { } nested)
+            {
+                return nested;
+            }
+        }
+
+        return null;
+    }
+
+    private static void InvokePrivate(object instance, string name, params object[] args) =>
+        instance.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(instance, args);
 
     private static object? GetInstanceField(object instance, string name) =>
         instance.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(instance);

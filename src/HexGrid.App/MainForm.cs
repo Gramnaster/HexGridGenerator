@@ -26,6 +26,7 @@ public sealed class MainForm : Form
     private readonly PropertyGrid _properties = new();
     private readonly PreviewPanel _preview = new();
     private readonly Label _status = new();
+    private readonly Label _savingTag = new();
 #pragma warning restore SS066
     // Not a Control (doesn't live in the Controls tree above), so not covered by the SS066 reasoning
     // either - disposed explicitly below, same as _zoomMenu. Assigned in the constructor body, not
@@ -38,11 +39,20 @@ public sealed class MainForm : Form
     // so it is not covered by the SS066 auto-dispose reasoning and needs its own Dispose() call below.
     private readonly ContextMenuStrip _zoomMenu = new();
 
+    // Buttons that write files. Disabled while a background export runs, so two writes can never
+    // race each other onto the same path.
+    private readonly List<Button> _saveButtons = [];
+
     private GridSettings _settings = new();
     private GridLayout? _layout;
     private DrawScene? _scene;
     private string? _lastFolder;
     private double _zoomPercent = 100.0;
+
+    // True when a setting changed since the last layout. Zoom and panel resizes only need the
+    // preview redrawn at a new scale: the layout and scene don't depend on either.
+    private bool _layoutStale;
+    private bool _isSaving;
 
     public MainForm()
     {
@@ -60,7 +70,14 @@ public sealed class MainForm : Form
         _debounce.Tick += (_, _) =>
         {
             _debounce.Stop();
-            Rebuild();
+            if (_layoutStale)
+            {
+                Rebuild();
+            }
+            else
+            {
+                RenderPreview();
+            }
         };
 
         Shown += (_, _) => Rebuild();
@@ -129,7 +146,7 @@ public sealed class MainForm : Form
         split.Panel1.Controls.Add(_properties);
 
         _preview.Dock = DockStyle.Fill;
-        _preview.Resize += (_, _) => ScheduleRebuild();
+        _preview.Resize += (_, _) => ScheduleRender();
         _preview.ZoomRequested += (_, e) => AdjustZoom(e.Direction);
         _preview.ContextMenuStrip = _zoomMenu;
         split.Panel2.Controls.Add(_preview);
@@ -168,13 +185,23 @@ public sealed class MainForm : Form
             WrapContents = false,
             Padding = new Padding(8, 8, 8, 8),
         };
-        bar.Controls.Add(MakeButton("Export PNG…", ExportPng, 130));
-        bar.Controls.Add(MakeButton("Export SVG…", ExportSvg, 130));
-        bar.Controls.Add(MakeButton("Export both…", ExportBoth, 130));
+        _saveButtons.Add(MakeButton("Export PNG…", ExportPngAsync, 130));
+        _saveButtons.Add(MakeButton("Export SVG…", ExportSvgAsync, 130));
+        _saveButtons.Add(MakeButton("Export both…", ExportBothAsync, 130));
+        bar.Controls.AddRange([.. _saveButtons]);
         bar.Controls.Add(new Label { Width = 24, Height = 1 });
-        bar.Controls.Add(MakeButton("Save preset…", SavePreset, 130));
+
+        Button savePreset = MakeButton("Save preset…", SavePreset, 130);
+        _saveButtons.Add(savePreset);
+        bar.Controls.Add(savePreset);
         bar.Controls.Add(MakeButton("Load preset…", LoadPreset, 130));
         bar.Controls.Add(MakeButton("Reset", ResetSettings, 90));
+
+        _savingTag.AutoSize = true;
+        _savingTag.Visible = false;
+        _savingTag.Margin = new Padding(8, 7, 0, 0);
+        _savingTag.ForeColor = SystemColors.Highlight;
+        bar.Controls.Add(_savingTag);
         return bar;
     }
 
@@ -209,14 +236,33 @@ public sealed class MainForm : Form
 
     private static Button MakeButton(string text, Action onClick, int width)
     {
-        var b = new Button { Text = text, Width = width, Height = 30, Margin = new Padding(0, 0, 8, 0) };
+        Button b = NewButton(text, width);
         b.Click += (_, _) => onClick();
         return b;
     }
 
+    // async void is confined to this Click handler, as event handlers require. SaveInBackgroundAsync
+    // catches and reports a failed write. Anything thrown before it, still on the UI thread, reaches
+    // Application.ThreadException in Program like any other click handler's exception.
+    private static Button MakeButton(string text, Func<Task> onClick, int width)
+    {
+        Button b = NewButton(text, width);
+        b.Click += async (_, _) => await onClick();
+        return b;
+    }
+
+    private static Button NewButton(string text, int width) =>
+        new() { Text = text, Width = width, Height = 30, Margin = new Padding(0, 0, 8, 0) };
+
     // ---------------------------------------------------------------- pipeline
 
     private void ScheduleRebuild()
+    {
+        _layoutStale = true;
+        ScheduleRender();
+    }
+
+    private void ScheduleRender()
     {
         _debounce.Stop();
         _debounce.Start();
@@ -224,6 +270,7 @@ public sealed class MainForm : Form
 
     private void Rebuild()
     {
+        _layoutStale = false;
         try
         {
             _layout = GridLayoutEngine.Build(_settings);
@@ -270,10 +317,12 @@ public sealed class MainForm : Form
 
     private void AdjustZoom(int direction) => SetZoom(_zoomPercent + (direction * ZoomStepPercent));
 
+    // Debounced like a settings edit: a fast wheel spin is many notches, and rasterising the whole
+    // canvas for every intermediate zoom level only delays the one the user stops on.
     private void SetZoom(double percent)
     {
         _zoomPercent = Math.Clamp(percent, MinZoomPercent, MaxZoomPercent);
-        RenderPreview();
+        ScheduleRender();
     }
 
     private void UpdateStatus()
@@ -319,7 +368,11 @@ public sealed class MainForm : Form
             MessageBoxIcon.Warning) == DialogResult.OK;
     }
 
-    private void ExportPng()
+    // The exports below write on a background thread so the window stays usable. Each one captures
+    // the scene it was asked for and a copy of the settings first: the property grid edits _settings
+    // in place, and an edit made mid-export must not leak into the file being written.
+
+    private async Task ExportPngAsync()
     {
         DrawScene? scene = _scene;
         if (scene is null || !ConfirmLargeExport())
@@ -333,10 +386,11 @@ public sealed class MainForm : Form
             return;
         }
 
-        RunGuarded("Export failed", () => Report(ExportService.SavePng(_rasterizer, scene, _settings, path)));
+        GridSettings settings = SnapshotSettings();
+        await SaveInBackgroundAsync(Path.GetFileName(path), () => SavePngWithOwnRasterizer(scene, settings, path));
     }
 
-    private void ExportSvg()
+    private async Task ExportSvgAsync()
     {
         DrawScene? scene = _scene;
         if (scene is null)
@@ -350,14 +404,15 @@ public sealed class MainForm : Form
             return;
         }
 
-        RunGuarded("Export failed", () =>
+        GridSettings settings = SnapshotSettings();
+        await SaveInBackgroundAsync(Path.GetFileName(path), () =>
         {
-            ExportService.SaveSvg(scene, _settings, path);
-            Report([path]);
+            ExportService.SaveSvg(scene, settings, path);
+            return [path];
         });
     }
 
-    private void ExportBoth()
+    private async Task ExportBothAsync()
     {
         DrawScene? scene = _scene;
         if (scene is null || !ConfirmLargeExport())
@@ -371,14 +426,61 @@ public sealed class MainForm : Form
             return;
         }
 
-        RunGuarded("Export failed", () =>
+        GridSettings settings = SnapshotSettings();
+        await SaveInBackgroundAsync(Path.GetFileNameWithoutExtension(path) + " (PNG and SVG)", () =>
         {
-            var written = new List<string>(ExportService.SavePng(_rasterizer, scene, _settings, path));
+            var written = new List<string>(SavePngWithOwnRasterizer(scene, settings, path));
             string svgPath = Path.ChangeExtension(path, ".svg");
-            ExportService.SaveSvg(scene, _settings, svgPath);
+            ExportService.SaveSvg(scene, settings, svgPath);
             written.Add(svgPath);
-            Report(written);
+            return written;
         });
+    }
+
+    private GridSettings SnapshotSettings() => PresetIo.Deserialize(PresetIo.Serialize(_settings));
+
+    // SceneRasterizer caches fonts, pens and brushes without locking, and _rasterizer keeps drawing
+    // the preview on the UI thread meanwhile, so a background export gets a rasterizer of its own.
+    private static IReadOnlyList<string> SavePngWithOwnRasterizer(DrawScene scene, GridSettings settings, string path)
+    {
+        using var rasterizer = new SceneRasterizer();
+        return ExportService.SavePng(rasterizer, scene, settings, path);
+    }
+
+    /// <summary>
+    /// Runs <paramref name="save"/> off the UI thread. Every file-writing button is disabled and a
+    /// "Saving" tag is shown until it finishes, and a failure is reported the same way RunGuarded does.
+    /// </summary>
+    internal async Task SaveInBackgroundAsync(string description, Func<IReadOnlyList<string>> save)
+    {
+        SetSaving(description);
+        try
+        {
+            IReadOnlyList<string> written = await Task.Run(save);
+            Report(written);
+        }
+        catch (Exception ex)
+        {
+            Program.WriteCrashLog(ex);
+            MessageBox.Show(this, ex.Message, "Export failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _status.Text = "Export failed: " + ex.Message;
+        }
+        finally
+        {
+            SetSaving(description: null);
+        }
+    }
+
+    private void SetSaving(string? description)
+    {
+        _isSaving = description is not null;
+        foreach (Button button in _saveButtons)
+        {
+            button.Enabled = !_isSaving;
+        }
+
+        _savingTag.Text = _isSaving ? $"Saving {description}…" : string.Empty;
+        _savingTag.Visible = _isSaving;
     }
 
     private void SavePreset()
@@ -474,6 +576,19 @@ public sealed class MainForm : Form
         _status.Text = written.Count == 1
             ? $"Wrote {written[0]}"
             : $"Wrote {written.Count} files to {Path.GetDirectoryName(written[0])}";
+
+    // Closing mid-export would end the process with a half-written file on disk.
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        if (_isSaving && e.CloseReason == CloseReason.UserClosing)
+        {
+            e.Cancel = true;
+            MessageBox.Show(this, "An export is still being written. Close the window once it finishes.",
+                "Export in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        base.OnFormClosing(e);
+    }
 
     protected override void Dispose(bool disposing)
     {
