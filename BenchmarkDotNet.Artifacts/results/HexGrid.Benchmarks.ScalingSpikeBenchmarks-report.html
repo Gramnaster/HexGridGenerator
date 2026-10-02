@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>HexGrid.Benchmarks.ScalingSpikeBenchmarks-20261002-192147</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValley2)
+12th Gen Intel Core i9-12900HX 2.30GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 10.0.401
+  [Host]   : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+  ShortRun : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>Method      </th><th>Threads</th><th>Layers</th><th>Mean </th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>ConcurrentPreviews</td><td>1</td><td>all</td><td>123.30 ms</td><td>286.12 ms</td><td>15.683 ms</td><td>-</td><td>2935.65 KB</td>
+</tr><tr><td>ConcurrentPreviews</td><td>1</td><td>geometry</td><td>70.00 ms</td><td>44.70 ms</td><td>2.450 ms</td><td>125.0000</td><td>2334.88 KB</td>
+</tr><tr><td>ConcurrentPreviews</td><td>1</td><td>text</td><td>50.32 ms</td><td>21.16 ms</td><td>1.160 ms</td><td>-</td><td>602.35 KB</td>
+</tr><tr><td>ConcurrentPreviews</td><td>4</td><td>all</td><td>705.06 ms</td><td>1,584.63 ms</td><td>86.859 ms</td><td>-</td><td>11751.13 KB</td>
+</tr><tr><td>ConcurrentPreviews</td><td>4</td><td>geometry</td><td>295.76 ms</td><td>187.48 ms</td><td>10.277 ms</td><td>500.0000</td><td>9335.95 KB</td>
+</tr><tr><td>ConcurrentPreviews</td><td>4</td><td>text</td><td>308.58 ms</td><td>122.94 ms</td><td>6.739 ms</td><td>-</td><td>2405.84 KB</td>
+</tr><tr><td>ConcurrentPreviews</td><td>8</td><td>all</td><td>1,865.64 ms</td><td>773.18 ms</td><td>42.381 ms</td><td>1000.0000</td><td>23477.19 KB</td>
+</tr><tr><td>ConcurrentPreviews</td><td>8</td><td>geometry</td><td>822.23 ms</td><td>1,002.65 ms</td><td>54.958 ms</td><td>1000.0000</td><td>18670.73 KB</td>
+</tr><tr><td>ConcurrentPreviews</td><td>8</td><td>text</td><td>926.65 ms</td><td>1,651.80 ms</td><td>90.541 ms</td><td>-</td><td>4810.55 KB</td>
+</tr></tbody></table>
+</body>
+</html>

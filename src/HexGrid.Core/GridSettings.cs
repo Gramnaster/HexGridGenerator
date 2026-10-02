@@ -136,13 +136,13 @@ public sealed class GridSettings : ICustomTypeDescriptor
 
     [Category("2 · Grid")]
     [DisplayName("Gap X")]
-    [Description("Horizontal gap between adjacent squares, in Unit. The square's own size is unchanged; this widens the horizontal spacing between square centres on top of it, so a large enough gap can mean fewer columns fit than requested. Default: 0.")]
+    [Description("Horizontal gap between adjacent squares, in Unit. With Auto-fit squares sized by Columns/Rows the counts are kept and the squares shrink to make room, like a CSS Grid gap. With a fixed square size or Auto-fit squares off, the square's size is unchanged and a large enough gap can mean fewer columns fit than requested. Default: 0.")]
     [DefaultValue(0.0)]
     public double CellGapX { get; set; }
 
     [Category("2 · Grid")]
     [DisplayName("Gap Y")]
-    [Description("Vertical gap between adjacent squares, in Unit. The square's own size is unchanged; this widens the vertical spacing between square centres on top of it, so a large enough gap can mean fewer rows fit than requested. Default: 0.")]
+    [Description("Vertical gap between adjacent squares, in Unit. With Auto-fit squares sized by Columns/Rows the counts are kept and the squares shrink to make room, like a CSS Grid gap. With a fixed square size or Auto-fit squares off, the square's size is unchanged and a large enough gap can mean fewer rows fit than requested. Default: 0.")]
     [DefaultValue(0.0)]
     public double CellGapY { get; set; }
 

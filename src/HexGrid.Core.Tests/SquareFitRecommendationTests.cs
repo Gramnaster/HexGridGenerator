@@ -91,6 +91,32 @@ public class SquareFitRecommendationTests
         Assert.True(fit.Leftover.TotalPx < LeftoverX(gutterBlind) + LeftoverY(gutterBlind));
     }
 
+    [Fact]
+    public void RecommendFit_FixedSizeWithCellGap_FindsTheGapAwareExactSide()
+    {
+        // Arrange: a 417 × 295 px map area with a 10 px gap. n squares of side s plus (n - 1) gaps
+        // fill an axis exactly when n·(s + 10) = available + 10, and 427 and 305 share only the
+        // factor 61, so s = 51 (7 × 5) is the one side that closes both axes. A candidate side
+        // that ignores the gap, min(417 / 7, 295 / 5), would be 59 and drop a column and a row.
+        GridSettings s = TestSettings.Minimal();
+        s.GridType = GridType.Square;
+        s.SizingMode = GridSizingMode.FixedHexWidth;
+        s.CustomWidth = 417;
+        s.CustomHeight = 295;
+        s.SquareSize = 45;
+        s.CellGapX = 10;
+        s.CellGapY = 10;
+
+        // Act
+        SquareFitSuggestion fit = SquareFitAdvisor.RecommendFit(s, GridLayoutEngine.Build(s));
+
+        // Assert
+        Assert.True(fit.HasTighterFit);
+        Assert.Equal((7, 5), (fit.Columns, fit.Rows));
+        Assert.Equal(51.0, fit.SidePx, 6);
+        Assert.Equal(default, fit.Leftover);
+    }
+
     private static GridSettings CountsSettings(int columns, int rows, double gapMm) => new()
     {
         GridType = GridType.Square,

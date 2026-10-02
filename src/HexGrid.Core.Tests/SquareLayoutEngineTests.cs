@@ -5,14 +5,12 @@ namespace HexGrid.Core.Tests;
 public class SquareLayoutEngineTests
 {
     [Fact]
-    public void Build_CellGap_KeepsDrawnSquareSizeButWidensSpacing()
+    public void Build_FixedSizeCellGap_KeepsDrawnSquareSizeButWidensSpacing()
     {
-        // Arrange
-        GridSettings baseline = TestSettings.Minimal();
-        baseline.GridType = GridType.Square;
+        // Arrange: in fixed-size mode the square size is an input, so the gap never touches it.
+        GridSettings baseline = FixedSize(50.0);
 
-        GridSettings gapped = TestSettings.Minimal();
-        gapped.GridType = GridType.Square;
+        GridSettings gapped = FixedSize(50.0);
         gapped.CellGapX = 6.0;
         gapped.CellGapY = 2.0;
 
@@ -43,20 +41,79 @@ public class SquareLayoutEngineTests
     }
 
     [Fact]
-    public void Build_LargeCellGap_CanReduceColumnsOrRowsBelowRequested()
+    public void Build_FixedSizeLargeCellGap_FitsFewerColumnsAndRows()
     {
         // Arrange: the square's own size is held fixed (previous test), so a large enough gap eats
-        // into how many whole squares fit in the same map area, even though AutoFitSquares
-        // normally guarantees the exact requested count when Gap is 0.
+        // into how many whole squares fit in the same map area.
+        GridSettings baseline = FixedSize(50.0);
+        GridSettings gapped = FixedSize(50.0);
+        gapped.CellGapX = 60.0;
+        gapped.CellGapY = 60.0;
+
+        // Act
+        GridLayout baselineLayout = GridLayoutEngine.Build(baseline);
+        GridLayout gappedLayout = GridLayoutEngine.Build(gapped);
+
+        // Assert
+        Assert.True(gappedLayout.Columns < baselineLayout.Columns);
+        Assert.True(gappedLayout.Rows < baselineLayout.Rows);
+    }
+
+    [Fact]
+    public void Build_AutoFitCountsWithCellGap_KeepsRequestedCountsAndShrinksSquares()
+    {
+        // Arrange: CSS Grid-style gap. 5 × 4 in a 400 × 300 map area with Gap X 6, Gap Y 2: the
+        // gaps come out of the squares, so side = min((400 - 4·6) / 5, (300 - 3·2) / 4) = 73.5
+        // and the four rows plus three gaps fill the height exactly.
         GridSettings s = TestSettings.Minimal();
         s.GridType = GridType.Square;
-        s.CellGapX = 60.0;
-        s.CellGapY = 60.0;
+        s.CellGapX = 6.0;
+        s.CellGapY = 2.0;
 
         // Act
         GridLayout layout = GridLayoutEngine.Build(s);
 
         // Assert
-        Assert.True(layout.Columns < 5 || layout.Rows < 4);
+        Assert.Equal((5, 4), (layout.Columns, layout.Rows));
+        Assert.Equal(73.5, layout.CellWidthPx, 6);
+        Assert.Equal(300.0, layout.GridBounds.Height, 3);
+    }
+
+    [Fact]
+    public void Build_AutoFitCountsWithGapFillingTheArea_ThrowsNamingTheGap()
+    {
+        // Arrange: four 100 px gaps between five columns consume the whole 400 px width.
+        GridSettings s = TestSettings.Minimal();
+        s.GridType = GridType.Square;
+        s.CellGapX = 100.0;
+
+        // Act
+        var ex = Assert.Throws<InvalidOperationException>(() => GridLayoutEngine.Build(s));
+
+        // Assert
+        Assert.Contains("Gap", ex.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Build_AutoFitCountsOnDefaultA3WithBorderAndLabels_KeepsAllRequestedColumns()
+    {
+        // Arrange: regression. The side used to be computed as a float division and then divided
+        // back into the map width to count columns, which came out at 29.99999 and floored to 29.
+        var s = new GridSettings { GridType = GridType.Square };
+
+        // Act
+        GridLayout layout = GridLayoutEngine.Build(s);
+
+        // Assert
+        Assert.Equal((30, 20), (layout.Columns, layout.Rows));
+    }
+
+    private static GridSettings FixedSize(double side)
+    {
+        GridSettings s = TestSettings.Minimal();
+        s.GridType = GridType.Square;
+        s.SizingMode = GridSizingMode.FixedHexWidth;
+        s.SquareSize = side;
+        return s;
     }
 }

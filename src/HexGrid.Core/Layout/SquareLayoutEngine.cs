@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using HexGrid.Core.Labels;
 using HexGrid.Core.Units;
@@ -37,23 +38,29 @@ public static class SquareLayoutEngine
     }
 
     /// <summary>
-    /// AutoFitRowsColumns: the requested column/row counts drive the side length exactly as if there
-    /// were no gap - the square's own size never shrinks for the gap. Gap X/Gap Y then widen the
-    /// pitch used to count how many of that exact-sized square actually fit in the map area, so a
-    /// large enough gap can mean fewer whole squares than requested (see <see cref="FloorFit"/>).
+    /// AutoFitRowsColumns. With AutoFitSquares the gap works like CSS Grid's: the requested counts
+    /// are kept exactly and Gap X/Gap Y come out of the squares, so the side shrinks until the whole
+    /// block, gaps included, fits the map area. Without AutoFitSquares the side comes from the
+    /// gap-free pitch implied by the counts and the gap only widens the placement pitch.
     /// </summary>
     private static (int Columns, int Rows, double Side) SolveFromCounts(
         bool autoFit, int reqCols, int reqRows, RectangleF clip, double gapX, double gapY)
     {
         if (autoFit)
         {
-            // Fit the walls: the whole reqCols x reqRows block must fit inside the map area, so the
-            // side is whichever axis is tighter. No clipping - the counts requested are a target.
-            // Gap can bring the actual count below it (FloorFit), never above.
-            double side = Math.Min(clip.Width / reqCols, clip.Height / reqRows);
-            int columns = Math.Min(reqCols, FloorFit(clip.Width, side, gapX));
-            int rows = Math.Min(reqRows, FloorFit(clip.Height, side, gapY));
-            return (columns, rows, side);
+            // Fit the walls: reqCols squares plus (reqCols - 1) gaps across, likewise down, and the
+            // side is whichever axis is tighter. No clipping and no dropped cells.
+            double side = Math.Min(
+                (clip.Width - ((reqCols - 1) * gapX)) / reqCols,
+                (clip.Height - ((reqRows - 1) * gapY)) / reqRows);
+            if (side <= 0)
+            {
+                throw new InvalidOperationException(string.Create(
+                    CultureInfo.CurrentCulture,
+                    $"Gap X/Gap Y leave no room for {reqCols} × {reqRows} squares in the map area. Reduce the gap or the column/row count."));
+            }
+
+            return (reqCols, reqRows, side);
         }
 
         // Fill the walls, same shape as the hex grid: centres span the map area edge to edge and the
@@ -79,8 +86,7 @@ public static class SquareLayoutEngine
     internal static (IReadOnlyList<GridCell> Cells, double[] ColumnCenterXs, double[] RowCenterYs, RectangleF GridBounds) BuildCells(
         GridSettings s, UnitScale scale, CellFit fit, RectangleF clip, string[] columnLabels, string[] rowLabels)
     {
-        // The square is always drawn at its fitted side - unaffected by the gap - so it can never become
-        // a rectangle. Gap X/Gap Y only widen the pitch used to place its centre, independently per axis.
+        // The square is always drawn at its one fitted side, so it can never become a rectangle. Gap X/Gap Y only widen the pitch used to place its centre, independently per axis.
         double side = fit.CellWidthPx;
         double pitchX = side + Math.Max(0.0, scale.ToPx(s.CellGapX));
         double pitchY = side + Math.Max(0.0, scale.ToPx(s.CellGapY));

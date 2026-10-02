@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>HexGrid.Benchmarks.FitAdvisorBenchmarks-20261002-191106</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValley2)
+12th Gen Intel Core i9-12900HX 2.30GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 10.0.401
+  [Host]     : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+  DefaultJob : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Mode        </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Gen0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>RecommendFit</td><td>AutoFitRowsColumns</td><td>30.26 &mu;s</td><td>0.755 &mu;s</td><td>2.226 &mu;s</td><td>29.64 &mu;s</td><td>5.0049</td><td>76.91 KB</td>
+</tr><tr><td>RecommendFit</td><td>FixedHexWidth</td><td>27.82 &mu;s</td><td>0.549 &mu;s</td><td>1.017 &mu;s</td><td>27.55 &mu;s</td><td>5.0049</td><td>76.91 KB</td>
+</tr></tbody></table>
+</body>
+</html>

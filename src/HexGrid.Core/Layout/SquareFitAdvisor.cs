@@ -66,16 +66,33 @@ public static class SquareFitAdvisor
             Math.Max(0, clip.Height - layout.GridBounds.Height));
         var best = new Candidate(centreCols, centreRows, layout.CellWidthPx, currentLeftover);
 
+        // The ideal count on the other axis is the one whose squares and gaps fill it exactly at the
+        // side this axis's count implies: n·side + (n - 1)·gap = available.
+        double gapX = Math.Max(0.0, search.Scale.ToPx(s.CellGapX));
+        double gapY = Math.Max(0.0, search.Scale.ToPx(s.CellGapY));
+
         for (int cols = Math.Max(1, centreCols - SearchWindow); cols <= centreCols + SearchWindow; cols++)
         {
-            double idealRows = clip.Height * cols / clip.Width;
+            double side = Search.SideFor(clip.Width, cols, gapX);
+            if (side <= 0)
+            {
+                continue; // The gaps alone fill this axis. No count on the other axis can fix that.
+            }
+
+            double idealRows = (clip.Height + gapY) / (side + gapY);
             best = Tighter(best, search.Evaluate(cols, Math.Max(1, (int)Math.Floor(idealRows))));
             best = Tighter(best, search.Evaluate(cols, Math.Max(1, (int)Math.Ceiling(idealRows))));
         }
 
         for (int rows = Math.Max(1, centreRows - SearchWindow); rows <= centreRows + SearchWindow; rows++)
         {
-            double idealCols = clip.Width * rows / clip.Height;
+            double side = Search.SideFor(clip.Height, rows, gapY);
+            if (side <= 0)
+            {
+                continue; // The gaps alone fill this axis. No count on the other axis can fix that.
+            }
+
+            double idealCols = (clip.Width + gapX) / (side + gapX);
             best = Tighter(best, search.Evaluate(Math.Max(1, (int)Math.Floor(idealCols)), rows));
             best = Tighter(best, search.Evaluate(Math.Max(1, (int)Math.Ceiling(idealCols)), rows));
         }
@@ -105,7 +122,9 @@ public static class SquareFitAdvisor
             {
                 // The user acts on a fixed-size suggestion by typing the displayed side back in.
                 double factor = Math.Pow(10, SuggestedSideDecimals);
-                double side = Math.Min(Clip.Width / columns, Clip.Height / rows);
+                double side = Math.Min(
+                    SideFor(Clip.Width, columns, Math.Max(0.0, Scale.ToPx(Settings.CellGapX))),
+                    SideFor(Clip.Height, rows, Math.Max(0.0, Scale.ToPx(Settings.CellGapY))));
                 double typed = Math.Floor((Scale.FromPx(side) * factor) + Tolerance) / factor;
                 if (typed <= 0)
                 {
@@ -139,6 +158,10 @@ public static class SquareFitAdvisor
                 return null;
             }
         }
+
+        /// <summary>The side at which <paramref name="count"/> squares and the gaps between them exactly span <paramref name="available"/>.</summary>
+        public static double SideFor(double available, int count, double gap) =>
+            (available - ((count - 1) * gap)) / count;
 
         private static double BlockSpan(int count, double side, double gap) =>
             (count * side) + ((count - 1) * Math.Max(0.0, gap));

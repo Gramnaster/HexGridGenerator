@@ -14,12 +14,23 @@ namespace HexGrid.App.Rendering;
 public sealed class SceneRasterizer : IDisposable
 {
     private readonly Dictionary<(string Family, float Size, bool Bold), Font> _fonts = [];
+
+    // Ascent in pixels per cached font. Three GDI+ metric calls per label otherwise, for a value
+    // that only depends on the font.
+    private readonly Dictionary<Font, float> _ascents = new(ReferenceEqualityComparer.Instance);
     private readonly Bitmap _measureSurface = new(1, 1);
     private readonly Graphics _measure;
 
     // StringFormat.GenericTypographic allocates a fresh disposable GDI+ object on every access.
     // Reading it per text item would leak handles across a grid with labels in every hex.
     private readonly StringFormat _typographic = new(StringFormat.GenericTypographic);
+
+    // Pens and brushes for one Render call, keyed by ARGB (and width for pens). A grid draws
+    // thousands of items in a handful of colours, and creating plus disposing a GDI+ object per
+    // item was a measurable share of the raster. Released at the end of every Render, so the
+    // handles never outlive the call that made them.
+    private readonly Dictionary<(int Argb, float Width), Pen> _pens = [];
+    private readonly Dictionary<int, SolidBrush> _brushes = [];
 
     private bool _disposed;
 
@@ -69,7 +80,14 @@ public sealed class SceneRasterizer : IDisposable
             // Stroke floor is expressed in device pixels, so convert into world units.
             double minStrokeWorld = scale > 0 ? minStrokePx / scale : 0;
 
-            DrawLayers(g, scene, includeLayer, minStrokeWorld);
+            try
+            {
+                DrawLayers(g, scene, includeLayer, minStrokeWorld);
+            }
+            finally
+            {
+                ReleasePensAndBrushes();
+            }
 
             g.ResetClip();
         }
@@ -125,9 +143,8 @@ public sealed class SceneRasterizer : IDisposable
 
             case CircleItem c when c.Fill.A > 0 && c.RadiusPx > 0:
             {
-                using var brush = new SolidBrush(c.Fill);
                 float r = (float)c.RadiusPx;
-                g.FillEllipse(brush, c.Center.X - r, c.Center.Y - r, r * 2, r * 2);
+                g.FillEllipse(GetBrush(c.Fill), c.Center.X - r, c.Center.Y - r, r * 2, r * 2);
                 break;
             }
 
@@ -141,44 +158,36 @@ public sealed class SceneRasterizer : IDisposable
         }
     }
 
-    private static void DrawPathItem(Graphics g, PathItem p, double minStrokeWorld)
+    private void DrawPathItem(Graphics g, PathItem p, double minStrokeWorld)
     {
         if (p.Fill is { A: > 0 } fill)
         {
-            using (var brush = new SolidBrush(fill))
-            {
-                g.FillPolygon(brush, p.Points);
-            }
+            g.FillPolygon(GetBrush(fill), p.Points);
         }
 
         if (p.Stroke is { A: > 0 } stroke && p.StrokeWidthPx > 0)
         {
-            using var pen = MakePen(stroke, p.StrokeWidthPx, minStrokeWorld);
             if (p.Closed)
             {
-                g.DrawPolygon(pen, p.Points);
+                g.DrawPolygon(GetPen(stroke, p.StrokeWidthPx, minStrokeWorld), p.Points);
             }
             else
             {
-                g.DrawLines(pen, p.Points);
+                g.DrawLines(GetPen(stroke, p.StrokeWidthPx, minStrokeWorld), p.Points);
             }
         }
     }
 
-    private static void DrawRectItem(Graphics g, RectItem r, double minStrokeWorld)
+    private void DrawRectItem(Graphics g, RectItem r, double minStrokeWorld)
     {
         if (r.Fill is { A: > 0 } rectFill)
         {
-            using (var brush = new SolidBrush(rectFill))
-            {
-                g.FillRectangle(brush, r.Rect);
-            }
+            g.FillRectangle(GetBrush(rectFill), r.Rect);
         }
 
         if (r.Stroke is { A: > 0 } rectStroke && r.StrokeWidthPx > 0)
         {
-            using var pen = MakePen(rectStroke, r.StrokeWidthPx, minStrokeWorld);
-            g.DrawRectangle(pen, r.Rect.X, r.Rect.Y, r.Rect.Width, r.Rect.Height);
+            g.DrawRectangle(GetPen(rectStroke, r.StrokeWidthPx, minStrokeWorld), r.Rect.X, r.Rect.Y, r.Rect.Width, r.Rect.Height);
         }
     }
 
@@ -190,10 +199,7 @@ public sealed class SceneRasterizer : IDisposable
 #pragma warning disable IDISP001
         Font font = GetFont(t.FontFamily, (float)t.FontSizePx, t.Bold);
 #pragma warning restore IDISP001
-        FontFamily family = font.FontFamily;
-
-        float emHeight = family.GetEmHeight(font.Style);
-        float ascent = emHeight > 0 ? font.Size * family.GetCellAscent(font.Style) / emHeight : (float)(font.Size * TextMetrics.AscentRatio);
+        float ascent = GetAscent(font);
 
         // Shared with the SVG writer so both exports place text identically.
         double baselineY = TextMetrics.BaselineY(t.At.Y, t.FontSizePx, t.Baseline);
@@ -207,17 +213,69 @@ public sealed class SceneRasterizer : IDisposable
             _ => t.At.X - (size.Width / 2f),
         };
 
-        using var brush = new SolidBrush(t.Color);
-        g.DrawString(t.Text, font, brush, x, (float)baselineY - ascent, _typographic);
+        g.DrawString(t.Text, font, GetBrush(t.Color), x, (float)baselineY - ascent, _typographic);
     }
 
-    private static Pen MakePen(Color color, double width, double minWidth) =>
-        new(color, (float)Math.Max(width, minWidth))
+    /// <summary>Borrowed from the per-Render cache. Callers must not dispose it.</summary>
+    private Pen GetPen(Color color, double width, double minWidth)
+    {
+        var key = (color.ToArgb(), (float)Math.Max(width, minWidth));
+        if (_pens.TryGetValue(key, out Pen? cached))
+        {
+            return cached;
+        }
+
+        _pens.Add(key, new Pen(color, key.Item2)
         {
             LineJoin = LineJoin.Round,
             StartCap = LineCap.Round,
             EndCap = LineCap.Round,
-        };
+        });
+        return _pens[key];
+    }
+
+    /// <summary>Borrowed from the per-Render cache. Callers must not dispose it.</summary>
+    private SolidBrush GetBrush(Color color)
+    {
+        int key = color.ToArgb();
+        if (_brushes.TryGetValue(key, out SolidBrush? cached))
+        {
+            return cached;
+        }
+
+        _brushes.Add(key, new SolidBrush(color));
+        return _brushes[key];
+    }
+
+    private void ReleasePensAndBrushes()
+    {
+        foreach (Pen pen in _pens.Values)
+        {
+            pen.Dispose();
+        }
+
+        foreach (SolidBrush brush in _brushes.Values)
+        {
+            brush.Dispose();
+        }
+
+        _pens.Clear();
+        _brushes.Clear();
+    }
+
+    private float GetAscent(Font font)
+    {
+        if (_ascents.TryGetValue(font, out float cached))
+        {
+            return cached;
+        }
+
+        FontFamily family = font.FontFamily;
+        float emHeight = family.GetEmHeight(font.Style);
+        float ascent = emHeight > 0 ? font.Size * family.GetCellAscent(font.Style) / emHeight : (float)(font.Size * TextMetrics.AscentRatio);
+        _ascents[font] = ascent;
+        return ascent;
+    }
 
     private Font GetFont(string family, float sizePx, bool bold)
     {
@@ -247,6 +305,7 @@ public sealed class SceneRasterizer : IDisposable
         }
 
         _fonts.Clear();
+        _ascents.Clear();
         _typographic.Dispose();
         _measure.Dispose();
         _measureSurface.Dispose();

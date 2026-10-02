@@ -147,18 +147,20 @@ division, no clipping), off fills edge to edge and clips the outermost partial s
 ## Cell gap
 
 **Gap X** and **Gap Y** open a deliberate channel between adjacent cells, the way Illustrator's or
-InDesign's grid tools use a gutter. The cell's own size is never touched by the gap: whatever
-Columns/Rows or Square Size/Hex Width solved for the cell is exactly what gets drawn. The gap
-instead widens the *pitch* — the centre-to-centre spacing used to place cells — on top of that
-size, the way a CSS Grid `gap` works. Because the cell size is fixed and only the spacing between
-cells grows, a square is always drawn as a real square no matter what Gap X/Gap Y are set to, and
-a hex is always drawn as a real regular hexagon — differing gap values can never distort either
-shape into something irregular.
+InDesign's grid tools use a gutter. The gap widens the *pitch*, the centre-to-centre spacing used to
+place cells, and never stretches a cell on one axis only: a square is always drawn as a real square
+no matter what Gap X/Gap Y are set to, and a hex is always drawn as a real regular hexagon.
 
-One consequence follows directly from that: the gap and the map area now compete for the same
-space. Columns/Rows (and, for a fixed cell size, the whole-cell AutoFit counts) are normally
-exact or a guaranteed minimum, but a large enough gap can eat enough of the map area that fewer
-whole cells fit than requested — the status bar's reported count is always what actually fits.
+What pays for the gap depends on what is fixed:
+
+- **Auto-fit squares sized by Columns/Rows** treat the gap the way a CSS Grid `gap` does. The
+  requested counts are kept exactly and the gaps come out of the squares: the side shrinks until
+  Columns squares plus (Columns - 1) gaps fit the map area's width, likewise for rows, and the
+  tighter axis wins. If the gaps alone fill the map area, the layout reports an error naming Gap X/Gap Y.
+- **Everywhere else** (a fixed square size, auto-fit squares off, and hexes) the cell size is never
+  touched by the gap: whatever Square Size/Hex Width or Columns/Rows solved for the cell is exactly
+  what gets drawn, and the gap and the map area compete for the same space. A large enough gap can
+  mean fewer whole cells fit than requested. The status bar's reported count is always what fits.
 
 For squares, Gap X and Gap Y widen the horizontal and vertical pitch independently, so unequal
 values just space columns and rows apart by different amounts; the square itself stays square.
