@@ -35,7 +35,8 @@ public static class GridLayoutEngine
         (IReadOnlyList<GridCell> cells, double[] columnCenterXs, double[] rowCenterYs, RectangleF gridBounds) = s.GridType switch
         {
             GridType.Square => SquareLayoutEngine.BuildCells(s, scale, fit, clip, columnLabels, rowLabels),
-            _ => HexLayoutEngine.BuildCells(s, scale, fit, clip, columnLabels, rowLabels),
+            GridType.Hex => HexLayoutEngine.BuildCells(s, scale, fit, clip, columnLabels, rowLabels),
+            _ => throw new ArgumentOutOfRangeException(nameof(s), s.GridType, message: null),
         };
 
         RectangleF nominalClip = clip;
@@ -130,7 +131,8 @@ public static class GridLayoutEngine
             fit = s.GridType switch
             {
                 GridType.Square => SquareLayoutEngine.Solve(s, scale, clip),
-                _ => HexLayoutEngine.Solve(s, scale, clip),
+                GridType.Hex => HexLayoutEngine.Solve(s, scale, clip),
+                _ => throw new ArgumentOutOfRangeException(nameof(s), s.GridType, message: null),
             };
         }
 

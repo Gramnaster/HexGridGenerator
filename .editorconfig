@@ -1,0 +1,11 @@
+# Inherits CSharp/.editorconfig (root). Project-specific analyzer severities only.
+
+[*.cs]
+# SS036 (explicit enum values): enums are never cast to int, presets store member names
+# (JsonStringEnumConverter), and LayerKind documents that its declaration order is draw order.
+# Explicit values would be noise.
+dotnet_diagnostic.SS036.severity = none
+
+# SS039 (zero member named None/Unknown): every settings enum has a meaningful default
+# (GridType.Hex, LengthUnit.Pixels, ...). A None member would make invalid state representable.
+dotnet_diagnostic.SS039.severity = none

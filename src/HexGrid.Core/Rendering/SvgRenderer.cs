@@ -281,7 +281,7 @@ public static class SvgRenderer
             destination.TryWrite(CultureInfo.InvariantCulture, $"#{color.R:x2}{color.G:x2}{color.B:x2}", out charsWritten);
 
         public string ToString(string? format, IFormatProvider? formatProvider) =>
-            string.Create(CultureInfo.InvariantCulture, $"#{color.R:x2}{color.G:x2}{color.B:x2}");
+            $"#{color.R:x2}{color.G:x2}{color.B:x2}";
 
         public override string ToString() => ToString(format: null, formatProvider: null);
     }

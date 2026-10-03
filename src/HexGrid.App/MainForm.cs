@@ -158,7 +158,7 @@ public sealed class MainForm : Form
     {
         foreach (int percent in ZoomPresets)
         {
-            var item = new ToolStripMenuItem($"{percent}%") { Tag = percent };
+            var item = new ToolStripMenuItem(string.Create(CultureInfo.CurrentCulture, $"{percent}%")) { Tag = percent };
             item.Click += (_, _) => SetZoom(percent);
             _zoomMenu.Items.Add(item);
         }

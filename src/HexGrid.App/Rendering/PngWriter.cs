@@ -57,7 +57,10 @@ public static class PngWriter
 
         int width = bitmap.Width;
         int height = bitmap.Height;
+        // SS003: integer ceiling division is intentional, so a partial last band still counts.
+#pragma warning disable SS003
         int bandCount = (height + BandRows - 1) / BandRows;
+#pragma warning restore SS003
         var bands = new byte[bandCount][];
         var bandAdlers = new uint[bandCount];
 

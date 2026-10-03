@@ -53,7 +53,8 @@ public sealed class DrawScene
             LayerKind.HexFill => "SquareFill",
             LayerKind.HexGrid => "SquareGrid",
             LayerKind.HexLabels => "SquareLabels",
-            _ => kind.ToString(),
+            LayerKind.CenterDots or LayerKind.EdgeLabels or LayerKind.Border => kind.ToString(),
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, message: null),
         };
     }
 }
