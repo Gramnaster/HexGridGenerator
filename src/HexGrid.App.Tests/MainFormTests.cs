@@ -59,26 +59,55 @@ public class MainFormTests
     });
 
     [Fact]
-    public void AdjustZoom_RapidNotches_DefersTheRedrawUntilTheDebounceFires() => StaThread.Run(() =>
+    public void AdjustZoom_Notch_ZoomsThePanelWithoutWaitingForARender() => StaThread.Run(() =>
     {
         // Arrange
         using MainForm form = NewOffscreenForm();
         ShowAndPump(form);
         var preview = (PreviewPanel)GetInstanceField(form, "_preview")!;
-        object? before = GetInstanceField(preview, "_image");
+        double before = preview.Zoom;
 
-        // Act: three wheel notches in a row, faster than the debounce interval.
-        for (int i = 0; i < 3; i++)
-        {
-            InvokePrivate(form, "AdjustZoom", 1);
-        }
+        // Act
+        RaiseFromMessageLoop(form, () => InvokePrivate(form, "AdjustZoom", 1, Point.Empty));
 
-        object? immediately = GetInstanceField(preview, "_image");
-        bool redrawn = PumpUntil(() => !ReferenceEquals(GetInstanceField(preview, "_image"), before));
+        // Assert: the frame takes milliseconds to render, far longer than one pass of the message loop,
+        // so the zoom cannot have waited for it.
+        Assert.Equal(before * 1.25, preview.Zoom, precision: 9);
+    });
+
+    [Fact]
+    public void AdjustZoom_Notch_RendersAnExactFrameForTheNewViewInTheBackground() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        var preview = (PreviewPanel)GetInstanceField(form, "_preview")!;
+
+        // Act
+        RaiseFromMessageLoop(form, () => InvokePrivate(form, "AdjustZoom", 1, Point.Empty));
+        double scale = PreviewPanel.RenderScaleFor(preview.Zoom);
+        bool covered = PumpUntil(() => preview.HasFrameCovering(scale, preview.VisibleRegion(scale, marginPx: 0)));
 
         // Assert
-        Assert.Same(before, immediately);
-        Assert.True(redrawn);
+        Assert.True(covered);
+    });
+
+    [Fact]
+    public void AdjustZoom_ManyNotches_StopsAt3200PercentOfTheCanvasPixels() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        var preview = (PreviewPanel)GetInstanceField(form, "_preview")!;
+
+        // Act
+        for (int i = 0; i < 100; i++)
+        {
+            RaiseFromMessageLoop(form, () => InvokePrivate(form, "AdjustZoom", 1, Point.Empty));
+        }
+
+        // Assert
+        Assert.Equal(32.0, preview.Zoom, precision: 9);
     });
 
     [Fact]
@@ -162,6 +191,16 @@ public class MainFormTests
     private static void ShowAndPump(Form form)
     {
         form.Show();
+        Application.DoEvents();
+    }
+
+    // Wheel and menu events reach MainForm from inside the message loop, where WinForms keeps its
+    // SynchronizationContext installed, so the preview render loop resumes on the UI thread. Called
+    // straight from the test body a handler would run outside that loop, so it is posted to the loop
+    // instead, the way a real event arrives.
+    private static void RaiseFromMessageLoop(Control control, Action handler)
+    {
+        control.BeginInvoke(handler);
         Application.DoEvents();
     }
 

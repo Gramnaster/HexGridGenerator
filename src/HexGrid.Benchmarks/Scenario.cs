@@ -14,4 +14,7 @@ public enum Scenario
 
     /// <summary>A0 at 300 dpi, 12 mm hexes with a label in every cell: 139 megapixels and about 53,000 draw items.</summary>
     A0HexLabelled,
+
+    /// <summary>2A0 at 300 dpi, 12 mm hexes with a label in every cell: the largest paper preset, 279 megapixels.</summary>
+    TwoA0HexLabelled,
 }

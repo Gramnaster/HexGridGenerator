@@ -37,7 +37,7 @@ src/
     Presets/           JSON save and load
     Naming/            filename token expansion
   HexGrid.App/         net10.0-windows  WinForms shell
-    Rendering/         GDI+ rasteriser (live preview and PNG export), PNG encoder, export service
+    Rendering/         GDI+ rasteriser (live preview and PNG export), background preview renderer, PNG encoder, export service
   HexGrid.Core.Tests/  net10.0          xUnit tests for HexGrid.Core
   HexGrid.App.Tests/   net10.0-windows  xUnit tests for HexGrid.App
 ```
@@ -221,8 +221,8 @@ them with `dotnet test`.
 `HexGrid.Benchmarks` is a BenchmarkDotNet harness covering every live-preview stage (layout,
 scene, preview raster), SVG export, full-resolution PNG export and the square fit advisor, across
 a default grid, a 120 × 80 labelled grid and a gapped auto-fit square grid, with an A0 labelled
-grid (139 megapixels) for the export path. It is a dev-time tool
-and never ships in the exe. Run it in Release from the repo root:
+grid (139 megapixels) for the export path and a 2A0 labelled grid for the zoomed preview. It is
+a dev-time tool and never ships in the exe. Run it in Release from the repo root:
 
 ```
 dotnet run -c Release --project src/HexGrid.Benchmarks -- --filter "*"

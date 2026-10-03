@@ -12,8 +12,17 @@ namespace HexGrid.App;
 public sealed class MainForm : Form
 {
     private const double MinZoomPercent = 10.0;
-    private const double MaxZoomPercent = 400.0;
-    private const double ZoomStepPercent = 10.0;
+
+    // The deepest zoom, in canvas pixels rather than percent of fit: 3200%, as in Photoshop. Past
+    // 100% the preview magnifies the exported pixels themselves, so going deeper costs no rendering.
+    private const double MaxZoomOfCanvas = 32.0;
+
+    // Each wheel notch multiplies or divides the zoom by this. A fixed step in percent would take
+    // thousands of notches to get from fit to 3200% on a large canvas.
+    private const double ZoomStepFactor = 1.25;
+
+    // Panel pixels rendered beyond each edge of the view, so a short pan needs no new frame.
+    private const int PreviewOverscanPx = 128;
     private static readonly int[] ZoomPresets = [200, 150, 100, 75, 50];
 
     // SS066: these three are Controls added into this form's own Controls tree in BuildUi() below
@@ -33,7 +42,10 @@ public sealed class MainForm : Form
     // here: a field initializer cannot reference _properties (CS0236), since it needs to already exist.
     private readonly PropertyGridBoolOverlay _boolOverlay;
     private readonly System.Windows.Forms.Timer _debounce = new() { Interval = 180 };
-    private readonly SceneRasterizer _rasterizer = new();
+
+    // Assigned in the constructor body for the same CS0236 reason as _boolOverlay: it is handed this
+    // form's own methods. Disposed explicitly below.
+    private readonly PreviewRenderLoop _renderLoop;
 
     // Not part of the Controls tree above (it's a popup, only assigned via _preview.ContextMenuStrip),
     // so it is not covered by the SS066 auto-dispose reasoning and needs its own Dispose() call below.
@@ -61,6 +73,7 @@ public sealed class MainForm : Form
         Size = new Size(1360, 860);
         StartPosition = FormStartPosition.CenterScreen;
 
+        _renderLoop = new PreviewRenderLoop(NextPreviewRequest, ShowPreviewFrame, ShowPreviewFailure);
         BuildUi();
         BuildZoomMenu();
 
@@ -76,7 +89,7 @@ public sealed class MainForm : Form
             }
             else
             {
-                RenderPreview();
+                RefreshPreview();
             }
         };
 
@@ -147,7 +160,8 @@ public sealed class MainForm : Form
 
         _preview.Dock = DockStyle.Fill;
         _preview.Resize += (_, _) => ScheduleRender();
-        _preview.ZoomRequested += (_, e) => AdjustZoom(e.Direction);
+        _preview.ZoomRequested += (_, e) => AdjustZoom(e.Direction, e.Location);
+        _preview.ViewportChanged += (_, _) => _renderLoop.Kick();
         _preview.ContextMenuStrip = _zoomMenu;
         split.Panel2.Controls.Add(_preview);
 
@@ -276,9 +290,10 @@ public sealed class MainForm : Form
             _layout = GridLayoutEngine.Build(_settings);
             _scene = SceneBuilder.Build(_settings, _layout);
             _preview.SetMessage(message: null);
+            _preview.MarkFrameStale();
 
             UpdateStatus();
-            RenderPreview();
+            RefreshPreview();
         }
         catch (Exception ex)
         {
@@ -289,40 +304,97 @@ public sealed class MainForm : Form
             Program.WriteCrashLog(ex);
             _layout = null;
             _scene = null;
-            _preview.SetImage(image: null);
+            _preview.ClearFrame();
             _preview.SetMessage(ex.Message);
             _status.Text = "Cannot lay out this grid: " + ex.Message;
         }
     }
 
-    private void RenderPreview()
+    /// <summary>Applies the current zoom to the panel and starts rendering whatever it now lacks.</summary>
+    private void RefreshPreview(Point? zoomAnchor = null)
     {
         if (_scene is null)
         {
             return;
         }
 
-        int availW = Math.Max(1, _preview.ClientSize.Width - 24);
-        int availH = Math.Max(1, _preview.ClientSize.Height - 24);
-        double fitScale = Math.Min(availW / _scene.WidthPx, availH / _scene.HeightPx);
-        fitScale = Math.Clamp(fitScale, 0.001, 1.0);
-
-        // _zoomPercent is relative to the live "fit" scale above, not to native canvas pixels. At
-        // 100% (the default) the preview always fits the panel, matching the pre-zoom behavior.
-        double scale = Math.Max(0.001, fitScale * (_zoomPercent / 100.0));
-
-        Color bg = ExportService.BackgroundFor(_settings);
-        _preview.SetImage(_rasterizer.Render(_scene, bg, _settings.Antialiasing, scale, minStrokePx: 1.0));
+        _preview.SetView(_scene.WidthPx, _scene.HeightPx, PreviewZoom(_scene), zoomAnchor);
+        _renderLoop.Kick();
     }
 
-    private void AdjustZoom(int direction) => SetZoom(_zoomPercent + (direction * ZoomStepPercent));
+    // Panel pixels per canvas pixel. _zoomPercent is relative to the live "fit" scale, not to native
+    // canvas pixels. At 100% (the default) the preview always fits the panel.
+    private double PreviewZoom(DrawScene scene) =>
+        Math.Min(FitScale(scene) * (_zoomPercent / 100.0), MaxZoomOfCanvas);
 
-    // Debounced like a settings edit: a fast wheel spin is many notches, and rasterising the whole
-    // canvas for every intermediate zoom level only delays the one the user stops on.
-    private void SetZoom(double percent)
+    private double FitScale(DrawScene scene)
     {
-        _zoomPercent = Math.Clamp(percent, MinZoomPercent, MaxZoomPercent);
-        ScheduleRender();
+        // The panel's full size, not ClientSize: the scrollbars that appear once zoomed past fit must
+        // not shrink the fit scale, or every zoom past fit would render twice at slightly different scales.
+        int availW = Math.Max(1, _preview.Width - 24);
+        int availH = Math.Max(1, _preview.Height - 24);
+        return Math.Clamp(Math.Min(availW / scene.WidthPx, availH / scene.HeightPx), 0.001, 1.0);
+    }
+
+    /// <summary>The frame the panel needs for what is in view now, or null when its current frame covers it.</summary>
+    private PreviewRequest? NextPreviewRequest()
+    {
+        if (_scene is null || _preview.Zoom <= 0)
+        {
+            return null;
+        }
+
+        double scale = PreviewPanel.RenderScaleFor(_preview.Zoom);
+        Rectangle inView = _preview.VisibleRegion(scale, marginPx: 0);
+        if (inView.IsEmpty || _preview.HasFrameCovering(scale, inView))
+        {
+            return null;
+        }
+
+        return new PreviewRequest(
+            _scene, ExportService.BackgroundFor(_settings), _settings.Antialiasing, scale, _preview.VisibleRegion(scale, PreviewOverscanPx));
+    }
+
+    private void ShowPreviewFrame(PreviewRequest request, Bitmap frame)
+    {
+        // Rendered for a scene that a rebuild has replaced since. IDISP007: the render loop hands the
+        // frame over to this method, so it is this method's to dispose, not an injected dependency.
+        if (!ReferenceEquals(request.Scene, _scene))
+        {
+#pragma warning disable IDISP007
+            frame.Dispose();
+#pragma warning restore IDISP007
+            return;
+        }
+
+        _preview.SetFrame(frame, request.Scale, request.Region);
+    }
+
+    private void ShowPreviewFailure(Exception ex)
+    {
+        // As in Rebuild(): friendly ex.Message for the UI, full exception to the crash log.
+        Program.WriteCrashLog(ex);
+        _preview.SetMessage(ex.Message);
+    }
+
+    private void AdjustZoom(int direction, Point anchor)
+    {
+        if (direction == 0)
+        {
+            return;
+        }
+
+        SetZoom(direction > 0 ? _zoomPercent * ZoomStepFactor : _zoomPercent / ZoomStepFactor, anchor);
+    }
+
+    // Not debounced: the panel rescales at once, showing the last frame stretched, while the exact
+    // frame renders in the background. A fast wheel spin cancels the frames it overtakes.
+    private void SetZoom(double percent, Point? anchor = null)
+    {
+        // The deepest zoom is fixed in canvas pixels, so as a percent of fit it depends on the canvas and panel.
+        double maxPercent = _scene is null ? percent : MaxZoomOfCanvas / FitScale(_scene) * 100.0;
+        _zoomPercent = Math.Clamp(percent, MinZoomPercent, Math.Max(MinZoomPercent, maxPercent));
+        RefreshPreview(anchor);
     }
 
     private void UpdateStatus()
@@ -439,8 +511,8 @@ public sealed class MainForm : Form
 
     private GridSettings SnapshotSettings() => PresetIo.Deserialize(PresetIo.Serialize(_settings));
 
-    // SceneRasterizer caches fonts, pens and brushes without locking, and _rasterizer keeps drawing
-    // the preview on the UI thread meanwhile, so a background export gets a rasterizer of its own.
+    // SceneRasterizer caches fonts, pens and brushes without locking, and the preview render loop
+    // keeps its own busy meanwhile, so a background export gets a rasterizer of its own.
     private static IReadOnlyList<string> SavePngWithOwnRasterizer(DrawScene scene, GridSettings settings, string path)
     {
         using var rasterizer = new SceneRasterizer();
@@ -595,7 +667,7 @@ public sealed class MainForm : Form
         if (disposing)
         {
             _debounce.Dispose();
-            _rasterizer.Dispose();
+            _renderLoop.Dispose();
             _zoomMenu.Dispose();
             _boolOverlay.Dispose();
         }

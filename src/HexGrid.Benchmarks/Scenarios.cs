@@ -30,6 +30,13 @@ internal static class Scenarios
             HexWidth = 12,
             ShowHexLabels = true,
         },
+        Scenario.TwoA0HexLabelled => new GridSettings
+        {
+            Preset = CanvasPreset.TwoA0,
+            SizingMode = GridSizingMode.FixedHexWidth,
+            HexWidth = 12,
+            ShowHexLabels = true,
+        },
         _ => throw new ArgumentOutOfRangeException(nameof(scenario), scenario, message: null),
     };
 }
