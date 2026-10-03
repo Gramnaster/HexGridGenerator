@@ -62,6 +62,19 @@ public class PreviewViewportBenchmarks : IDisposable
         return bitmap.Size;
     }
 
+    /// <summary>
+    /// With Smooth zoom on, the preview renders in view at the zoom itself: 8 and 32 times the
+    /// canvas's own pixels, the second being the deepest zoom.
+    /// </summary>
+    [Benchmark]
+    public Size VisibleRegionSmoothZoom()
+    {
+        double scale = 8.0 * ZoomOfFit;
+        using Bitmap bitmap = rasterizer.RenderRegion(
+            scene!, Color.Transparent, settings.Antialiasing, scale, CentredRegion(scale), minStrokePx: 0, CancellationToken.None);
+        return bitmap.Size;
+    }
+
     private Rectangle CentredRegion(double scale)
     {
         var canvas = new Rectangle(0, 0, (int)Math.Ceiling(scene!.WidthPx * scale), (int)Math.Ceiling(scene.HeightPx * scale));

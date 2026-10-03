@@ -1,0 +1,692 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 8 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1/" /p:OutDir="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0/" /p:OutputPath="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0/" /p:PublishDir="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\publish/" in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1
+// command took 2.24 sec and exited with 0
+// start dotnet  build -c Release --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1/" /p:OutDir="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0/" /p:OutputPath="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0/" /p:PublishDir="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\publish/" --output "C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0/" in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1
+// command took 16.38 sec and exited with 0
+// ***** Done, took 00:00:18 (18.78 sec)   *****
+// Found 8 benchmarks:
+//   PreviewViewportBenchmarks.WholeCanvas: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+//   PreviewViewportBenchmarks.VisibleRegion: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+//   PreviewViewportBenchmarks.VisibleRegionNative: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+//   PreviewViewportBenchmarks.VisibleRegionSmoothZoom: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+//   PreviewViewportBenchmarks.WholeCanvas: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+//   PreviewViewportBenchmarks.VisibleRegion: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+//   PreviewViewportBenchmarks.VisibleRegionNative: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+//   PreviewViewportBenchmarks.VisibleRegionSmoothZoom: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PreviewViewportBenchmarks.WholeCanvas: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-KRRUPJ-1.dll --anonymousPipes 1576 1580 --benchmarkName "HexGrid.Benchmarks.PreviewViewportBenchmarks.WholeCanvas(ZoomOfFit: 1)" --job "IterationCount=8, LaunchCount=1, WarmupCount=2" --benchmarkId 0 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2)
+
+OverheadJitting  1: 1 op, 202600.00 ns, 202.6000 us/op
+WorkloadJitting  1: 1 op, 242170000.00 ns, 242.1700 ms/op
+
+WorkloadPilot    1: 2 op, 331806500.00 ns, 165.9033 ms/op
+WorkloadPilot    2: 3 op, 472673400.00 ns, 157.5578 ms/op
+WorkloadPilot    3: 4 op, 604697900.00 ns, 151.1745 ms/op
+
+WorkloadWarmup   1: 4 op, 594186700.00 ns, 148.5467 ms/op
+WorkloadWarmup   2: 4 op, 597666100.00 ns, 149.4165 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 4 op, 619094700.00 ns, 154.7737 ms/op
+WorkloadActual   2: 4 op, 599204600.00 ns, 149.8012 ms/op
+WorkloadActual   3: 4 op, 596254100.00 ns, 149.0635 ms/op
+WorkloadActual   4: 4 op, 606017900.00 ns, 151.5045 ms/op
+WorkloadActual   5: 4 op, 581900500.00 ns, 145.4751 ms/op
+WorkloadActual   6: 4 op, 587513300.00 ns, 146.8783 ms/op
+WorkloadActual   7: 4 op, 585660000.00 ns, 146.4150 ms/op
+WorkloadActual   8: 4 op, 624103100.00 ns, 156.0258 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 4 op, 619094700.00 ns, 154.7737 ms/op
+WorkloadResult   2: 4 op, 599204600.00 ns, 149.8012 ms/op
+WorkloadResult   3: 4 op, 596254100.00 ns, 149.0635 ms/op
+WorkloadResult   4: 4 op, 606017900.00 ns, 151.5045 ms/op
+WorkloadResult   5: 4 op, 581900500.00 ns, 145.4751 ms/op
+WorkloadResult   6: 4 op, 587513300.00 ns, 146.8783 ms/op
+WorkloadResult   7: 4 op, 585660000.00 ns, 146.4150 ms/op
+WorkloadResult   8: 4 op, 624103100.00 ns, 156.0258 ms/op
+// GC:  0 0 0 1792 4
+// Threading:  0 0 4
+
+// AfterAll
+// Benchmark Process 37584 has exited with code 0.
+
+Mean = 149.992 ms, StdErr = 1.372 ms (0.91%), N = 8, StdDev = 3.879 ms
+Min = 145.475 ms, Q1 = 146.762 ms, Median = 149.432 ms, Q3 = 152.322 ms, Max = 156.026 ms
+IQR = 5.559 ms, LowerFence = 138.424 ms, UpperFence = 160.661 ms
+ConfidenceInterval = [142.575 ms; 157.409 ms] (CI 99.9%), Margin = 7.417 ms (4.95% of Mean)
+Skewness = 0.35, Kurtosis = 1.4, MValue = 2
+
+// ** Remained 7 (87.5 %) benchmark(s) to run. Estimated finish 2026-10-03 10:37 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PreviewViewportBenchmarks.VisibleRegion: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-KRRUPJ-1.dll --anonymousPipes 2084 2100 --benchmarkName "HexGrid.Benchmarks.PreviewViewportBenchmarks.VisibleRegion(ZoomOfFit: 1)" --job "IterationCount=8, LaunchCount=1, WarmupCount=2" --benchmarkId 1 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2)
+
+OverheadJitting  1: 1 op, 234100.00 ns, 234.1000 us/op
+WorkloadJitting  1: 1 op, 258424200.00 ns, 258.4242 ms/op
+
+WorkloadPilot    1: 2 op, 330919600.00 ns, 165.4598 ms/op
+WorkloadPilot    2: 3 op, 427794300.00 ns, 142.5981 ms/op
+WorkloadPilot    3: 4 op, 548347300.00 ns, 137.0868 ms/op
+
+WorkloadWarmup   1: 4 op, 545865100.00 ns, 136.4663 ms/op
+WorkloadWarmup   2: 4 op, 541703500.00 ns, 135.4259 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 4 op, 526935000.00 ns, 131.7338 ms/op
+WorkloadActual   2: 4 op, 543058400.00 ns, 135.7646 ms/op
+WorkloadActual   3: 4 op, 575061400.00 ns, 143.7654 ms/op
+WorkloadActual   4: 4 op, 585377200.00 ns, 146.3443 ms/op
+WorkloadActual   5: 4 op, 582877500.00 ns, 145.7194 ms/op
+WorkloadActual   6: 4 op, 593501500.00 ns, 148.3754 ms/op
+WorkloadActual   7: 4 op, 573605300.00 ns, 143.4013 ms/op
+WorkloadActual   8: 4 op, 550901200.00 ns, 137.7253 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 4 op, 526935000.00 ns, 131.7338 ms/op
+WorkloadResult   2: 4 op, 543058400.00 ns, 135.7646 ms/op
+WorkloadResult   3: 4 op, 575061400.00 ns, 143.7654 ms/op
+WorkloadResult   4: 4 op, 585377200.00 ns, 146.3443 ms/op
+WorkloadResult   5: 4 op, 582877500.00 ns, 145.7194 ms/op
+WorkloadResult   6: 4 op, 593501500.00 ns, 148.3754 ms/op
+WorkloadResult   7: 4 op, 573605300.00 ns, 143.4013 ms/op
+WorkloadResult   8: 4 op, 550901200.00 ns, 137.7253 ms/op
+// GC:  0 0 0 1792 4
+// Threading:  0 0 4
+
+// AfterAll
+// Benchmark Process 60532 has exited with code 0.
+
+Mean = 141.604 ms, StdErr = 2.069 ms (1.46%), N = 8, StdDev = 5.852 ms
+Min = 131.734 ms, Q1 = 137.235 ms, Median = 143.583 ms, Q3 = 145.876 ms, Max = 148.375 ms
+IQR = 8.640 ms, LowerFence = 124.274 ms, UpperFence = 158.836 ms
+ConfidenceInterval = [130.415 ms; 152.793 ms] (CI 99.9%), Margin = 11.189 ms (7.90% of Mean)
+Skewness = -0.45, Kurtosis = 1.47, MValue = 3.2
+
+// ** Remained 6 (75.0 %) benchmark(s) to run. Estimated finish 2026-10-03 10:37 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PreviewViewportBenchmarks.VisibleRegionNative: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-KRRUPJ-1.dll --anonymousPipes 668 664 --benchmarkName "HexGrid.Benchmarks.PreviewViewportBenchmarks.VisibleRegionNative(ZoomOfFit: 1)" --job "IterationCount=8, LaunchCount=1, WarmupCount=2" --benchmarkId 2 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2)
+
+OverheadJitting  1: 1 op, 248800.00 ns, 248.8000 us/op
+WorkloadJitting  1: 1 op, 98173900.00 ns, 98.1739 ms/op
+
+WorkloadPilot    1: 2 op, 26309700.00 ns, 13.1549 ms/op
+WorkloadPilot    2: 3 op, 40880100.00 ns, 13.6267 ms/op
+WorkloadPilot    3: 4 op, 55657800.00 ns, 13.9145 ms/op
+WorkloadPilot    4: 5 op, 72169700.00 ns, 14.4339 ms/op
+WorkloadPilot    5: 6 op, 75746700.00 ns, 12.6245 ms/op
+WorkloadPilot    6: 7 op, 83180600.00 ns, 11.8829 ms/op
+WorkloadPilot    7: 8 op, 82177300.00 ns, 10.2722 ms/op
+WorkloadPilot    8: 9 op, 92841900.00 ns, 10.3158 ms/op
+WorkloadPilot    9: 10 op, 111820200.00 ns, 11.1820 ms/op
+WorkloadPilot   10: 11 op, 122815100.00 ns, 11.1650 ms/op
+WorkloadPilot   11: 12 op, 131515400.00 ns, 10.9596 ms/op
+WorkloadPilot   12: 13 op, 133066900.00 ns, 10.2359 ms/op
+WorkloadPilot   13: 14 op, 143683900.00 ns, 10.2631 ms/op
+WorkloadPilot   14: 15 op, 141580200.00 ns, 9.4387 ms/op
+WorkloadPilot   15: 16 op, 158619400.00 ns, 9.9137 ms/op
+WorkloadPilot   16: 32 op, 328489900.00 ns, 10.2653 ms/op
+WorkloadPilot   17: 64 op, 624851500.00 ns, 9.7633 ms/op
+
+WorkloadWarmup   1: 64 op, 614119700.00 ns, 9.5956 ms/op
+WorkloadWarmup   2: 64 op, 627152500.00 ns, 9.7993 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 64 op, 593320500.00 ns, 9.2706 ms/op
+WorkloadActual   2: 64 op, 604556100.00 ns, 9.4462 ms/op
+WorkloadActual   3: 64 op, 601758600.00 ns, 9.4025 ms/op
+WorkloadActual   4: 64 op, 623431500.00 ns, 9.7411 ms/op
+WorkloadActual   5: 64 op, 608275300.00 ns, 9.5043 ms/op
+WorkloadActual   6: 64 op, 599702700.00 ns, 9.3704 ms/op
+WorkloadActual   7: 64 op, 597946100.00 ns, 9.3429 ms/op
+WorkloadActual   8: 64 op, 627834400.00 ns, 9.8099 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 64 op, 593320500.00 ns, 9.2706 ms/op
+WorkloadResult   2: 64 op, 604556100.00 ns, 9.4462 ms/op
+WorkloadResult   3: 64 op, 601758600.00 ns, 9.4025 ms/op
+WorkloadResult   4: 64 op, 623431500.00 ns, 9.7411 ms/op
+WorkloadResult   5: 64 op, 608275300.00 ns, 9.5043 ms/op
+WorkloadResult   6: 64 op, 599702700.00 ns, 9.3704 ms/op
+WorkloadResult   7: 64 op, 597946100.00 ns, 9.3429 ms/op
+WorkloadResult   8: 64 op, 627834400.00 ns, 9.8099 ms/op
+// GC:  0 0 0 32256 64
+// Threading:  0 0 64
+
+// AfterAll
+// Benchmark Process 60456 has exited with code 0.
+
+Mean = 9.486 ms, StdErr = 0.068 ms (0.72%), N = 8, StdDev = 0.192 ms
+Min = 9.271 ms, Q1 = 9.363 ms, Median = 9.424 ms, Q3 = 9.564 ms, Max = 9.810 ms
+IQR = 0.200 ms, LowerFence = 9.063 ms, UpperFence = 9.864 ms
+ConfidenceInterval = [9.118 ms; 9.854 ms] (CI 99.9%), Margin = 0.368 ms (3.88% of Mean)
+Skewness = 0.62, Kurtosis = 1.65, MValue = 2
+
+// ** Remained 5 (62.5 %) benchmark(s) to run. Estimated finish 2026-10-03 10:37 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PreviewViewportBenchmarks.VisibleRegionSmoothZoom: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-KRRUPJ-1.dll --anonymousPipes 2008 2016 --benchmarkName "HexGrid.Benchmarks.PreviewViewportBenchmarks.VisibleRegionSmoothZoom(ZoomOfFit: 1)" --job "IterationCount=8, LaunchCount=1, WarmupCount=2" --benchmarkId 3 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2)
+
+OverheadJitting  1: 1 op, 228600.00 ns, 228.6000 us/op
+WorkloadJitting  1: 1 op, 91855700.00 ns, 91.8557 ms/op
+
+WorkloadPilot    1: 2 op, 16433300.00 ns, 8.2167 ms/op
+WorkloadPilot    2: 3 op, 25534600.00 ns, 8.5115 ms/op
+WorkloadPilot    3: 4 op, 34621300.00 ns, 8.6553 ms/op
+WorkloadPilot    4: 5 op, 35356800.00 ns, 7.0714 ms/op
+WorkloadPilot    5: 6 op, 31520100.00 ns, 5.2534 ms/op
+WorkloadPilot    6: 7 op, 38368400.00 ns, 5.4812 ms/op
+WorkloadPilot    7: 8 op, 45506900.00 ns, 5.6884 ms/op
+WorkloadPilot    8: 9 op, 48812600.00 ns, 5.4236 ms/op
+WorkloadPilot    9: 10 op, 52174700.00 ns, 5.2175 ms/op
+WorkloadPilot   10: 11 op, 58941200.00 ns, 5.3583 ms/op
+WorkloadPilot   11: 12 op, 67480000.00 ns, 5.6233 ms/op
+WorkloadPilot   12: 13 op, 66489900.00 ns, 5.1146 ms/op
+WorkloadPilot   13: 14 op, 80942900.00 ns, 5.7816 ms/op
+WorkloadPilot   14: 15 op, 78971900.00 ns, 5.2648 ms/op
+WorkloadPilot   15: 16 op, 81365500.00 ns, 5.0853 ms/op
+WorkloadPilot   16: 32 op, 165959700.00 ns, 5.1862 ms/op
+WorkloadPilot   17: 64 op, 341464000.00 ns, 5.3354 ms/op
+WorkloadPilot   18: 128 op, 663908800.00 ns, 5.1868 ms/op
+
+WorkloadWarmup   1: 128 op, 657859700.00 ns, 5.1395 ms/op
+WorkloadWarmup   2: 128 op, 663392100.00 ns, 5.1828 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 128 op, 657776000.00 ns, 5.1389 ms/op
+WorkloadActual   2: 128 op, 668733700.00 ns, 5.2245 ms/op
+WorkloadActual   3: 128 op, 652782700.00 ns, 5.0999 ms/op
+WorkloadActual   4: 128 op, 665156000.00 ns, 5.1965 ms/op
+WorkloadActual   5: 128 op, 671613800.00 ns, 5.2470 ms/op
+WorkloadActual   6: 128 op, 652776400.00 ns, 5.0998 ms/op
+WorkloadActual   7: 128 op, 660078800.00 ns, 5.1569 ms/op
+WorkloadActual   8: 128 op, 671878500.00 ns, 5.2491 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 128 op, 657776000.00 ns, 5.1389 ms/op
+WorkloadResult   2: 128 op, 668733700.00 ns, 5.2245 ms/op
+WorkloadResult   3: 128 op, 652782700.00 ns, 5.0999 ms/op
+WorkloadResult   4: 128 op, 665156000.00 ns, 5.1965 ms/op
+WorkloadResult   5: 128 op, 671613800.00 ns, 5.2470 ms/op
+WorkloadResult   6: 128 op, 652776400.00 ns, 5.0998 ms/op
+WorkloadResult   7: 128 op, 660078800.00 ns, 5.1569 ms/op
+WorkloadResult   8: 128 op, 671878500.00 ns, 5.2491 ms/op
+// GC:  0 0 0 64512 128
+// Threading:  0 0 128
+
+// AfterAll
+// Benchmark Process 624 has exited with code 0.
+
+Mean = 5.177 ms, StdErr = 0.022 ms (0.42%), N = 8, StdDev = 0.062 ms
+Min = 5.100 ms, Q1 = 5.129 ms, Median = 5.177 ms, Q3 = 5.230 ms, Max = 5.249 ms
+IQR = 0.101 ms, LowerFence = 4.978 ms, UpperFence = 5.382 ms
+ConfidenceInterval = [5.059 ms; 5.294 ms] (CI 99.9%), Margin = 0.118 ms (2.27% of Mean)
+Skewness = -0.06, Kurtosis = 1.13, MValue = 2
+
+// ** Remained 4 (50.0 %) benchmark(s) to run. Estimated finish 2026-10-03 10:37 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PreviewViewportBenchmarks.WholeCanvas: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-KRRUPJ-1.dll --anonymousPipes 992 2040 --benchmarkName "HexGrid.Benchmarks.PreviewViewportBenchmarks.WholeCanvas(ZoomOfFit: 4)" --job "IterationCount=8, LaunchCount=1, WarmupCount=2" --benchmarkId 4 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2)
+
+OverheadJitting  1: 1 op, 203700.00 ns, 203.7000 us/op
+WorkloadJitting  1: 1 op, 329507800.00 ns, 329.5078 ms/op
+
+WorkloadPilot    1: 2 op, 468830700.00 ns, 234.4154 ms/op
+WorkloadPilot    2: 3 op, 696714700.00 ns, 232.2382 ms/op
+
+WorkloadWarmup   1: 3 op, 664456000.00 ns, 221.4853 ms/op
+WorkloadWarmup   2: 3 op, 665926200.00 ns, 221.9754 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 3 op, 664424600.00 ns, 221.4749 ms/op
+WorkloadActual   2: 3 op, 669877900.00 ns, 223.2926 ms/op
+WorkloadActual   3: 3 op, 662558100.00 ns, 220.8527 ms/op
+WorkloadActual   4: 3 op, 667071600.00 ns, 222.3572 ms/op
+WorkloadActual   5: 3 op, 651543100.00 ns, 217.1810 ms/op
+WorkloadActual   6: 3 op, 673686500.00 ns, 224.5622 ms/op
+WorkloadActual   7: 3 op, 667169400.00 ns, 222.3898 ms/op
+WorkloadActual   8: 3 op, 671220400.00 ns, 223.7401 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 3 op, 664424600.00 ns, 221.4749 ms/op
+WorkloadResult   2: 3 op, 669877900.00 ns, 223.2926 ms/op
+WorkloadResult   3: 3 op, 662558100.00 ns, 220.8527 ms/op
+WorkloadResult   4: 3 op, 667071600.00 ns, 222.3572 ms/op
+WorkloadResult   5: 3 op, 651543100.00 ns, 217.1810 ms/op
+WorkloadResult   6: 3 op, 673686500.00 ns, 224.5622 ms/op
+WorkloadResult   7: 3 op, 667169400.00 ns, 222.3898 ms/op
+WorkloadResult   8: 3 op, 671220400.00 ns, 223.7401 ms/op
+// GC:  0 0 0 1344 3
+// Threading:  0 0 3
+
+// AfterAll
+// Benchmark Process 57252 has exited with code 0.
+
+Mean = 221.981 ms, StdErr = 0.806 ms (0.36%), N = 8, StdDev = 2.279 ms
+Min = 217.181 ms, Q1 = 221.319 ms, Median = 222.374 ms, Q3 = 223.405 ms, Max = 224.562 ms
+IQR = 2.085 ms, LowerFence = 218.192 ms, UpperFence = 226.532 ms
+ConfidenceInterval = [217.624 ms; 226.339 ms] (CI 99.9%), Margin = 4.357 ms (1.96% of Mean)
+Skewness = -0.92, Kurtosis = 2.73, MValue = 2
+
+// ** Remained 3 (37.5 %) benchmark(s) to run. Estimated finish 2026-10-03 10:37 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PreviewViewportBenchmarks.VisibleRegion: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-KRRUPJ-1.dll --anonymousPipes 2372 2004 --benchmarkName "HexGrid.Benchmarks.PreviewViewportBenchmarks.VisibleRegion(ZoomOfFit: 4)" --job "IterationCount=8, LaunchCount=1, WarmupCount=2" --benchmarkId 5 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2)
+
+OverheadJitting  1: 1 op, 185400.00 ns, 185.4000 us/op
+WorkloadJitting  1: 1 op, 125698700.00 ns, 125.6987 ms/op
+
+WorkloadPilot    1: 2 op, 104658200.00 ns, 52.3291 ms/op
+WorkloadPilot    2: 3 op, 162294000.00 ns, 54.0980 ms/op
+WorkloadPilot    3: 4 op, 191427000.00 ns, 47.8568 ms/op
+WorkloadPilot    4: 5 op, 230413100.00 ns, 46.0826 ms/op
+WorkloadPilot    5: 6 op, 270275900.00 ns, 45.0460 ms/op
+WorkloadPilot    6: 7 op, 310487300.00 ns, 44.3553 ms/op
+WorkloadPilot    7: 8 op, 368208300.00 ns, 46.0260 ms/op
+WorkloadPilot    8: 9 op, 409075000.00 ns, 45.4528 ms/op
+WorkloadPilot    9: 10 op, 486349000.00 ns, 48.6349 ms/op
+WorkloadPilot   10: 11 op, 513412300.00 ns, 46.6738 ms/op
+
+WorkloadWarmup   1: 11 op, 499318000.00 ns, 45.3925 ms/op
+WorkloadWarmup   2: 11 op, 491368500.00 ns, 44.6699 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 11 op, 502966900.00 ns, 45.7243 ms/op
+WorkloadActual   2: 11 op, 521746800.00 ns, 47.4315 ms/op
+WorkloadActual   3: 11 op, 534508900.00 ns, 48.5917 ms/op
+WorkloadActual   4: 11 op, 518103200.00 ns, 47.1003 ms/op
+WorkloadActual   5: 11 op, 510259700.00 ns, 46.3872 ms/op
+WorkloadActual   6: 11 op, 536268500.00 ns, 48.7517 ms/op
+WorkloadActual   7: 11 op, 522488200.00 ns, 47.4989 ms/op
+WorkloadActual   8: 11 op, 521533900.00 ns, 47.4122 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 11 op, 502966900.00 ns, 45.7243 ms/op
+WorkloadResult   2: 11 op, 521746800.00 ns, 47.4315 ms/op
+WorkloadResult   3: 11 op, 534508900.00 ns, 48.5917 ms/op
+WorkloadResult   4: 11 op, 518103200.00 ns, 47.1003 ms/op
+WorkloadResult   5: 11 op, 510259700.00 ns, 46.3872 ms/op
+WorkloadResult   6: 11 op, 536268500.00 ns, 48.7517 ms/op
+WorkloadResult   7: 11 op, 522488200.00 ns, 47.4989 ms/op
+WorkloadResult   8: 11 op, 521533900.00 ns, 47.4122 ms/op
+// GC:  0 0 0 4928 11
+// Threading:  0 0 11
+
+// AfterAll
+// Benchmark Process 49236 has exited with code 0.
+
+Mean = 47.362 ms, StdErr = 0.358 ms (0.76%), N = 8, StdDev = 1.012 ms
+Min = 45.724 ms, Q1 = 46.922 ms, Median = 47.422 ms, Q3 = 47.772 ms, Max = 48.752 ms
+IQR = 0.850 ms, LowerFence = 45.647 ms, UpperFence = 49.047 ms
+ConfidenceInterval = [45.427 ms; 49.297 ms] (CI 99.9%), Margin = 1.935 ms (4.09% of Mean)
+Skewness = -0.1, Kurtosis = 1.68, MValue = 2
+
+// ** Remained 2 (25.0 %) benchmark(s) to run. Estimated finish 2026-10-03 10:37 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PreviewViewportBenchmarks.VisibleRegionNative: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-KRRUPJ-1.dll --anonymousPipes 2140 2136 --benchmarkName "HexGrid.Benchmarks.PreviewViewportBenchmarks.VisibleRegionNative(ZoomOfFit: 4)" --job "IterationCount=8, LaunchCount=1, WarmupCount=2" --benchmarkId 6 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2)
+
+OverheadJitting  1: 1 op, 228800.00 ns, 228.8000 us/op
+WorkloadJitting  1: 1 op, 90540700.00 ns, 90.5407 ms/op
+
+WorkloadPilot    1: 2 op, 25314200.00 ns, 12.6571 ms/op
+WorkloadPilot    2: 3 op, 42045600.00 ns, 14.0152 ms/op
+WorkloadPilot    3: 4 op, 56010700.00 ns, 14.0027 ms/op
+WorkloadPilot    4: 5 op, 61791100.00 ns, 12.3582 ms/op
+WorkloadPilot    5: 6 op, 73688800.00 ns, 12.2815 ms/op
+WorkloadPilot    6: 7 op, 74601000.00 ns, 10.6573 ms/op
+WorkloadPilot    7: 8 op, 82703600.00 ns, 10.3380 ms/op
+WorkloadPilot    8: 9 op, 102877300.00 ns, 11.4308 ms/op
+WorkloadPilot    9: 10 op, 102194300.00 ns, 10.2194 ms/op
+WorkloadPilot   10: 11 op, 112304900.00 ns, 10.2095 ms/op
+WorkloadPilot   11: 12 op, 129141800.00 ns, 10.7618 ms/op
+WorkloadPilot   12: 13 op, 132792700.00 ns, 10.2148 ms/op
+WorkloadPilot   13: 14 op, 139366300.00 ns, 9.9547 ms/op
+WorkloadPilot   14: 15 op, 146025500.00 ns, 9.7350 ms/op
+WorkloadPilot   15: 16 op, 160213100.00 ns, 10.0133 ms/op
+WorkloadPilot   16: 32 op, 302589900.00 ns, 9.4559 ms/op
+WorkloadPilot   17: 64 op, 612443100.00 ns, 9.5694 ms/op
+
+WorkloadWarmup   1: 64 op, 622502700.00 ns, 9.7266 ms/op
+WorkloadWarmup   2: 64 op, 604455400.00 ns, 9.4446 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 64 op, 614710700.00 ns, 9.6049 ms/op
+WorkloadActual   2: 64 op, 637068500.00 ns, 9.9542 ms/op
+WorkloadActual   3: 64 op, 635436500.00 ns, 9.9287 ms/op
+WorkloadActual   4: 64 op, 614083500.00 ns, 9.5951 ms/op
+WorkloadActual   5: 64 op, 623976900.00 ns, 9.7496 ms/op
+WorkloadActual   6: 64 op, 618129900.00 ns, 9.6583 ms/op
+WorkloadActual   7: 64 op, 615980200.00 ns, 9.6247 ms/op
+WorkloadActual   8: 64 op, 608072700.00 ns, 9.5011 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 64 op, 614710700.00 ns, 9.6049 ms/op
+WorkloadResult   2: 64 op, 637068500.00 ns, 9.9542 ms/op
+WorkloadResult   3: 64 op, 635436500.00 ns, 9.9287 ms/op
+WorkloadResult   4: 64 op, 614083500.00 ns, 9.5951 ms/op
+WorkloadResult   5: 64 op, 623976900.00 ns, 9.7496 ms/op
+WorkloadResult   6: 64 op, 618129900.00 ns, 9.6583 ms/op
+WorkloadResult   7: 64 op, 615980200.00 ns, 9.6247 ms/op
+WorkloadResult   8: 64 op, 608072700.00 ns, 9.5011 ms/op
+// GC:  0 0 0 32256 64
+// Threading:  0 0 64
+
+// AfterAll
+// Benchmark Process 45792 has exited with code 0.
+
+Mean = 9.702 ms, StdErr = 0.058 ms (0.59%), N = 8, StdDev = 0.163 ms
+Min = 9.501 ms, Q1 = 9.602 ms, Median = 9.641 ms, Q3 = 9.794 ms, Max = 9.954 ms
+IQR = 0.192 ms, LowerFence = 9.314 ms, UpperFence = 10.082 ms
+ConfidenceInterval = [9.390 ms; 10.014 ms] (CI 99.9%), Margin = 0.312 ms (3.22% of Mean)
+Skewness = 0.49, Kurtosis = 1.51, MValue = 2
+
+// ** Remained 1 (12.5 %) benchmark(s) to run. Estimated finish 2026-10-03 10:37 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: PreviewViewportBenchmarks.VisibleRegionSmoothZoom: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-KRRUPJ-1.dll --anonymousPipes 2144 2168 --benchmarkName "HexGrid.Benchmarks.PreviewViewportBenchmarks.VisibleRegionSmoothZoom(ZoomOfFit: 4)" --job "IterationCount=8, LaunchCount=1, WarmupCount=2" --benchmarkId 7 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-KRRUPJ-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2)
+
+OverheadJitting  1: 1 op, 208800.00 ns, 208.8000 us/op
+WorkloadJitting  1: 1 op, 87112100.00 ns, 87.1121 ms/op
+
+WorkloadPilot    1: 2 op, 16033700.00 ns, 8.0169 ms/op
+WorkloadPilot    2: 3 op, 23874200.00 ns, 7.9581 ms/op
+WorkloadPilot    3: 4 op, 31915400.00 ns, 7.9789 ms/op
+WorkloadPilot    4: 5 op, 40056500.00 ns, 8.0113 ms/op
+WorkloadPilot    5: 6 op, 29025400.00 ns, 4.8376 ms/op
+WorkloadPilot    6: 7 op, 33503000.00 ns, 4.7861 ms/op
+WorkloadPilot    7: 8 op, 39523000.00 ns, 4.9404 ms/op
+WorkloadPilot    8: 9 op, 40816900.00 ns, 4.5352 ms/op
+WorkloadPilot    9: 10 op, 57693500.00 ns, 5.7694 ms/op
+WorkloadPilot   10: 11 op, 50415200.00 ns, 4.5832 ms/op
+WorkloadPilot   11: 12 op, 53421700.00 ns, 4.4518 ms/op
+WorkloadPilot   12: 13 op, 57896000.00 ns, 4.4535 ms/op
+WorkloadPilot   13: 14 op, 62721200.00 ns, 4.4801 ms/op
+WorkloadPilot   14: 15 op, 65692300.00 ns, 4.3795 ms/op
+WorkloadPilot   15: 16 op, 73734800.00 ns, 4.6084 ms/op
+WorkloadPilot   16: 32 op, 140436900.00 ns, 4.3887 ms/op
+WorkloadPilot   17: 64 op, 279037000.00 ns, 4.3600 ms/op
+WorkloadPilot   18: 128 op, 583839700.00 ns, 4.5612 ms/op
+
+WorkloadWarmup   1: 128 op, 593527600.00 ns, 4.6369 ms/op
+WorkloadWarmup   2: 128 op, 612089500.00 ns, 4.7819 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 128 op, 566252800.00 ns, 4.4239 ms/op
+WorkloadActual   2: 128 op, 566131200.00 ns, 4.4229 ms/op
+WorkloadActual   3: 128 op, 590323000.00 ns, 4.6119 ms/op
+WorkloadActual   4: 128 op, 598035400.00 ns, 4.6722 ms/op
+WorkloadActual   5: 128 op, 592741600.00 ns, 4.6308 ms/op
+WorkloadActual   6: 128 op, 557240200.00 ns, 4.3534 ms/op
+WorkloadActual   7: 128 op, 589915100.00 ns, 4.6087 ms/op
+WorkloadActual   8: 128 op, 590643300.00 ns, 4.6144 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 128 op, 566252800.00 ns, 4.4239 ms/op
+WorkloadResult   2: 128 op, 566131200.00 ns, 4.4229 ms/op
+WorkloadResult   3: 128 op, 590323000.00 ns, 4.6119 ms/op
+WorkloadResult   4: 128 op, 598035400.00 ns, 4.6722 ms/op
+WorkloadResult   5: 128 op, 592741600.00 ns, 4.6308 ms/op
+WorkloadResult   6: 128 op, 557240200.00 ns, 4.3534 ms/op
+WorkloadResult   7: 128 op, 589915100.00 ns, 4.6087 ms/op
+WorkloadResult   8: 128 op, 590643300.00 ns, 4.6144 ms/op
+// GC:  0 0 0 64512 128
+// Threading:  0 0 128
+
+// AfterAll
+// Benchmark Process 59084 has exited with code 0.
+
+Mean = 4.542 ms, StdErr = 0.043 ms (0.94%), N = 8, StdDev = 0.121 ms
+Min = 4.353 ms, Q1 = 4.424 ms, Median = 4.610 ms, Q3 = 4.618 ms, Max = 4.672 ms
+IQR = 0.195 ms, LowerFence = 4.131 ms, UpperFence = 4.911 ms
+ConfidenceInterval = [4.310 ms; 4.774 ms] (CI 99.9%), Margin = 0.232 ms (5.11% of Mean)
+Skewness = -0.43, Kurtosis = 1.2, MValue = 3.2
+
+// ** Remained 0 (0.0 %) benchmark(s) to run. Estimated finish 2026-10-03 10:37 (0h 0m from now) **
+Successfully reverted power plan (GUID: 381b4222-f694-41f0-9685-ff5bb260df2e FriendlyName: Balanced)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\HexGrid.Benchmarks.PreviewViewportBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\HexGrid.Benchmarks.PreviewViewportBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\HexGrid.Benchmarks.PreviewViewportBenchmarks-report.html
+
+// * Detailed results *
+PreviewViewportBenchmarks.WholeCanvas: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 149.992 ms, StdErr = 1.372 ms (0.91%), N = 8, StdDev = 3.879 ms
+Min = 145.475 ms, Q1 = 146.762 ms, Median = 149.432 ms, Q3 = 152.322 ms, Max = 156.026 ms
+IQR = 5.559 ms, LowerFence = 138.424 ms, UpperFence = 160.661 ms
+ConfidenceInterval = [142.575 ms; 157.409 ms] (CI 99.9%), Margin = 7.417 ms (4.95% of Mean)
+Skewness = 0.35, Kurtosis = 1.4, MValue = 2
+-------------------- Histogram --------------------
+[145.092 ms ; 150.184 ms) | @@@@@
+[150.184 ms ; 156.311 ms) | @@@
+---------------------------------------------------
+
+PreviewViewportBenchmarks.VisibleRegion: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 141.604 ms, StdErr = 2.069 ms (1.46%), N = 8, StdDev = 5.852 ms
+Min = 131.734 ms, Q1 = 137.235 ms, Median = 143.583 ms, Q3 = 145.876 ms, Max = 148.375 ms
+IQR = 8.640 ms, LowerFence = 124.274 ms, UpperFence = 158.836 ms
+ConfidenceInterval = [130.415 ms; 152.793 ms] (CI 99.9%), Margin = 11.189 ms (7.90% of Mean)
+Skewness = -0.45, Kurtosis = 1.47, MValue = 3.2
+-------------------- Histogram --------------------
+[130.889 ms ; 138.570 ms) | @@@
+[138.570 ms ; 142.048 ms) | 
+[142.048 ms ; 149.729 ms) | @@@@@
+---------------------------------------------------
+
+PreviewViewportBenchmarks.VisibleRegionNative: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 9.486 ms, StdErr = 0.068 ms (0.72%), N = 8, StdDev = 0.192 ms
+Min = 9.271 ms, Q1 = 9.363 ms, Median = 9.424 ms, Q3 = 9.564 ms, Max = 9.810 ms
+IQR = 0.200 ms, LowerFence = 9.063 ms, UpperFence = 9.864 ms
+ConfidenceInterval = [9.118 ms; 9.854 ms] (CI 99.9%), Margin = 0.368 ms (3.88% of Mean)
+Skewness = 0.62, Kurtosis = 1.65, MValue = 2
+-------------------- Histogram --------------------
+[9.261 ms ; 9.649 ms) | @@@@@@
+[9.649 ms ; 9.936 ms) | @@
+---------------------------------------------------
+
+PreviewViewportBenchmarks.VisibleRegionSmoothZoom: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 5.177 ms, StdErr = 0.022 ms (0.42%), N = 8, StdDev = 0.062 ms
+Min = 5.100 ms, Q1 = 5.129 ms, Median = 5.177 ms, Q3 = 5.230 ms, Max = 5.249 ms
+IQR = 0.101 ms, LowerFence = 4.978 ms, UpperFence = 5.382 ms
+ConfidenceInterval = [5.059 ms; 5.294 ms] (CI 99.9%), Margin = 0.118 ms (2.27% of Mean)
+Skewness = -0.06, Kurtosis = 1.13, MValue = 2
+-------------------- Histogram --------------------
+[5.077 ms ; 5.275 ms) | @@@@@@@@
+---------------------------------------------------
+
+PreviewViewportBenchmarks.WholeCanvas: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 221.981 ms, StdErr = 0.806 ms (0.36%), N = 8, StdDev = 2.279 ms
+Min = 217.181 ms, Q1 = 221.319 ms, Median = 222.374 ms, Q3 = 223.405 ms, Max = 224.562 ms
+IQR = 2.085 ms, LowerFence = 218.192 ms, UpperFence = 226.532 ms
+ConfidenceInterval = [217.624 ms; 226.339 ms] (CI 99.9%), Margin = 4.357 ms (1.96% of Mean)
+Skewness = -0.92, Kurtosis = 2.73, MValue = 2
+-------------------- Histogram --------------------
+[215.685 ms ; 220.073 ms) | @
+[220.073 ms ; 226.058 ms) | @@@@@@@
+---------------------------------------------------
+
+PreviewViewportBenchmarks.VisibleRegion: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 47.362 ms, StdErr = 0.358 ms (0.76%), N = 8, StdDev = 1.012 ms
+Min = 45.724 ms, Q1 = 46.922 ms, Median = 47.422 ms, Q3 = 47.772 ms, Max = 48.752 ms
+IQR = 0.850 ms, LowerFence = 45.647 ms, UpperFence = 49.047 ms
+ConfidenceInterval = [45.427 ms; 49.297 ms] (CI 99.9%), Margin = 1.935 ms (4.09% of Mean)
+Skewness = -0.1, Kurtosis = 1.68, MValue = 2
+-------------------- Histogram --------------------
+[45.060 ms ; 46.279 ms) | @
+[46.279 ms ; 48.008 ms) | @@@@@
+[48.008 ms ; 49.416 ms) | @@
+---------------------------------------------------
+
+PreviewViewportBenchmarks.VisibleRegionNative: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 9.702 ms, StdErr = 0.058 ms (0.59%), N = 8, StdDev = 0.163 ms
+Min = 9.501 ms, Q1 = 9.602 ms, Median = 9.641 ms, Q3 = 9.794 ms, Max = 9.954 ms
+IQR = 0.192 ms, LowerFence = 9.314 ms, UpperFence = 10.082 ms
+ConfidenceInterval = [9.390 ms; 10.014 ms] (CI 99.9%), Margin = 0.312 ms (3.22% of Mean)
+Skewness = 0.49, Kurtosis = 1.51, MValue = 2
+-------------------- Histogram --------------------
+[9.394 ms ;  9.779 ms) | @@@@@@
+[9.779 ms ; 10.061 ms) | @@
+---------------------------------------------------
+
+PreviewViewportBenchmarks.VisibleRegionSmoothZoom: Job-KRRUPJ(IterationCount=8, LaunchCount=1, WarmupCount=2) [ZoomOfFit=4]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 4.542 ms, StdErr = 0.043 ms (0.94%), N = 8, StdDev = 0.121 ms
+Min = 4.353 ms, Q1 = 4.424 ms, Median = 4.610 ms, Q3 = 4.618 ms, Max = 4.672 ms
+IQR = 0.195 ms, LowerFence = 4.131 ms, UpperFence = 4.911 ms
+ConfidenceInterval = [4.310 ms; 4.774 ms] (CI 99.9%), Margin = 0.232 ms (5.11% of Mean)
+Skewness = -0.43, Kurtosis = 1.2, MValue = 3.2
+-------------------- Histogram --------------------
+[4.309 ms ; 4.468 ms) | @@@
+[4.468 ms ; 4.561 ms) | 
+[4.561 ms ; 4.752 ms) | @@@@@
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValley2)
+12th Gen Intel Core i9-12900HX 2.30GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 10.0.401
+  [Host]     : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+  Job-KRRUPJ : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+
+IterationCount=8  LaunchCount=1  WarmupCount=2  
+
+| Method                  | ZoomOfFit | Mean       | Error      | StdDev    | Ratio | RatioSD | Allocated | Alloc Ratio |
+|------------------------ |---------- |-----------:|-----------:|----------:|------:|--------:|----------:|------------:|
+| WholeCanvas             | 1         | 149.992 ms |  7.4173 ms | 3.8794 ms |  1.00 |    0.03 |     448 B |        1.00 |
+| VisibleRegion           | 1         | 141.604 ms | 11.1890 ms | 5.8520 ms |  0.94 |    0.04 |     448 B |        1.00 |
+| VisibleRegionNative     | 1         |   9.486 ms |  0.3679 ms | 0.1924 ms |  0.06 |    0.00 |     504 B |        1.12 |
+| VisibleRegionSmoothZoom | 1         |   5.177 ms |  0.1176 ms | 0.0615 ms |  0.03 |    0.00 |     504 B |        1.12 |
+|                         |           |            |            |           |       |         |           |             |
+| WholeCanvas             | 4         | 221.981 ms |  4.3573 ms | 2.2789 ms |  1.00 |    0.01 |     448 B |        1.00 |
+| VisibleRegion           | 4         |  47.362 ms |  1.9351 ms | 1.0121 ms |  0.21 |    0.00 |     448 B |        1.00 |
+| VisibleRegionNative     | 4         |   9.702 ms |  0.3120 ms | 0.1632 ms |  0.04 |    0.00 |     504 B |        1.12 |
+| VisibleRegionSmoothZoom | 4         |   4.542 ms |  0.2320 ms | 0.1214 ms |  0.02 |    0.00 |     504 B |        1.12 |
+
+// * Hints *
+Outliers
+  PreviewViewportBenchmarks.WholeCanvas: IterationCount=8, LaunchCount=1, WarmupCount=2 -> 1 outlier  was  detected (217.18 ms)
+
+// * Legends *
+  ZoomOfFit   : Value of the 'ZoomOfFit' parameter
+  Mean        : Arithmetic mean of all measurements
+  Error       : Half of 99.9% confidence interval
+  StdDev      : Standard deviation of all measurements
+  Ratio       : Mean of the ratio distribution ([Current]/[Baseline])
+  RatioSD     : Standard deviation of the ratio distribution ([Current]/[Baseline])
+  Allocated   : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  Alloc Ratio : Allocated memory ratio distribution ([Current]/[Baseline])
+  1 ms        : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:01:17 (77.61 sec), executed benchmarks: 8
+
+Global total time: 00:01:37 (97.58 sec), executed benchmarks: 8
+// * Artifacts cleanup *
+Artifacts cleanup is finished

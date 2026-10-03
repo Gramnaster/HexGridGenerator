@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -19,6 +20,7 @@ public sealed class PreviewPanel : Panel
     private double _canvasWidthPx;
     private double _canvasHeightPx;
     private double _zoom;
+    private bool _smoothZoom;
 
     private Bitmap? _frame;
     private double _frameScale;
@@ -51,10 +53,30 @@ public sealed class PreviewPanel : Panel
     public double Zoom => _zoom;
 
     /// <summary>
-    /// The scale frames are rendered at for a zoom. Past the canvas's own resolution a frame is
-    /// rendered at scale 1 and magnified, so the user sees the exported pixels themselves.
+    /// How frames are drawn past the canvas's own resolution. Off, they are rendered at scale 1 and
+    /// magnified, so the user sees the exported PNG's pixels themselves. On, they are rendered at the
+    /// zoom, so lines and text stay sharp, as the SVG export draws them.
     /// </summary>
-    public static double RenderScaleFor(double zoom) => Math.Min(zoom, 1.0);
+    [DefaultValue(false)]
+    public bool SmoothZoom
+    {
+        get => _smoothZoom;
+        set
+        {
+            if (_smoothZoom == value)
+            {
+                return;
+            }
+
+            // The frame shown no longer matches the render scale, so it is smoothed as a stand-in
+            // until its replacement arrives.
+            _smoothZoom = value;
+            Invalidate();
+        }
+    }
+
+    /// <summary>The scale frames are rendered at for the current zoom. See <see cref="SmoothZoom"/>.</summary>
+    public double RenderScale => _smoothZoom ? _zoom : Math.Min(_zoom, 1.0);
 
     // Deliberately does not call base.OnMouseWheel: ScrollableControl's default handling would pan
     // the image on every notch, fighting with wheel-to-zoom. Panning when zoomed past fit still
@@ -336,7 +358,7 @@ public sealed class PreviewPanel : Panel
 
         // An exact frame magnified past the canvas's resolution shows its pixels as hard squares, as
         // any image editor does. A frame from another zoom is only a stand-in, so it is smoothed.
-        bool exact = _frameCurrent && Math.Abs(_frameScale - RenderScaleFor(_zoom)) < 1e-9;
+        bool exact = _frameCurrent && Math.Abs(_frameScale - RenderScale) < 1e-9;
         g.InterpolationMode = exact ? InterpolationMode.NearestNeighbor : InterpolationMode.Bilinear;
         g.PixelOffsetMode = PixelOffsetMode.Half;
         g.DrawImage(frame, target, source, GraphicsUnit.Pixel);

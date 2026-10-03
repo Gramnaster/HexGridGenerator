@@ -41,13 +41,40 @@ public class PreviewPanelTests
         panel.AutoScrollPosition = new Point(400, 800);
 
         // Act
-        Rectangle region = panel.VisibleRegion(PreviewPanel.RenderScaleFor(4.0), marginPx: 0);
+        Rectangle region = panel.VisibleRegion(panel.RenderScale, marginPx: 0);
 
         // Assert
         Size client = panel.ClientSize;
         Assert.Equal(
             Rectangle.FromLTRB(100, 200, (int)Math.Ceiling((400 + client.Width) / 4.0), (int)Math.Ceiling((800 + client.Height) / 4.0)),
             region);
+    });
+
+    [Fact]
+    public void RenderScale_PastTheCanvasResolution_IsTheCanvasResolution() => StaThread.Run(() =>
+    {
+        // Arrange
+        using var panel = new PreviewPanel();
+
+        // Act
+        panel.SetView(1000, 1000, zoom: 4.0);
+
+        // Assert
+        Assert.Equal(1.0, panel.RenderScale);
+    });
+
+    [Fact]
+    public void RenderScale_SmoothZoomPastTheCanvasResolution_IsTheZoom() => StaThread.Run(() =>
+    {
+        // Arrange
+        using var panel = new PreviewPanel();
+        panel.SetView(1000, 1000, zoom: 4.0);
+
+        // Act
+        panel.SmoothZoom = true;
+
+        // Assert
+        Assert.Equal(4.0, panel.RenderScale);
     });
 
     [Fact]

@@ -85,7 +85,7 @@ public class MainFormTests
 
         // Act
         RaiseFromMessageLoop(form, () => InvokePrivate(form, "AdjustZoom", 1, Point.Empty));
-        double scale = PreviewPanel.RenderScaleFor(preview.Zoom);
+        double scale = preview.RenderScale;
         bool covered = PumpUntil(() => preview.HasFrameCovering(scale, preview.VisibleRegion(scale, marginPx: 0)));
 
         // Assert
@@ -108,6 +108,30 @@ public class MainFormTests
 
         // Assert
         Assert.Equal(32.0, preview.Zoom, precision: 9);
+    });
+
+    [Fact]
+    public void SmoothZoom_TurnedOnPastTheCanvasResolution_RendersAnExactFrameAtTheZoom() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        var preview = (PreviewPanel)GetInstanceField(form, "_preview")!;
+        while (preview.Zoom < 2.0)
+        {
+            RaiseFromMessageLoop(form, () => InvokePrivate(form, "AdjustZoom", 1, Point.Empty));
+        }
+
+        CheckBox toggle = FindDescendant<CheckBox>(form)
+            ?? throw new InvalidOperationException("Smooth zoom toggle not found in MainForm's control tree.");
+
+        // Act
+        RaiseFromMessageLoop(form, () => toggle.Checked = true);
+        double zoom = preview.Zoom;
+        bool covered = PumpUntil(() => preview.HasFrameCovering(zoom, preview.VisibleRegion(zoom, marginPx: 0)));
+
+        // Assert
+        Assert.True(covered);
     });
 
     [Fact]

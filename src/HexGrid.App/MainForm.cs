@@ -14,7 +14,8 @@ public sealed class MainForm : Form
     private const double MinZoomPercent = 10.0;
 
     // The deepest zoom, in canvas pixels rather than percent of fit: 3200%, as in Photoshop. Past
-    // 100% the preview magnifies the exported pixels themselves, so going deeper costs no rendering.
+    // 100% the preview magnifies the exported pixels themselves, so going deeper costs no rendering,
+    // unless Smooth zoom is on.
     private const double MaxZoomOfCanvas = 32.0;
 
     // Each wheel notch multiplies or divides the zoom by this. A fixed step in percent would take
@@ -50,6 +51,9 @@ public sealed class MainForm : Form
     // Not part of the Controls tree above (it's a popup, only assigned via _preview.ContextMenuStrip),
     // so it is not covered by the SS066 auto-dispose reasoning and needs its own Dispose() call below.
     private readonly ContextMenuStrip _zoomMenu = new();
+
+    // Not a Control either, so disposed explicitly below.
+    private readonly ToolTip _toolTip = new();
 
     // Buttons that write files. Disabled while a background export runs, so two writes can never
     // race each other onto the same path.
@@ -210,6 +214,8 @@ public sealed class MainForm : Form
         bar.Controls.Add(savePreset);
         bar.Controls.Add(MakeButton("Load preset…", LoadPreset, 130));
         bar.Controls.Add(MakeButton("Reset", ResetSettings, 90));
+        bar.Controls.Add(new Label { Width = 24, Height = 1 });
+        bar.Controls.Add(MakeSmoothZoomToggle());
 
         _savingTag.AutoSize = true;
         _savingTag.Visible = false;
@@ -217,6 +223,21 @@ public sealed class MainForm : Form
         _savingTag.ForeColor = SystemColors.Highlight;
         bar.Controls.Add(_savingTag);
         return bar;
+    }
+
+    private CheckBox MakeSmoothZoomToggle()
+    {
+        var toggle = new CheckBox { Text = "Smooth zoom", AutoSize = true, Margin = new Padding(0, 6, 8, 0) };
+        _toolTip.SetToolTip(
+            toggle,
+            "Past 100%, draw lines and text sharp at the zoom instead of magnifying the PNG's pixels.\n" +
+            "Only the preview changes. The PNG export keeps its own resolution.");
+        toggle.CheckedChanged += (_, _) =>
+        {
+            _preview.SmoothZoom = toggle.Checked;
+            _renderLoop.Kick();
+        };
+        return toggle;
     }
 
     private Label BuildStatusBar()
@@ -344,7 +365,7 @@ public sealed class MainForm : Form
             return null;
         }
 
-        double scale = PreviewPanel.RenderScaleFor(_preview.Zoom);
+        double scale = _preview.RenderScale;
         Rectangle inView = _preview.VisibleRegion(scale, marginPx: 0);
         if (inView.IsEmpty || _preview.HasFrameCovering(scale, inView))
         {
@@ -669,6 +690,7 @@ public sealed class MainForm : Form
             _debounce.Dispose();
             _renderLoop.Dispose();
             _zoomMenu.Dispose();
+            _toolTip.Dispose();
             _boolOverlay.Dispose();
         }
 
