@@ -1,3 +1,5 @@
+using HexGrid.Core.Settings;
+
 namespace HexGrid.Core.Units;
 
 public static class CanvasPresets

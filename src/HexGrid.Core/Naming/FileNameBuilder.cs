@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using HexGrid.Core.Layout;
+using HexGrid.Core.Settings;
 using HexGrid.Core.Units;
 
 namespace HexGrid.Core.Naming;
@@ -19,7 +20,8 @@ public static class FileNameBuilder
         string orient = s.GridType switch
         {
             GridType.Square => string.Empty,
-            _ => s.HexOrientation == HexOrientation.FlatTop ? "flat" : "pointy",
+            GridType.Hex => s.HexOrientation == HexOrientation.FlatTop ? "flat" : "pointy",
+            _ => throw new ArgumentOutOfRangeException(nameof(s), s.GridType, message: null),
         };
 
         string raw = s.FileNamePattern

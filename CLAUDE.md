@@ -29,9 +29,19 @@ Keep that boundary: rendering-agnostic logic stays in Core, GDI+/WinForms calls 
 ## Zero NuGet packages: deliberate
 
 The solution carries no runtime NuGet dependencies at all. The only `PackageReference`s are
-dev-time Roslyn analyzers (`Directory.Packages.props`), which don't ship in the built exe.
-**Do not add a package to solve a problem.** This is a stated constraint, not an oversight.
-If a problem genuinely seems to need one, say so and ask first.
+dev-time tools (`Directory.Packages.props`) that don't ship in the built exe: Roslyn analyzers,
+the xUnit test stack, and BenchmarkDotNet. BenchmarkDotNet is an approved exception (2026-10-01),
+scoped to the `HexGrid.Benchmarks` project only. Never reference it from `HexGrid.Core` or
+`HexGrid.App`. **Do not add a package to solve a problem.** This is a stated constraint, not an
+oversight. If a problem genuinely seems to need one, say so and ask first.
+
+## Performance claims need BenchmarkDotNet
+
+`src/HexGrid.Benchmarks` measures every live-preview stage (layout, scene, preview raster), SVG
+export, full-resolution PNG export and the square fit advisor. Any optimization, or any claim that
+something is slow or fast, needs a before/after BenchmarkDotNet run, not a Stopwatch loop. Keep an
+optimization only when it beats run-to-run noise and is worth the complexity it adds. How to run
+it is in `README.md` under "Benchmarks".
 
 ## No web/DB/cloud surface
 

@@ -1,4 +1,5 @@
 using HexGrid.Core.Labels;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Tests;
 
@@ -126,18 +127,27 @@ public class CoordinateLabellerTests
         Assert.Equal(expected, actual);
     }
 
-    [Fact]
-    public void MaxLabelLengths_ReturnsLongestLabelPerAxis()
+    [Theory]
+    [InlineData(LabelScheme.LettersNumbers, false, false)]
+    [InlineData(LabelScheme.LettersNumbers, false, true)]
+    [InlineData(LabelScheme.NumbersLetters, false, false)]
+    [InlineData(LabelScheme.NumbersLetters, true, false)]
+    [InlineData(LabelScheme.NumbersNumbers, false, false)]
+    [InlineData(LabelScheme.NumbersNumbers, true, true)]
+    public void MaxRowLabelLength_AnyRowCount_MatchesLongestBuiltRowLabel(LabelScheme scheme, bool skipIo, bool zeroPad)
     {
-        // Arrange
-        string[] columns = ["A", "BB", "CCC"];
-        string[] rows = ["1", "22"];
+        // Arrange: the arithmetic shortcut must agree exactly with actually building every label,
+        // across digit and letter-count boundaries (9 → 10, Z → AA, ZZ → AAA with and without I/O).
+        for (int rows = 1; rows <= 800; rows++)
+        {
+            (_, string[] built) = CoordinateLabeller.BuildAxes(1, rows, scheme, CoordinateOrigin.BottomRight, skipIo, zeroPad);
+            int expected = built.Max(label => label.Length);
 
-        // Act
-        (int columnChars, int rowChars) = CoordinateLabeller.MaxLabelLengths(columns, rows);
+            // Act
+            int actual = CoordinateLabeller.MaxRowLabelLength(rows, scheme, skipIo);
 
-        // Assert
-        Assert.Equal(3, columnChars);
-        Assert.Equal(2, rowChars);
+            // Assert
+            Assert.True(expected == actual, $"rows={rows}: built {expected}, computed {actual}");
+        }
     }
 }

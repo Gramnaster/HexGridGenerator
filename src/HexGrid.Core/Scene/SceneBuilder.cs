@@ -1,5 +1,6 @@
 using System.Drawing;
 using HexGrid.Core.Layout;
+using HexGrid.Core.Settings;
 using HexGrid.Core.Units;
 
 namespace HexGrid.Core.Scene;
@@ -28,7 +29,7 @@ public static class SceneBuilder
         AddCenterDots(scene, s, layout, scale);
         AddCellLabels(scene, s, layout, scale);
         AddEdgeLabels(scene, s, layout, scale);
-        AddFrame(scene, s, layout, scale);
+        AddFrame(scene, s, layout);
 
         return scene;
     }
@@ -53,6 +54,7 @@ public static class SceneBuilder
         if (!Paint.IsInvisible(stroke) && thickness > 0)
         {
             SceneLayer gridLayer = scene.Layer(LayerKind.HexGrid);
+            double armPx = scale.ToPx(s.CrosshairArmLength);
 
             // Adjacent cells share an edge. Drawing whole polygons would stroke every internal edge
             // twice, which at less than full opacity makes internal edges darker than the outer ones
@@ -78,12 +80,51 @@ public static class SceneBuilder
                     PointF b = cell.Vertices[(i + 1) % vertexCount];
                     if (seen.Add(EdgeKey(a, b)))
                     {
-                        gridLayer.Items.Add(new PathItem([a, b], Closed: false, stroke, thickness, Fill: null));
+                        if (s.LineStyle == LineStyle.Crosshair)
+                        {
+                            AddCrosshairArms(gridLayer, a, b, stroke, thickness, armPx);
+                        }
+                        else
+                        {
+                            gridLayer.Items.Add(new PathItem([a, b], Closed: false, stroke, thickness, Fill: null));
+                        }
                     }
                 }
             }
 #pragma warning restore S3267
         }
+    }
+
+    /// <summary>
+    /// One edge becomes two short arms, one reaching in from each endpoint, instead of the full
+    /// line. A vertex shared by several edges ends up with one arm per edge meeting there, which is
+    /// what makes it read as a plus (square) or three-legged mark (hex) rather than an outline.
+    /// </summary>
+    private static void AddCrosshairArms(SceneLayer layer, PointF a, PointF b, Color stroke, double thickness, double armPx)
+    {
+        double dx = b.X - a.X;
+        double dy = b.Y - a.Y;
+        double length = Math.Sqrt((dx * dx) + (dy * dy));
+        if (length <= 0)
+        {
+            return;
+        }
+
+        // Clamped to the edge's own midpoint - never past it - so the two arms can't overlap and
+        // double-darken the middle at reduced opacity, mirroring the shared-edge dedup rule above.
+        double arm = Math.Min(armPx, length / 2.0);
+        if (arm <= 0)
+        {
+            return;
+        }
+
+        double ux = dx / length;
+        double uy = dy / length;
+        var aTip = new PointF((float)(a.X + (ux * arm)), (float)(a.Y + (uy * arm)));
+        var bTip = new PointF((float)(b.X - (ux * arm)), (float)(b.Y - (uy * arm)));
+
+        layer.Items.Add(new PathItem([a, aTip], Closed: false, stroke, thickness, Fill: null));
+        layer.Items.Add(new PathItem([b, bTip], Closed: false, stroke, thickness, Fill: null));
     }
 
     /// <summary>
@@ -187,7 +228,7 @@ public static class SceneBuilder
         Color color = s.MarginalColor;
         double fontPx = scale.PointsToPx(s.MarginalFontSize);
         double pad = scale.ToPx(s.LabelPadding);
-        double half = (s.BorderStyle == MapBorderStyle.None ? 0 : scale.ToPx(s.BorderThickness)) / 2.0;
+        double half = layout.FrameRuleWidthPx / 2.0;
         if (Paint.IsInvisible(color) || fontPx <= 0)
         {
             return;
@@ -237,14 +278,14 @@ public static class SceneBuilder
 
     // ------------------------------------------------------------------- frame
 
-    private static void AddFrame(DrawScene scene, GridSettings s, GridLayout layout, UnitScale scale)
+    private static void AddFrame(DrawScene scene, GridSettings s, GridLayout layout)
     {
         if (s.BorderStyle == MapBorderStyle.None)
         {
             return;
         }
 
-        double t = scale.ToPx(s.BorderThickness);
+        double t = layout.FrameRuleWidthPx;
         if (t <= 0 || Paint.IsInvisible(s.BorderColor))
         {
             return;

@@ -1,33 +1,36 @@
+using System.ComponentModel;
+using HexGrid.Core.Settings;
+
 namespace HexGrid.Core.Tests;
 
 public class GridSettingsTests
 {
     [Fact]
-    public void Clone_ReturnsDistinctInstanceWithEqualValues()
+    public void GetProperties_HexGridType_HidesGapYAndRelabelsGapXAsGap()
     {
-        // Arrange
-        var original = new GridSettings { Columns = 99 };
+        // Arrange: a regular hexagon's six neighbours are all equidistant, so there is no separate
+        // horizontal/vertical gap to expose - only the shared Gap value (CellGapX) applies.
+        var settings = new GridSettings { GridType = GridType.Hex };
 
         // Act
-        GridSettings clone = original.Clone();
+        PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(settings);
 
         // Assert
-        Assert.NotSame(original, clone);
-        Assert.Equal(original.Columns, clone.Columns);
+        Assert.Null(properties[nameof(GridSettings.CellGapY)]);
+        Assert.Equal("Gap", properties[nameof(GridSettings.CellGapX)]!.DisplayName);
     }
 
     [Fact]
-    public void Clone_MutatingClone_DoesNotAffectOriginal()
+    public void GetProperties_SquareGridType_ShowsIndependentGapXAndGapY()
     {
         // Arrange
-        var original = new GridSettings { Columns = 10 };
-        GridSettings clone = original.Clone();
+        var settings = new GridSettings { GridType = GridType.Square };
 
         // Act
-        clone.Columns = 20;
+        PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(settings);
 
         // Assert
-        Assert.Equal(10, original.Columns);
-        Assert.Equal(20, clone.Columns);
+        Assert.Equal("Gap X", properties[nameof(GridSettings.CellGapX)]!.DisplayName);
+        Assert.Equal("Gap Y", properties[nameof(GridSettings.CellGapY)]!.DisplayName);
     }
 }

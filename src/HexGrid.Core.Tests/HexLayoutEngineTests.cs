@@ -1,6 +1,7 @@
 using System.Drawing;
 using HexGrid.Core.Labels;
 using HexGrid.Core.Layout;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Tests;
 
@@ -169,6 +170,58 @@ public class HexLayoutEngineTests
     }
 
     [Fact]
+    public void Build_CellGap_KeepsDrawnHexSizeButWidensCentreSpacing()
+    {
+        // Arrange
+        GridSettings baseline = TestSettings.Minimal();
+        baseline.HexOrientation = HexOrientation.FlatTop;
+
+        GridSettings gapped = TestSettings.Minimal();
+        gapped.HexOrientation = HexOrientation.FlatTop;
+        const double gap = 3.0;
+        gapped.CellGapX = gap;
+
+        // Act
+        GridLayout baselineLayout = GridLayoutEngine.Build(baseline);
+        GridLayout gappedLayout = GridLayoutEngine.Build(gapped);
+
+        // Assert: the hex's own drawn size never changes because of the gap.
+        Assert.Equal(baselineLayout.CellRadiusPx!.Value, gappedLayout.CellRadiusPx!.Value, precision: 6);
+        GridCell baseCell = baselineLayout.Cells.First(c => c.Column == 0 && c.Row == 0);
+        GridCell gapCell = gappedLayout.Cells.First(c => c.Column == 0 && c.Row == 0);
+        Assert.Equal(
+            Distance(baseCell.Center, baseCell.Vertices[0]),
+            Distance(gapCell.Center, gapCell.Vertices[0]),
+            precision: 3);
+
+        // Assert: every edge-adjacent neighbour sits r * sqrt(3) apart with no gap; adding a gap
+        // widens that same neighbour spacing by exactly `gap`, in every direction alike.
+        GridCell baseNeighbor = baselineLayout.Cells.First(c => c.Column == 0 && c.Row == 1);
+        GridCell gapNeighbor = gappedLayout.Cells.First(c => c.Column == 0 && c.Row == 1);
+        double baseSpacing = Distance(baseCell.Center, baseNeighbor.Center);
+        double gapSpacing = Distance(gapCell.Center, gapNeighbor.Center);
+        Assert.Equal(baseSpacing + gap, gapSpacing, precision: 3);
+    }
+
+    [Fact]
+    public void Build_LargeCellGap_CanReduceColumnsOrRowsBelowRequested()
+    {
+        // Arrange: the hex's own size is held fixed (previous test), so a gap wide enough eats
+        // into how many whole hexes fit in the same map area. "Never fewer than requested" (see
+        // Build_AutoFitRowsColumns_NeverProducesFewerThanRequested) only holds when Gap is 0.
+        GridSettings s = TestSettings.Minimal();
+        s.Columns = 5;
+        s.Rows = 4;
+        s.CellGapX = 60.0;
+
+        // Act
+        GridLayout layout = GridLayoutEngine.Build(s);
+
+        // Assert
+        Assert.True(layout.Columns < 5 || layout.Rows < 4);
+    }
+
+    [Fact]
     public void Build_SafeMarginConsumesWholeCanvas_Throws()
     {
         // Arrange
@@ -201,4 +254,7 @@ public class HexLayoutEngineTests
     private static PointF GridCenter(GridLayout layout) => new(
         layout.GridBounds.Left + (layout.GridBounds.Width / 2f),
         layout.GridBounds.Top + (layout.GridBounds.Height / 2f));
+
+    private static double Distance(PointF a, PointF b) =>
+        Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2));
 }

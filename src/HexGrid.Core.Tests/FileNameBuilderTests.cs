@@ -1,6 +1,7 @@
 using System.Drawing;
 using HexGrid.Core.Layout;
 using HexGrid.Core.Naming;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Tests;
 
@@ -112,8 +113,10 @@ public class FileNameBuilderTests
         CellRadiusPx = hexWidthPx / 2,
         CellWidthPx = hexWidthPx,
         CellHeightPx = hexWidthPx,
+        FrameRuleWidthPx = 0,
         FrameBounds = RectangleF.Empty,
         ClipBounds = RectangleF.Empty,
+        NominalClipBounds = RectangleF.Empty,
         GridBounds = RectangleF.Empty,
         Cells = [],
         ColumnCenterXs = [],

@@ -1,5 +1,8 @@
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using HexGrid.App.Rendering;
-using HexGrid.Core;
+using HexGrid.Core.Settings;
+using HexGrid.Core.Layout;
 using HexGrid.Core.Scene;
 
 namespace HexGrid.App.Tests;
@@ -102,6 +105,91 @@ public class SceneRasterizerTests
 
         // Assert
         Assert.Equal(Color.FromArgb(255, 255, 0, 0), bmp.GetPixel(0, 0));
+    }
+
+    [Theory]
+    [InlineData(0.25)]
+    [InlineData(1.0)]
+    public void RenderRegion_AnyRectangle_MatchesThatRectangleOfTheWholeCanvasRender(double scale)
+    {
+        // Arrange: a label in every hex, so the region's edges cut through lines, dots and text,
+        // and items that sit just outside it still reach in.
+        using var rasterizer = new SceneRasterizer();
+        var settings = new GridSettings { Preset = CanvasPreset.A6, ShowHexLabels = true };
+        DrawScene scene = SceneBuilder.Build(settings, GridLayoutEngine.Build(settings));
+        using Bitmap whole = rasterizer.Render(scene, Color.Transparent, antialias: true, scale, minStrokePx: 1.0);
+        var region = new Rectangle(whole.Width / 3, whole.Height / 4, whole.Width / 3, whole.Height / 3);
+
+        // Act
+        using Bitmap part = rasterizer.RenderRegion(
+            scene, Color.Transparent, antialias: true, scale, region, minStrokePx: 1.0, CancellationToken.None);
+
+        // Assert: GDI+ antialiasing starts its coverage sums at the bitmap's left edge, which leaves a
+        // few edge pixels one level off in one channel. Anything more would be a real difference.
+        Assert.Equal(region.Size, part.Size);
+        Assert.Equal(0, CountPixelsDifferingByMoreThanOneLevel(whole, region.Location, part));
+    }
+
+    [Fact]
+    public void RenderRegion_CancelledToken_ThrowsOperationCanceled()
+    {
+        // Arrange: more items than one cancellation check interval, so the check is reached.
+        using var rasterizer = new SceneRasterizer();
+        DrawScene scene = NewScene(widthPx: 10, heightPx: 10);
+        for (int i = 0; i < 1000; i++)
+        {
+            scene.Layer(LayerKind.HexGrid).Items.Add(
+                new RectItem(new RectangleF(0, 0, 10, 10), Stroke: null, StrokeWidthPx: 0, Fill: Color.Red));
+        }
+
+        using var cancel = new CancellationTokenSource();
+        cancel.Cancel();
+
+        // Act & Assert
+        Assert.Throws<OperationCanceledException>(() => rasterizer.RenderRegion(
+            scene, Color.White, antialias: false, scale: 1.0, new Rectangle(0, 0, 10, 10), minStrokePx: 0, cancel.Token));
+    }
+
+    private static int CountPixelsDifferingByMoreThanOneLevel(Bitmap whole, Point offset, Bitmap part)
+    {
+        int[] wholePixels = ReadPixels(whole);
+        int[] partPixels = ReadPixels(part);
+        int differing = 0;
+        for (int y = 0; y < part.Height; y++)
+        {
+            for (int x = 0; x < part.Width; x++)
+            {
+                int a = partPixels[(y * part.Width) + x];
+                int b = wholePixels[((y + offset.Y) * whole.Width) + x + offset.X];
+                for (int shift = 0; shift < 32; shift += 8)
+                {
+                    if (Math.Abs(((a >> shift) & 0xFF) - ((b >> shift) & 0xFF)) > 1)
+                    {
+                        differing++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return differing;
+    }
+
+    private static int[] ReadPixels(Bitmap bitmap)
+    {
+        BitmapData data = bitmap.LockBits(
+            new Rectangle(Point.Empty, bitmap.Size), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        try
+        {
+            // Format32bppArgb rows are whole ints, so the stride is exactly the width.
+            var pixels = new int[bitmap.Width * bitmap.Height];
+            Marshal.Copy(data.Scan0, pixels, 0, pixels.Length);
+            return pixels;
+        }
+        finally
+        {
+            bitmap.UnlockBits(data);
+        }
     }
 
     private static DrawScene NewScene(double widthPx, double heightPx, RectangleF? clip = null) => new()

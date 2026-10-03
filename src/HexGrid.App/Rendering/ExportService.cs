@@ -1,6 +1,5 @@
 using System.Drawing;
-using System.Drawing.Imaging;
-using HexGrid.Core;
+using HexGrid.Core.Settings;
 using HexGrid.Core.Rendering;
 using HexGrid.Core.Scene;
 
@@ -39,8 +38,7 @@ public static class ExportService
 
         using (Bitmap flat = rasterizer.Render(scene, bg, settings.Antialiasing))
         {
-            flat.SetResolution((float)scene.Dpi, (float)scene.Dpi);
-            flat.Save(path, ImageFormat.Png);
+            WritePng(flat, scene.Dpi, path);
         }
 
         written.Add(path);
@@ -65,12 +63,18 @@ public static class ExportService
             LayerKind kind = layer.Kind;
             using Bitmap bmp = rasterizer.Render(scene, Color.Transparent, settings.Antialiasing,
                 includeLayer: k => k == kind);
-            bmp.SetResolution((float)scene.Dpi, (float)scene.Dpi);
-            bmp.Save(layerPath, ImageFormat.Png);
+            WritePng(bmp, scene.Dpi, layerPath);
             written.Add(layerPath);
         }
 
         return written;
+    }
+
+    /// <summary>Saves the bitmap tagged with the export DPI so print workflows size it correctly.</summary>
+    private static void WritePng(Bitmap bitmap, int dpi, string path)
+    {
+        using FileStream file = File.Create(path);
+        PngWriter.Write(bitmap, dpi, file);
     }
 
     /// <summary>Pixel count above which a full-resolution export is worth warning about.</summary>

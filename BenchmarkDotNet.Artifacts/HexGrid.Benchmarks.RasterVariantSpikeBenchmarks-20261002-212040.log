@@ -1,0 +1,1189 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 18 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1/" /p:OutDir="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0/" /p:OutputPath="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0/" /p:PublishDir="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\publish/" in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1
+// command took 2.27 sec and exited with 0
+// start dotnet  build -c Release --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1/" /p:OutDir="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0/" /p:OutputPath="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0/" /p:PublishDir="C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\publish/" --output "C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0/" in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1
+// command took 17.33 sec and exited with 0
+// ***** Done, took 00:00:19 (19.78 sec)   *****
+// Found 18 benchmarks:
+//   RasterVariantSpikeBenchmarks.All: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+//   RasterVariantSpikeBenchmarks.ClearOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+//   RasterVariantSpikeBenchmarks.GridOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+//   RasterVariantSpikeBenchmarks.DotsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+//   RasterVariantSpikeBenchmarks.HexLabelsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+//   RasterVariantSpikeBenchmarks.GridOnlyOnePath: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+//   RasterVariantSpikeBenchmarks.GridOnlyPerItemReplica: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+//   RasterVariantSpikeBenchmarks.GridOnlyDefaultCompositing: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+//   RasterVariantSpikeBenchmarks.GridOnlyPArgb: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+//   RasterVariantSpikeBenchmarks.All: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+//   RasterVariantSpikeBenchmarks.ClearOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+//   RasterVariantSpikeBenchmarks.GridOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+//   RasterVariantSpikeBenchmarks.DotsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+//   RasterVariantSpikeBenchmarks.HexLabelsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+//   RasterVariantSpikeBenchmarks.GridOnlyOnePath: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+//   RasterVariantSpikeBenchmarks.GridOnlyPerItemReplica: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+//   RasterVariantSpikeBenchmarks.GridOnlyDefaultCompositing: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+//   RasterVariantSpikeBenchmarks.GridOnlyPArgb: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.All: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2168 2408 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.All(Scale: 0.065)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 0 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 232600.00 ns, 232.6000 us/op
+WorkloadJitting  1: 1 op, 190340500.00 ns, 190.3405 ms/op
+
+WorkloadPilot    1: 2 op, 193263000.00 ns, 96.6315 ms/op
+WorkloadPilot    2: 3 op, 262641000.00 ns, 87.5470 ms/op
+WorkloadPilot    3: 4 op, 331315300.00 ns, 82.8288 ms/op
+WorkloadPilot    4: 5 op, 414630900.00 ns, 82.9262 ms/op
+WorkloadPilot    5: 6 op, 523002800.00 ns, 87.1671 ms/op
+
+WorkloadWarmup   1: 6 op, 488533300.00 ns, 81.4222 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 6 op, 471391900.00 ns, 78.5653 ms/op
+WorkloadActual   2: 6 op, 548116400.00 ns, 91.3527 ms/op
+WorkloadActual   3: 6 op, 480651000.00 ns, 80.1085 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 6 op, 471391900.00 ns, 78.5653 ms/op
+WorkloadResult   2: 6 op, 548116400.00 ns, 91.3527 ms/op
+WorkloadResult   3: 6 op, 480651000.00 ns, 80.1085 ms/op
+
+// AfterAll
+// Benchmark Process 15432 has exited with code 0.
+
+Mean = 83.342 ms, StdErr = 4.030 ms (4.84%), N = 3, StdDev = 6.980 ms
+Min = 78.565 ms, Q1 = 79.337 ms, Median = 80.109 ms, Q3 = 85.731 ms, Max = 91.353 ms
+IQR = 6.394 ms, LowerFence = 69.746 ms, UpperFence = 95.321 ms
+ConfidenceInterval = [-44.001 ms; 210.686 ms] (CI 99.9%), Margin = 127.343 ms (152.80% of Mean)
+Skewness = 0.36, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 17 (94.4 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.ClearOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2188 2172 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.ClearOnly(Scale: 0.065)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 1 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 201200.00 ns, 201.2000 us/op
+WorkloadJitting  1: 1 op, 4177600.00 ns, 4.1776 ms/op
+
+OverheadJitting  2: 16 op, 292200.00 ns, 18.2625 us/op
+WorkloadJitting  2: 16 op, 12369000.00 ns, 773.0625 us/op
+
+WorkloadPilot    1: 16 op, 13337300.00 ns, 833.5813 us/op
+WorkloadPilot    2: 32 op, 23953500.00 ns, 748.5469 us/op
+WorkloadPilot    3: 64 op, 47818800.00 ns, 747.1688 us/op
+WorkloadPilot    4: 128 op, 90798600.00 ns, 709.3641 us/op
+WorkloadPilot    5: 256 op, 188040300.00 ns, 734.5324 us/op
+WorkloadPilot    6: 512 op, 395589200.00 ns, 772.6352 us/op
+WorkloadPilot    7: 1024 op, 901779300.00 ns, 880.6438 us/op
+
+OverheadWarmup   1: 1024 op, 5900.00 ns, 5.7617 ns/op
+OverheadWarmup   2: 1024 op, 3500.00 ns, 3.4180 ns/op
+OverheadWarmup   3: 1024 op, 3900.00 ns, 3.8086 ns/op
+OverheadWarmup   4: 1024 op, 3900.00 ns, 3.8086 ns/op
+OverheadWarmup   5: 1024 op, 3500.00 ns, 3.4180 ns/op
+OverheadWarmup   6: 1024 op, 3600.00 ns, 3.5156 ns/op
+
+OverheadActual   1: 1024 op, 3700.00 ns, 3.6133 ns/op
+OverheadActual   2: 1024 op, 3500.00 ns, 3.4180 ns/op
+OverheadActual   3: 1024 op, 3600.00 ns, 3.5156 ns/op
+OverheadActual   4: 1024 op, 3700.00 ns, 3.6133 ns/op
+OverheadActual   5: 1024 op, 3700.00 ns, 3.6133 ns/op
+OverheadActual   6: 1024 op, 3800.00 ns, 3.7109 ns/op
+OverheadActual   7: 1024 op, 3900.00 ns, 3.8086 ns/op
+OverheadActual   8: 1024 op, 5400.00 ns, 5.2734 ns/op
+OverheadActual   9: 1024 op, 3500.00 ns, 3.4180 ns/op
+OverheadActual  10: 1024 op, 3500.00 ns, 3.4180 ns/op
+OverheadActual  11: 1024 op, 3700.00 ns, 3.6133 ns/op
+OverheadActual  12: 1024 op, 3900.00 ns, 3.8086 ns/op
+OverheadActual  13: 1024 op, 3400.00 ns, 3.3203 ns/op
+OverheadActual  14: 1024 op, 3400.00 ns, 3.3203 ns/op
+OverheadActual  15: 1024 op, 3600.00 ns, 3.5156 ns/op
+OverheadActual  16: 1024 op, 4100.00 ns, 4.0039 ns/op
+OverheadActual  17: 1024 op, 3600.00 ns, 3.5156 ns/op
+OverheadActual  18: 1024 op, 3400.00 ns, 3.3203 ns/op
+OverheadActual  19: 1024 op, 3800.00 ns, 3.7109 ns/op
+
+WorkloadWarmup   1: 1024 op, 807903500.00 ns, 788.9683 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 1024 op, 826361500.00 ns, 806.9937 us/op
+WorkloadActual   2: 1024 op, 933228500.00 ns, 911.3560 us/op
+WorkloadActual   3: 1024 op, 818834800.00 ns, 799.6434 us/op
+
+// AfterActualRun
+WorkloadResult   1: 1024 op, 826357800.00 ns, 806.9900 us/op
+WorkloadResult   2: 1024 op, 933224800.00 ns, 911.3523 us/op
+WorkloadResult   3: 1024 op, 818831100.00 ns, 799.6397 us/op
+
+// AfterAll
+// Benchmark Process 52744 has exited with code 0.
+
+Mean = 839.327 μs, StdErr = 36.075 μs (4.30%), N = 3, StdDev = 62.484 μs
+Min = 799.640 μs, Q1 = 803.315 μs, Median = 806.990 μs, Q3 = 859.171 μs, Max = 911.352 μs
+IQR = 55.856 μs, LowerFence = 719.530 μs, UpperFence = 942.956 μs
+ConfidenceInterval = [-300.607 μs; 1,979.261 μs] (CI 99.9%), Margin = 1,139.934 μs (135.82% of Mean)
+Skewness = 0.38, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 16 (88.9 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2188 2172 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnly(Scale: 0.065)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 2 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 296400.00 ns, 296.4000 us/op
+WorkloadJitting  1: 1 op, 71485300.00 ns, 71.4853 ms/op
+
+WorkloadPilot    1: 2 op, 104098500.00 ns, 52.0493 ms/op
+WorkloadPilot    2: 3 op, 144133500.00 ns, 48.0445 ms/op
+WorkloadPilot    3: 4 op, 174197200.00 ns, 43.5493 ms/op
+WorkloadPilot    4: 5 op, 214342600.00 ns, 42.8685 ms/op
+WorkloadPilot    5: 6 op, 243333800.00 ns, 40.5556 ms/op
+WorkloadPilot    6: 7 op, 294982800.00 ns, 42.1404 ms/op
+WorkloadPilot    7: 8 op, 328347300.00 ns, 41.0434 ms/op
+WorkloadPilot    8: 9 op, 361960400.00 ns, 40.2178 ms/op
+WorkloadPilot    9: 10 op, 412732200.00 ns, 41.2732 ms/op
+WorkloadPilot   10: 11 op, 445066600.00 ns, 40.4606 ms/op
+WorkloadPilot   11: 12 op, 506324700.00 ns, 42.1937 ms/op
+
+WorkloadWarmup   1: 12 op, 485856600.00 ns, 40.4881 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 12 op, 476346200.00 ns, 39.6955 ms/op
+WorkloadActual   2: 12 op, 535002000.00 ns, 44.5835 ms/op
+WorkloadActual   3: 12 op, 508499400.00 ns, 42.3750 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 12 op, 476346200.00 ns, 39.6955 ms/op
+WorkloadResult   2: 12 op, 535002000.00 ns, 44.5835 ms/op
+WorkloadResult   3: 12 op, 508499400.00 ns, 42.3750 ms/op
+
+// AfterAll
+// Benchmark Process 49504 has exited with code 0.
+
+Mean = 42.218 ms, StdErr = 1.413 ms (3.35%), N = 3, StdDev = 2.448 ms
+Min = 39.696 ms, Q1 = 41.035 ms, Median = 42.375 ms, Q3 = 43.479 ms, Max = 44.584 ms
+IQR = 2.444 ms, LowerFence = 37.369 ms, UpperFence = 47.145 ms
+ConfidenceInterval = [-2.438 ms; 86.874 ms] (CI 99.9%), Margin = 44.656 ms (105.78% of Mean)
+Skewness = -0.06, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 15 (83.3 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.DotsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 1372 656 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.DotsOnly(Scale: 0.065)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 3 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 187100.00 ns, 187.1000 us/op
+WorkloadJitting  1: 1 op, 20688900.00 ns, 20.6889 ms/op
+
+OverheadJitting  2: 16 op, 317500.00 ns, 19.8438 us/op
+WorkloadJitting  2: 16 op, 153323500.00 ns, 9.5827 ms/op
+
+WorkloadPilot    1: 16 op, 148244200.00 ns, 9.2653 ms/op
+WorkloadPilot    2: 32 op, 297056100.00 ns, 9.2830 ms/op
+WorkloadPilot    3: 64 op, 556436700.00 ns, 8.6943 ms/op
+
+OverheadWarmup   1: 64 op, 4600.00 ns, 71.8750 ns/op
+OverheadWarmup   2: 64 op, 2900.00 ns, 45.3125 ns/op
+OverheadWarmup   3: 64 op, 1300.00 ns, 20.3125 ns/op
+OverheadWarmup   4: 64 op, 2200.00 ns, 34.3750 ns/op
+OverheadWarmup   5: 64 op, 2000.00 ns, 31.2500 ns/op
+OverheadWarmup   6: 64 op, 2100.00 ns, 32.8125 ns/op
+OverheadWarmup   7: 64 op, 1700.00 ns, 26.5625 ns/op
+
+OverheadActual   1: 64 op, 1400.00 ns, 21.8750 ns/op
+OverheadActual   2: 64 op, 1600.00 ns, 25.0000 ns/op
+OverheadActual   3: 64 op, 1700.00 ns, 26.5625 ns/op
+OverheadActual   4: 64 op, 2500.00 ns, 39.0625 ns/op
+OverheadActual   5: 64 op, 1500.00 ns, 23.4375 ns/op
+OverheadActual   6: 64 op, 1500.00 ns, 23.4375 ns/op
+OverheadActual   7: 64 op, 2400.00 ns, 37.5000 ns/op
+OverheadActual   8: 64 op, 1600.00 ns, 25.0000 ns/op
+OverheadActual   9: 64 op, 3700.00 ns, 57.8125 ns/op
+OverheadActual  10: 64 op, 1600.00 ns, 25.0000 ns/op
+OverheadActual  11: 64 op, 1700.00 ns, 26.5625 ns/op
+OverheadActual  12: 64 op, 2300.00 ns, 35.9375 ns/op
+OverheadActual  13: 64 op, 2400.00 ns, 37.5000 ns/op
+OverheadActual  14: 64 op, 1800.00 ns, 28.1250 ns/op
+OverheadActual  15: 64 op, 1400.00 ns, 21.8750 ns/op
+OverheadActual  16: 64 op, 2400.00 ns, 37.5000 ns/op
+OverheadActual  17: 64 op, 1700.00 ns, 26.5625 ns/op
+OverheadActual  18: 64 op, 1500.00 ns, 23.4375 ns/op
+OverheadActual  19: 64 op, 1800.00 ns, 28.1250 ns/op
+OverheadActual  20: 64 op, 1700.00 ns, 26.5625 ns/op
+
+WorkloadWarmup   1: 64 op, 602700500.00 ns, 9.4172 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 64 op, 577543300.00 ns, 9.0241 ms/op
+WorkloadActual   2: 64 op, 582028700.00 ns, 9.0942 ms/op
+WorkloadActual   3: 64 op, 677035900.00 ns, 10.5787 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 64 op, 577541600.00 ns, 9.0241 ms/op
+WorkloadResult   2: 64 op, 582027000.00 ns, 9.0942 ms/op
+WorkloadResult   3: 64 op, 677034200.00 ns, 10.5787 ms/op
+
+// AfterAll
+// Benchmark Process 49200 has exited with code 0.
+
+Mean = 9.566 ms, StdErr = 0.507 ms (5.30%), N = 3, StdDev = 0.878 ms
+Min = 9.024 ms, Q1 = 9.059 ms, Median = 9.094 ms, Q3 = 9.836 ms, Max = 10.579 ms
+IQR = 0.777 ms, LowerFence = 7.893 ms, UpperFence = 11.002 ms
+ConfidenceInterval = [-6.452 ms; 25.584 ms] (CI 99.9%), Margin = 16.018 ms (167.45% of Mean)
+Skewness = 0.38, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 14 (77.8 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.HexLabelsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2452 1568 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.HexLabelsOnly(Scale: 0.065)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 4 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 232300.00 ns, 232.3000 us/op
+WorkloadJitting  1: 1 op, 149815900.00 ns, 149.8159 ms/op
+
+WorkloadPilot    1: 2 op, 67792500.00 ns, 33.8963 ms/op
+WorkloadPilot    2: 3 op, 94594700.00 ns, 31.5316 ms/op
+WorkloadPilot    3: 4 op, 125979300.00 ns, 31.4948 ms/op
+WorkloadPilot    4: 5 op, 157247000.00 ns, 31.4494 ms/op
+WorkloadPilot    5: 6 op, 188748300.00 ns, 31.4581 ms/op
+WorkloadPilot    6: 7 op, 209640700.00 ns, 29.9487 ms/op
+WorkloadPilot    7: 8 op, 257671800.00 ns, 32.2090 ms/op
+WorkloadPilot    8: 9 op, 319809200.00 ns, 35.5344 ms/op
+WorkloadPilot    9: 10 op, 410038700.00 ns, 41.0039 ms/op
+WorkloadPilot   10: 11 op, 373943000.00 ns, 33.9948 ms/op
+WorkloadPilot   11: 12 op, 433549800.00 ns, 36.1292 ms/op
+WorkloadPilot   12: 13 op, 479364000.00 ns, 36.8742 ms/op
+WorkloadPilot   13: 14 op, 452319000.00 ns, 32.3085 ms/op
+WorkloadPilot   14: 15 op, 505961200.00 ns, 33.7307 ms/op
+
+WorkloadWarmup   1: 15 op, 432966000.00 ns, 28.8644 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 15 op, 544679200.00 ns, 36.3119 ms/op
+WorkloadActual   2: 15 op, 468775600.00 ns, 31.2517 ms/op
+WorkloadActual   3: 15 op, 452274000.00 ns, 30.1516 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 15 op, 544679200.00 ns, 36.3119 ms/op
+WorkloadResult   2: 15 op, 468775600.00 ns, 31.2517 ms/op
+WorkloadResult   3: 15 op, 452274000.00 ns, 30.1516 ms/op
+
+// AfterAll
+// Benchmark Process 54196 has exited with code 0.
+
+Mean = 32.572 ms, StdErr = 1.897 ms (5.82%), N = 3, StdDev = 3.285 ms
+Min = 30.152 ms, Q1 = 30.702 ms, Median = 31.252 ms, Q3 = 33.782 ms, Max = 36.312 ms
+IQR = 3.080 ms, LowerFence = 26.081 ms, UpperFence = 38.402 ms
+ConfidenceInterval = [-27.368 ms; 92.511 ms] (CI 99.9%), Margin = 59.939 ms (184.02% of Mean)
+Skewness = 0.34, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 13 (72.2 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnlyOnePath: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2208 2464 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnlyOnePath(Scale: 0.065)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 5 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 214700.00 ns, 214.7000 us/op
+WorkloadJitting  1: 1 op, 95091500.00 ns, 95.0915 ms/op
+
+WorkloadPilot    1: 2 op, 172427700.00 ns, 86.2139 ms/op
+WorkloadPilot    2: 3 op, 248057800.00 ns, 82.6859 ms/op
+WorkloadPilot    3: 4 op, 304206700.00 ns, 76.0517 ms/op
+WorkloadPilot    4: 5 op, 393781700.00 ns, 78.7563 ms/op
+WorkloadPilot    5: 6 op, 469932400.00 ns, 78.3221 ms/op
+WorkloadPilot    6: 7 op, 579945000.00 ns, 82.8493 ms/op
+
+WorkloadWarmup   1: 7 op, 571525100.00 ns, 81.6464 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 7 op, 651046900.00 ns, 93.0067 ms/op
+WorkloadActual   2: 7 op, 695181300.00 ns, 99.3116 ms/op
+WorkloadActual   3: 7 op, 585419700.00 ns, 83.6314 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 7 op, 651046900.00 ns, 93.0067 ms/op
+WorkloadResult   2: 7 op, 695181300.00 ns, 99.3116 ms/op
+WorkloadResult   3: 7 op, 585419700.00 ns, 83.6314 ms/op
+
+// AfterAll
+// Benchmark Process 39972 has exited with code 0.
+
+Mean = 91.983 ms, StdErr = 4.555 ms (4.95%), N = 3, StdDev = 7.890 ms
+Min = 83.631 ms, Q1 = 88.319 ms, Median = 93.007 ms, Q3 = 96.159 ms, Max = 99.312 ms
+IQR = 7.840 ms, LowerFence = 76.559 ms, UpperFence = 107.919 ms
+ConfidenceInterval = [-51.961 ms; 235.927 ms] (CI 99.9%), Margin = 143.944 ms (156.49% of Mean)
+Skewness = -0.13, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 12 (66.7 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnlyPerItemReplica: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2212 2468 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnlyPerItemReplica(Scale: 0.065)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 6 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 207300.00 ns, 207.3000 us/op
+WorkloadJitting  1: 1 op, 50842300.00 ns, 50.8423 ms/op
+
+WorkloadPilot    1: 2 op, 84888900.00 ns, 42.4445 ms/op
+WorkloadPilot    2: 3 op, 127944900.00 ns, 42.6483 ms/op
+WorkloadPilot    3: 4 op, 170850700.00 ns, 42.7127 ms/op
+WorkloadPilot    4: 5 op, 222513300.00 ns, 44.5027 ms/op
+WorkloadPilot    5: 6 op, 284163400.00 ns, 47.3606 ms/op
+WorkloadPilot    6: 7 op, 304001500.00 ns, 43.4288 ms/op
+WorkloadPilot    7: 8 op, 363794300.00 ns, 45.4743 ms/op
+WorkloadPilot    8: 9 op, 410160300.00 ns, 45.5734 ms/op
+WorkloadPilot    9: 10 op, 476149700.00 ns, 47.6150 ms/op
+WorkloadPilot   10: 11 op, 610345800.00 ns, 55.4860 ms/op
+
+WorkloadWarmup   1: 11 op, 537137500.00 ns, 48.8307 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 11 op, 501939100.00 ns, 45.6308 ms/op
+WorkloadActual   2: 11 op, 459230300.00 ns, 41.7482 ms/op
+WorkloadActual   3: 11 op, 501013600.00 ns, 45.5467 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 11 op, 501939100.00 ns, 45.6308 ms/op
+WorkloadResult   2: 11 op, 459230300.00 ns, 41.7482 ms/op
+WorkloadResult   3: 11 op, 501013600.00 ns, 45.5467 ms/op
+
+// AfterAll
+// Benchmark Process 54968 has exited with code 0.
+
+Mean = 44.309 ms, StdErr = 1.280 ms (2.89%), N = 3, StdDev = 2.218 ms
+Min = 41.748 ms, Q1 = 43.647 ms, Median = 45.547 ms, Q3 = 45.589 ms, Max = 45.631 ms
+IQR = 1.941 ms, LowerFence = 40.735 ms, UpperFence = 48.501 ms
+ConfidenceInterval = [3.849 ms; 84.768 ms] (CI 99.9%), Margin = 40.460 ms (91.31% of Mean)
+Skewness = -0.38, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 11 (61.1 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 1m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnlyDefaultCompositing: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2516 2512 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnlyDefaultCompositing(Scale: 0.065)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 7 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 199800.00 ns, 199.8000 us/op
+WorkloadJitting  1: 1 op, 49592700.00 ns, 49.5927 ms/op
+
+WorkloadPilot    1: 2 op, 76999800.00 ns, 38.4999 ms/op
+WorkloadPilot    2: 3 op, 140221600.00 ns, 46.7405 ms/op
+WorkloadPilot    3: 4 op, 170671700.00 ns, 42.6679 ms/op
+WorkloadPilot    4: 5 op, 195462300.00 ns, 39.0925 ms/op
+WorkloadPilot    5: 6 op, 268046400.00 ns, 44.6744 ms/op
+WorkloadPilot    6: 7 op, 304761900.00 ns, 43.5374 ms/op
+WorkloadPilot    7: 8 op, 324417900.00 ns, 40.5522 ms/op
+WorkloadPilot    8: 9 op, 380658700.00 ns, 42.2954 ms/op
+WorkloadPilot    9: 10 op, 411224800.00 ns, 41.1225 ms/op
+WorkloadPilot   10: 11 op, 449903200.00 ns, 40.9003 ms/op
+WorkloadPilot   11: 12 op, 496550100.00 ns, 41.3792 ms/op
+WorkloadPilot   12: 13 op, 507113800.00 ns, 39.0088 ms/op
+
+WorkloadWarmup   1: 13 op, 522839600.00 ns, 40.2184 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 13 op, 561914400.00 ns, 43.2242 ms/op
+WorkloadActual   2: 13 op, 599100200.00 ns, 46.0846 ms/op
+WorkloadActual   3: 13 op, 812285300.00 ns, 62.4835 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 13 op, 561914400.00 ns, 43.2242 ms/op
+WorkloadResult   2: 13 op, 599100200.00 ns, 46.0846 ms/op
+WorkloadResult   3: 13 op, 812285300.00 ns, 62.4835 ms/op
+
+// AfterAll
+// Benchmark Process 53668 has exited with code 0.
+
+Mean = 50.597 ms, StdErr = 6.000 ms (11.86%), N = 3, StdDev = 10.393 ms
+Min = 43.224 ms, Q1 = 44.654 ms, Median = 46.085 ms, Q3 = 54.284 ms, Max = 62.483 ms
+IQR = 9.630 ms, LowerFence = 30.210 ms, UpperFence = 68.729 ms
+ConfidenceInterval = [-139.001 ms; 240.195 ms] (CI 99.9%), Margin = 189.598 ms (374.72% of Mean)
+Skewness = 0.35, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 10 (55.6 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnlyPArgb: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2004 1292 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnlyPArgb(Scale: 0.065)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 8 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 331300.00 ns, 331.3000 us/op
+WorkloadJitting  1: 1 op, 89384700.00 ns, 89.3847 ms/op
+
+WorkloadPilot    1: 2 op, 149981700.00 ns, 74.9909 ms/op
+WorkloadPilot    2: 3 op, 226296100.00 ns, 75.4320 ms/op
+WorkloadPilot    3: 4 op, 272467600.00 ns, 68.1169 ms/op
+WorkloadPilot    4: 5 op, 348746600.00 ns, 69.7493 ms/op
+WorkloadPilot    5: 6 op, 405660400.00 ns, 67.6101 ms/op
+WorkloadPilot    6: 7 op, 424954200.00 ns, 60.7077 ms/op
+WorkloadPilot    7: 8 op, 430748800.00 ns, 53.8436 ms/op
+WorkloadPilot    8: 9 op, 537386500.00 ns, 59.7096 ms/op
+
+WorkloadWarmup   1: 9 op, 526147700.00 ns, 58.4609 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 9 op, 580358800.00 ns, 64.4843 ms/op
+WorkloadActual   2: 9 op, 570169100.00 ns, 63.3521 ms/op
+WorkloadActual   3: 9 op, 626759200.00 ns, 69.6399 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 9 op, 580358800.00 ns, 64.4843 ms/op
+WorkloadResult   2: 9 op, 570169100.00 ns, 63.3521 ms/op
+WorkloadResult   3: 9 op, 626759200.00 ns, 69.6399 ms/op
+
+// AfterAll
+// Benchmark Process 53336 has exited with code 0.
+
+Mean = 65.825 ms, StdErr = 1.935 ms (2.94%), N = 3, StdDev = 3.352 ms
+Min = 63.352 ms, Q1 = 63.918 ms, Median = 64.484 ms, Q3 = 67.062 ms, Max = 69.640 ms
+IQR = 3.144 ms, LowerFence = 59.202 ms, UpperFence = 71.778 ms
+ConfidenceInterval = [4.680 ms; 126.971 ms] (CI 99.9%), Margin = 61.145 ms (92.89% of Mean)
+Skewness = 0.34, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 9 (50.0 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.All: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2340 2000 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.All(Scale: 1)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 9 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 247600.00 ns, 247.6000 us/op
+WorkloadJitting  1: 1 op, 1670725100.00 ns, 1.6707 s/op
+
+OverheadJitting  2: 1 op, 1200.00 ns, 1.2000 us/op
+WorkloadJitting  2: 1 op, 1420510300.00 ns, 1.4205 s/op
+
+WorkloadWarmup   1: 1 op, 1433970800.00 ns, 1.4340 s/op
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 1323425600.00 ns, 1.3234 s/op
+WorkloadActual   2: 1 op, 1243558000.00 ns, 1.2436 s/op
+WorkloadActual   3: 1 op, 1326195800.00 ns, 1.3262 s/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 1323425600.00 ns, 1.3234 s/op
+WorkloadResult   2: 1 op, 1243558000.00 ns, 1.2436 s/op
+WorkloadResult   3: 1 op, 1326195800.00 ns, 1.3262 s/op
+
+// AfterAll
+// Benchmark Process 40704 has exited with code 0.
+
+Mean = 1.298 s, StdErr = 0.027 s (2.09%), N = 3, StdDev = 0.047 s
+Min = 1.244 s, Q1 = 1.283 s, Median = 1.323 s, Q3 = 1.325 s, Max = 1.326 s
+IQR = 0.041 s, LowerFence = 1.222 s, UpperFence = 1.387 s
+ConfidenceInterval = [0.442 s; 2.154 s] (CI 99.9%), Margin = 0.856 s (65.98% of Mean)
+Skewness = -0.38, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 8 (44.4 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.ClearOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2516 2212 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.ClearOnly(Scale: 1)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 10 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 197700.00 ns, 197.7000 us/op
+WorkloadJitting  1: 1 op, 185928100.00 ns, 185.9281 ms/op
+
+WorkloadPilot    1: 2 op, 386402500.00 ns, 193.2013 ms/op
+WorkloadPilot    2: 3 op, 589195600.00 ns, 196.3985 ms/op
+
+WorkloadWarmup   1: 3 op, 638928400.00 ns, 212.9761 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 3 op, 672266100.00 ns, 224.0887 ms/op
+WorkloadActual   2: 3 op, 695430500.00 ns, 231.8102 ms/op
+WorkloadActual   3: 3 op, 632851700.00 ns, 210.9506 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 3 op, 672266100.00 ns, 224.0887 ms/op
+WorkloadResult   2: 3 op, 695430500.00 ns, 231.8102 ms/op
+WorkloadResult   3: 3 op, 632851700.00 ns, 210.9506 ms/op
+
+// AfterAll
+// Benchmark Process 51320 has exited with code 0.
+
+Mean = 222.283 ms, StdErr = 6.089 ms (2.74%), N = 3, StdDev = 10.546 ms
+Min = 210.951 ms, Q1 = 217.520 ms, Median = 224.089 ms, Q3 = 227.949 ms, Max = 231.810 ms
+IQR = 10.430 ms, LowerFence = 201.875 ms, UpperFence = 243.594 ms
+ConfidenceInterval = [29.878 ms; 414.688 ms] (CI 99.9%), Margin = 192.405 ms (86.56% of Mean)
+Skewness = -0.17, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 7 (38.9 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2560 2472 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnly(Scale: 1)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 11 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 214800.00 ns, 214.8000 us/op
+WorkloadJitting  1: 1 op, 824096900.00 ns, 824.0969 ms/op
+
+OverheadJitting  2: 1 op, 1100.00 ns, 1.1000 us/op
+WorkloadJitting  2: 1 op, 856336400.00 ns, 856.3364 ms/op
+
+WorkloadWarmup   1: 1 op, 827722300.00 ns, 827.7223 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 817884500.00 ns, 817.8845 ms/op
+WorkloadActual   2: 1 op, 951067200.00 ns, 951.0672 ms/op
+WorkloadActual   3: 1 op, 853488400.00 ns, 853.4884 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 817884500.00 ns, 817.8845 ms/op
+WorkloadResult   2: 1 op, 951067200.00 ns, 951.0672 ms/op
+WorkloadResult   3: 1 op, 853488400.00 ns, 853.4884 ms/op
+
+// AfterAll
+// Benchmark Process 33364 has exited with code 0.
+
+Mean = 874.147 ms, StdErr = 39.810 ms (4.55%), N = 3, StdDev = 68.953 ms
+Min = 817.885 ms, Q1 = 835.686 ms, Median = 853.488 ms, Q3 = 902.278 ms, Max = 951.067 ms
+IQR = 66.591 ms, LowerFence = 735.799 ms, UpperFence = 1,002.165 ms
+ConfidenceInterval = [-383.808 ms; 2,132.102 ms] (CI 99.9%), Margin = 1,257.955 ms (143.91% of Mean)
+Skewness = 0.27, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 6 (33.3 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.DotsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2040 1996 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.DotsOnly(Scale: 1)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 12 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 206900.00 ns, 206.9000 us/op
+WorkloadJitting  1: 1 op, 262941700.00 ns, 262.9417 ms/op
+
+WorkloadPilot    1: 2 op, 533833100.00 ns, 266.9166 ms/op
+
+WorkloadWarmup   1: 2 op, 546052000.00 ns, 273.0260 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 2 op, 544336300.00 ns, 272.1682 ms/op
+WorkloadActual   2: 2 op, 492514500.00 ns, 246.2573 ms/op
+WorkloadActual   3: 2 op, 532238400.00 ns, 266.1192 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 2 op, 544336300.00 ns, 272.1682 ms/op
+WorkloadResult   2: 2 op, 492514500.00 ns, 246.2573 ms/op
+WorkloadResult   3: 2 op, 532238400.00 ns, 266.1192 ms/op
+
+// AfterAll
+// Benchmark Process 55912 has exited with code 0.
+
+Mean = 261.515 ms, StdErr = 7.826 ms (2.99%), N = 3, StdDev = 13.555 ms
+Min = 246.257 ms, Q1 = 256.188 ms, Median = 266.119 ms, Q3 = 269.144 ms, Max = 272.168 ms
+IQR = 12.955 ms, LowerFence = 236.755 ms, UpperFence = 288.577 ms
+ConfidenceInterval = [14.217 ms; 508.812 ms] (CI 99.9%), Margin = 247.297 ms (94.56% of Mean)
+Skewness = -0.3, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 5 (27.8 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.HexLabelsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2600 2580 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.HexLabelsOnly(Scale: 1)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 13 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 212500.00 ns, 212.5000 us/op
+WorkloadJitting  1: 1 op, 645986300.00 ns, 645.9863 ms/op
+
+OverheadJitting  2: 1 op, 1100.00 ns, 1.1000 us/op
+WorkloadJitting  2: 1 op, 479505500.00 ns, 479.5055 ms/op
+
+WorkloadWarmup   1: 1 op, 474887500.00 ns, 474.8875 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 532614800.00 ns, 532.6148 ms/op
+WorkloadActual   2: 1 op, 556514300.00 ns, 556.5143 ms/op
+WorkloadActual   3: 1 op, 593387200.00 ns, 593.3872 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 532614800.00 ns, 532.6148 ms/op
+WorkloadResult   2: 1 op, 556514300.00 ns, 556.5143 ms/op
+WorkloadResult   3: 1 op, 593387200.00 ns, 593.3872 ms/op
+
+// AfterAll
+// Benchmark Process 41548 has exited with code 0.
+
+Mean = 560.839 ms, StdErr = 17.676 ms (3.15%), N = 3, StdDev = 30.616 ms
+Min = 532.615 ms, Q1 = 544.565 ms, Median = 556.514 ms, Q3 = 574.951 ms, Max = 593.387 ms
+IQR = 30.386 ms, LowerFence = 498.985 ms, UpperFence = 620.530 ms
+ConfidenceInterval = [2.287 ms; 1,119.391 ms] (CI 99.9%), Margin = 558.552 ms (99.59% of Mean)
+Skewness = 0.14, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 4 (22.2 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnlyOnePath: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2188 2192 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnlyOnePath(Scale: 1)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 14 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 214600.00 ns, 214.6000 us/op
+WorkloadJitting  1: 1 op, 1655021100.00 ns, 1.6550 s/op
+
+OverheadJitting  2: 1 op, 1000.00 ns, 1.0000 us/op
+WorkloadJitting  2: 1 op, 1635393900.00 ns, 1.6354 s/op
+
+WorkloadWarmup   1: 1 op, 1585374700.00 ns, 1.5854 s/op
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 1477238500.00 ns, 1.4772 s/op
+WorkloadActual   2: 1 op, 1454408500.00 ns, 1.4544 s/op
+WorkloadActual   3: 1 op, 1436882900.00 ns, 1.4369 s/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 1477238500.00 ns, 1.4772 s/op
+WorkloadResult   2: 1 op, 1454408500.00 ns, 1.4544 s/op
+WorkloadResult   3: 1 op, 1436882900.00 ns, 1.4369 s/op
+
+// AfterAll
+// Benchmark Process 49628 has exited with code 0.
+
+Mean = 1.456 s, StdErr = 0.012 s (0.80%), N = 3, StdDev = 0.020 s
+Min = 1.437 s, Q1 = 1.446 s, Median = 1.454 s, Q3 = 1.466 s, Max = 1.477 s
+IQR = 0.020 s, LowerFence = 1.415 s, UpperFence = 1.496 s
+ConfidenceInterval = [1.087 s; 1.825 s] (CI 99.9%), Margin = 0.369 s (25.35% of Mean)
+Skewness = 0.09, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 3 (16.7 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnlyPerItemReplica: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2236 1992 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnlyPerItemReplica(Scale: 1)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 15 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 282800.00 ns, 282.8000 us/op
+WorkloadJitting  1: 1 op, 817380800.00 ns, 817.3808 ms/op
+
+OverheadJitting  2: 1 op, 1200.00 ns, 1.2000 us/op
+WorkloadJitting  2: 1 op, 878786400.00 ns, 878.7864 ms/op
+
+WorkloadWarmup   1: 1 op, 780117400.00 ns, 780.1174 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 898950600.00 ns, 898.9506 ms/op
+WorkloadActual   2: 1 op, 830936000.00 ns, 830.9360 ms/op
+WorkloadActual   3: 1 op, 818561500.00 ns, 818.5615 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 898950600.00 ns, 898.9506 ms/op
+WorkloadResult   2: 1 op, 830936000.00 ns, 830.9360 ms/op
+WorkloadResult   3: 1 op, 818561500.00 ns, 818.5615 ms/op
+
+// AfterAll
+// Benchmark Process 14008 has exited with code 0.
+
+Mean = 849.483 ms, StdErr = 24.991 ms (2.94%), N = 3, StdDev = 43.285 ms
+Min = 818.562 ms, Q1 = 824.749 ms, Median = 830.936 ms, Q3 = 864.943 ms, Max = 898.951 ms
+IQR = 40.195 ms, LowerFence = 764.457 ms, UpperFence = 925.235 ms
+ConfidenceInterval = [59.804 ms; 1,639.161 ms] (CI 99.9%), Margin = 789.679 ms (92.96% of Mean)
+Skewness = 0.35, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 2 (11.1 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnlyDefaultCompositing: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 1968 2388 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnlyDefaultCompositing(Scale: 1)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 16 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 197600.00 ns, 197.6000 us/op
+WorkloadJitting  1: 1 op, 759622200.00 ns, 759.6222 ms/op
+
+OverheadJitting  2: 1 op, 1300.00 ns, 1.3000 us/op
+WorkloadJitting  2: 1 op, 723458500.00 ns, 723.4585 ms/op
+
+WorkloadWarmup   1: 1 op, 754262500.00 ns, 754.2625 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 779260600.00 ns, 779.2606 ms/op
+WorkloadActual   2: 1 op, 828006900.00 ns, 828.0069 ms/op
+WorkloadActual   3: 1 op, 828393200.00 ns, 828.3932 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 779260600.00 ns, 779.2606 ms/op
+WorkloadResult   2: 1 op, 828006900.00 ns, 828.0069 ms/op
+WorkloadResult   3: 1 op, 828393200.00 ns, 828.3932 ms/op
+
+// AfterAll
+// Benchmark Process 53728 has exited with code 0.
+
+Mean = 811.887 ms, StdErr = 16.314 ms (2.01%), N = 3, StdDev = 28.256 ms
+Min = 779.261 ms, Q1 = 803.634 ms, Median = 828.007 ms, Q3 = 828.200 ms, Max = 828.393 ms
+IQR = 24.566 ms, LowerFence = 766.784 ms, UpperFence = 865.049 ms
+ConfidenceInterval = [296.395 ms; 1,327.379 ms] (CI 99.9%), Margin = 515.492 ms (63.49% of Mean)
+Skewness = -0.38, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 1 (5.6 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: High performance)
+// **************************
+// Benchmark: RasterVariantSpikeBenchmarks.GridOnlyPArgb: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet HexGrid.Benchmarks-Job-FGEKWY-1.dll --anonymousPipes 2188 2408 --benchmarkName "HexGrid.Benchmarks.RasterVariantSpikeBenchmarks.GridOnlyPArgb(Scale: 1)" --job "IterationCount=3, LaunchCount=1, WarmupCount=1" --benchmarkId 17 in C:\Users\jocvi\Documents\Collection-of-Folders\Programming\CSharp\HexGridGenerator\src\HexGrid.Benchmarks\bin\Release\net10.0-windows\HexGrid.Benchmarks-Job-FGEKWY-1\bin\Release\net10.0-Windows7.0
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL,AvxVnni,SERIALIZE VectorSize=256
+// Job: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1)
+
+OverheadJitting  1: 1 op, 220400.00 ns, 220.4000 us/op
+WorkloadJitting  1: 1 op, 1223161500.00 ns, 1.2232 s/op
+
+OverheadJitting  2: 1 op, 1700.00 ns, 1.7000 us/op
+WorkloadJitting  2: 1 op, 1188763100.00 ns, 1.1888 s/op
+
+WorkloadWarmup   1: 1 op, 1168547200.00 ns, 1.1685 s/op
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 1108515700.00 ns, 1.1085 s/op
+WorkloadActual   2: 1 op, 1037329500.00 ns, 1.0373 s/op
+WorkloadActual   3: 1 op, 1083161000.00 ns, 1.0832 s/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 1108515700.00 ns, 1.1085 s/op
+WorkloadResult   2: 1 op, 1037329500.00 ns, 1.0373 s/op
+WorkloadResult   3: 1 op, 1083161000.00 ns, 1.0832 s/op
+
+// AfterAll
+// Benchmark Process 56124 has exited with code 0.
+
+Mean = 1.076 s, StdErr = 0.021 s (1.94%), N = 3, StdDev = 0.036 s
+Min = 1.037 s, Q1 = 1.060 s, Median = 1.083 s, Q3 = 1.096 s, Max = 1.109 s
+IQR = 0.036 s, LowerFence = 1.007 s, UpperFence = 1.149 s
+ConfidenceInterval = [0.418 s; 1.735 s] (CI 99.9%), Margin = 0.658 s (61.16% of Mean)
+Skewness = -0.18, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 0 (0.0 %) benchmark(s) to run. Estimated finish 2026-10-02 21:22 (0h 0m from now) **
+Successfully reverted power plan (GUID: 381b4222-f694-41f0-9685-ff5bb260df2e FriendlyName: Balanced)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\HexGrid.Benchmarks.RasterVariantSpikeBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts\results\HexGrid.Benchmarks.RasterVariantSpikeBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts\results\HexGrid.Benchmarks.RasterVariantSpikeBenchmarks-report.html
+
+// * Detailed results *
+RasterVariantSpikeBenchmarks.All: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 83.342 ms, StdErr = 4.030 ms (4.84%), N = 3, StdDev = 6.980 ms
+Min = 78.565 ms, Q1 = 79.337 ms, Median = 80.109 ms, Q3 = 85.731 ms, Max = 91.353 ms
+IQR = 6.394 ms, LowerFence = 69.746 ms, UpperFence = 95.321 ms
+ConfidenceInterval = [-44.001 ms; 210.686 ms] (CI 99.9%), Margin = 127.343 ms (152.80% of Mean)
+Skewness = 0.36, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[72.213 ms ; 85.689 ms) | @@
+[85.689 ms ; 97.705 ms) | @
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.ClearOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 839.327 μs, StdErr = 36.075 μs (4.30%), N = 3, StdDev = 62.484 μs
+Min = 799.640 μs, Q1 = 803.315 μs, Median = 806.990 μs, Q3 = 859.171 μs, Max = 911.352 μs
+IQR = 55.856 μs, LowerFence = 719.530 μs, UpperFence = 942.956 μs
+ConfidenceInterval = [-300.607 μs; 1,979.261 μs] (CI 99.9%), Margin = 1,139.934 μs (135.82% of Mean)
+Skewness = 0.38, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[798.634 μs ; 912.358 μs) | @@@
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 42.218 ms, StdErr = 1.413 ms (3.35%), N = 3, StdDev = 2.448 ms
+Min = 39.696 ms, Q1 = 41.035 ms, Median = 42.375 ms, Q3 = 43.479 ms, Max = 44.584 ms
+IQR = 2.444 ms, LowerFence = 37.369 ms, UpperFence = 47.145 ms
+ConfidenceInterval = [-2.438 ms; 86.874 ms] (CI 99.9%), Margin = 44.656 ms (105.78% of Mean)
+Skewness = -0.06, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[37.468 ms ; 41.252 ms) | @
+[41.252 ms ; 45.707 ms) | @@
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.DotsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 9.566 ms, StdErr = 0.507 ms (5.30%), N = 3, StdDev = 0.878 ms
+Min = 9.024 ms, Q1 = 9.059 ms, Median = 9.094 ms, Q3 = 9.836 ms, Max = 10.579 ms
+IQR = 0.777 ms, LowerFence = 7.893 ms, UpperFence = 11.002 ms
+ConfidenceInterval = [-6.452 ms; 25.584 ms] (CI 99.9%), Margin = 16.018 ms (167.45% of Mean)
+Skewness = 0.38, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[9.002 ms ; 10.600 ms) | @@@
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.HexLabelsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 32.572 ms, StdErr = 1.897 ms (5.82%), N = 3, StdDev = 3.285 ms
+Min = 30.152 ms, Q1 = 30.702 ms, Median = 31.252 ms, Q3 = 33.782 ms, Max = 36.312 ms
+IQR = 3.080 ms, LowerFence = 26.081 ms, UpperFence = 38.402 ms
+ConfidenceInterval = [-27.368 ms; 92.511 ms] (CI 99.9%), Margin = 59.939 ms (184.02% of Mean)
+Skewness = 0.34, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[27.162 ms ; 33.692 ms) | @@
+[33.692 ms ; 39.302 ms) | @
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnlyOnePath: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 91.983 ms, StdErr = 4.555 ms (4.95%), N = 3, StdDev = 7.890 ms
+Min = 83.631 ms, Q1 = 88.319 ms, Median = 93.007 ms, Q3 = 96.159 ms, Max = 99.312 ms
+IQR = 7.840 ms, LowerFence = 76.559 ms, UpperFence = 107.919 ms
+ConfidenceInterval = [-51.961 ms; 235.927 ms] (CI 99.9%), Margin = 143.944 ms (156.49% of Mean)
+Skewness = -0.13, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[76.451 ms ;  88.979 ms) | @
+[88.979 ms ; 103.339 ms) | @@
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnlyPerItemReplica: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 44.309 ms, StdErr = 1.280 ms (2.89%), N = 3, StdDev = 2.218 ms
+Min = 41.748 ms, Q1 = 43.647 ms, Median = 45.547 ms, Q3 = 45.589 ms, Max = 45.631 ms
+IQR = 1.941 ms, LowerFence = 40.735 ms, UpperFence = 48.501 ms
+ConfidenceInterval = [3.849 ms; 84.768 ms] (CI 99.9%), Margin = 40.460 ms (91.31% of Mean)
+Skewness = -0.38, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[41.671 ms ; 45.708 ms) | @@@
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnlyDefaultCompositing: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 50.597 ms, StdErr = 6.000 ms (11.86%), N = 3, StdDev = 10.393 ms
+Min = 43.224 ms, Q1 = 44.654 ms, Median = 46.085 ms, Q3 = 54.284 ms, Max = 62.483 ms
+IQR = 9.630 ms, LowerFence = 30.210 ms, UpperFence = 68.729 ms
+ConfidenceInterval = [-139.001 ms; 240.195 ms] (CI 99.9%), Margin = 189.598 ms (374.72% of Mean)
+Skewness = 0.35, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[33.767 ms ; 54.112 ms) | @@
+[54.112 ms ; 71.941 ms) | @
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnlyPArgb: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=0.065]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 65.825 ms, StdErr = 1.935 ms (2.94%), N = 3, StdDev = 3.352 ms
+Min = 63.352 ms, Q1 = 63.918 ms, Median = 64.484 ms, Q3 = 67.062 ms, Max = 69.640 ms
+IQR = 3.144 ms, LowerFence = 59.202 ms, UpperFence = 71.778 ms
+ConfidenceInterval = [4.680 ms; 126.971 ms] (CI 99.9%), Margin = 61.145 ms (92.89% of Mean)
+Skewness = 0.34, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[60.302 ms ; 66.968 ms) | @@
+[66.968 ms ; 72.690 ms) | @
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.All: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 1.298 s, StdErr = 0.027 s (2.09%), N = 3, StdDev = 0.047 s
+Min = 1.244 s, Q1 = 1.283 s, Median = 1.323 s, Q3 = 1.325 s, Max = 1.326 s
+IQR = 0.041 s, LowerFence = 1.222 s, UpperFence = 1.387 s
+ConfidenceInterval = [0.442 s; 2.154 s] (CI 99.9%), Margin = 0.856 s (65.98% of Mean)
+Skewness = -0.38, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[1.242 s ; 1.328 s) | @@@
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.ClearOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 222.283 ms, StdErr = 6.089 ms (2.74%), N = 3, StdDev = 10.546 ms
+Min = 210.951 ms, Q1 = 217.520 ms, Median = 224.089 ms, Q3 = 227.949 ms, Max = 231.810 ms
+IQR = 10.430 ms, LowerFence = 201.875 ms, UpperFence = 243.594 ms
+ConfidenceInterval = [29.878 ms; 414.688 ms] (CI 99.9%), Margin = 192.405 ms (86.56% of Mean)
+Skewness = -0.17, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[201.353 ms ; 218.352 ms) | @
+[218.352 ms ; 237.547 ms) | @@
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 874.147 ms, StdErr = 39.810 ms (4.55%), N = 3, StdDev = 68.953 ms
+Min = 817.885 ms, Q1 = 835.686 ms, Median = 853.488 ms, Q3 = 902.278 ms, Max = 951.067 ms
+IQR = 66.591 ms, LowerFence = 735.799 ms, UpperFence = 1,002.165 ms
+ConfidenceInterval = [-383.808 ms; 2,132.102 ms] (CI 99.9%), Margin = 1,257.955 ms (143.91% of Mean)
+Skewness = 0.27, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[772.937 ms ;   898.436 ms) | @@
+[898.436 ms ; 1,013.817 ms) | @
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.DotsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 261.515 ms, StdErr = 7.826 ms (2.99%), N = 3, StdDev = 13.555 ms
+Min = 246.257 ms, Q1 = 256.188 ms, Median = 266.119 ms, Q3 = 269.144 ms, Max = 272.168 ms
+IQR = 12.955 ms, LowerFence = 236.755 ms, UpperFence = 288.577 ms
+ConfidenceInterval = [14.217 ms; 508.812 ms] (CI 99.9%), Margin = 247.297 ms (94.56% of Mean)
+Skewness = -0.3, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[233.922 ms ; 256.808 ms) | @
+[256.808 ms ; 284.504 ms) | @@
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.HexLabelsOnly: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 560.839 ms, StdErr = 17.676 ms (3.15%), N = 3, StdDev = 30.616 ms
+Min = 532.615 ms, Q1 = 544.565 ms, Median = 556.514 ms, Q3 = 574.951 ms, Max = 593.387 ms
+IQR = 30.386 ms, LowerFence = 498.985 ms, UpperFence = 620.530 ms
+ConfidenceInterval = [2.287 ms; 1,119.391 ms] (CI 99.9%), Margin = 558.552 ms (99.59% of Mean)
+Skewness = 0.14, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[516.703 ms ; 572.426 ms) | @@
+[572.426 ms ; 621.249 ms) | @
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnlyOnePath: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 1.456 s, StdErr = 0.012 s (0.80%), N = 3, StdDev = 0.020 s
+Min = 1.437 s, Q1 = 1.446 s, Median = 1.454 s, Q3 = 1.466 s, Max = 1.477 s
+IQR = 0.020 s, LowerFence = 1.415 s, UpperFence = 1.496 s
+ConfidenceInterval = [1.087 s; 1.825 s] (CI 99.9%), Margin = 0.369 s (25.35% of Mean)
+Skewness = 0.09, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[1.427 s ; 1.464 s) | @@
+[1.464 s ; 1.496 s) | @
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnlyPerItemReplica: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 849.483 ms, StdErr = 24.991 ms (2.94%), N = 3, StdDev = 43.285 ms
+Min = 818.562 ms, Q1 = 824.749 ms, Median = 830.936 ms, Q3 = 864.943 ms, Max = 898.951 ms
+IQR = 40.195 ms, LowerFence = 764.457 ms, UpperFence = 925.235 ms
+ConfidenceInterval = [59.804 ms; 1,639.161 ms] (CI 99.9%), Margin = 789.679 ms (92.96% of Mean)
+Skewness = 0.35, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[779.171 ms ; 864.140 ms) | @@
+[864.140 ms ; 938.341 ms) | @
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnlyDefaultCompositing: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 811.887 ms, StdErr = 16.314 ms (2.01%), N = 3, StdDev = 28.256 ms
+Min = 779.261 ms, Q1 = 803.634 ms, Median = 828.007 ms, Q3 = 828.200 ms, Max = 828.393 ms
+IQR = 24.566 ms, LowerFence = 766.784 ms, UpperFence = 865.049 ms
+ConfidenceInterval = [296.395 ms; 1,327.379 ms] (CI 99.9%), Margin = 515.492 ms (63.49% of Mean)
+Skewness = -0.38, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[778.113 ms ; 829.541 ms) | @@@
+---------------------------------------------------
+
+RasterVariantSpikeBenchmarks.GridOnlyPArgb: Job-FGEKWY(IterationCount=3, LaunchCount=1, WarmupCount=1) [Scale=1]
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 1.076 s, StdErr = 0.021 s (1.94%), N = 3, StdDev = 0.036 s
+Min = 1.037 s, Q1 = 1.060 s, Median = 1.083 s, Q3 = 1.096 s, Max = 1.109 s
+IQR = 0.036 s, LowerFence = 1.007 s, UpperFence = 1.149 s
+ConfidenceInterval = [0.418 s; 1.735 s] (CI 99.9%), Margin = 0.658 s (61.16% of Mean)
+Skewness = -0.18, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[1.004 s ; 1.063 s) | @
+[1.063 s ; 1.141 s) | @@
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValley2)
+12th Gen Intel Core i9-12900HX 2.30GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 10.0.401
+  [Host]     : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+  Job-FGEKWY : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+
+IterationCount=3  LaunchCount=1  WarmupCount=1  
+
+| Method                     | Scale | Mean           | Error          | StdDev       | Ratio | RatioSD |
+|--------------------------- |------ |---------------:|---------------:|-------------:|------:|--------:|
+| All                        | 0.065 |    83,342.2 μs |   127,343.3 μs |  6,980.12 μs |  1.00 |    0.10 |
+| ClearOnly                  | 0.065 |       839.3 μs |     1,139.9 μs |     62.48 μs |  0.01 |    0.00 |
+| GridOnly                   | 0.065 |    42,218.0 μs |    44,656.4 μs |  2,447.77 μs |  0.51 |    0.04 |
+| DotsOnly                   | 0.065 |     9,565.6 μs |    16,018.0 μs |    878.00 μs |  0.12 |    0.01 |
+| HexLabelsOnly              | 0.065 |    32,571.8 μs |    59,939.3 μs |  3,285.48 μs |  0.39 |    0.04 |
+| GridOnlyOnePath            | 0.065 |    91,983.2 μs |   143,944.0 μs |  7,890.06 μs |  1.11 |    0.11 |
+| GridOnlyPerItemReplica     | 0.065 |    44,308.6 μs |    40,459.9 μs |  2,217.74 μs |  0.53 |    0.04 |
+| GridOnlyDefaultCompositing | 0.065 |    50,597.4 μs |   189,598.0 μs | 10,392.51 μs |  0.61 |    0.12 |
+| GridOnlyPArgb              | 0.065 |    65,825.4 μs |    61,145.2 μs |  3,351.58 μs |  0.79 |    0.07 |
+|                            |       |                |                |              |       |         |
+| All                        | 1     | 1,297,726.5 μs |   856,209.1 μs | 46,931.71 μs |  1.00 |    0.04 |
+| ClearOnly                  | 1     |   222,283.1 μs |   192,404.9 μs | 10,546.36 μs |  0.17 |    0.01 |
+| GridOnly                   | 1     |   874,146.7 μs | 1,257,954.9 μs | 68,952.75 μs |  0.67 |    0.05 |
+| DotsOnly                   | 1     |   261,514.9 μs |   247,297.4 μs | 13,555.21 μs |  0.20 |    0.01 |
+| HexLabelsOnly              | 1     |   560,838.8 μs |   558,552.0 μs | 30,616.12 μs |  0.43 |    0.02 |
+| GridOnlyOnePath            | 1     | 1,456,176.6 μs |   369,176.7 μs | 20,235.82 μs |  1.12 |    0.04 |
+| GridOnlyPerItemReplica     | 1     |   849,482.7 μs |   789,678.6 μs | 43,284.95 μs |  0.66 |    0.04 |
+| GridOnlyDefaultCompositing | 1     |   811,886.9 μs |   515,492.2 μs | 28,255.86 μs |  0.63 |    0.03 |
+| GridOnlyPArgb              | 1     | 1,076,335.4 μs |   658,244.6 μs | 36,080.61 μs |  0.83 |    0.04 |
+
+// * Legends *
+  Scale   : Value of the 'Scale' parameter
+  Mean    : Arithmetic mean of all measurements
+  Error   : Half of 99.9% confidence interval
+  StdDev  : Standard deviation of all measurements
+  Ratio   : Mean of the ratio distribution ([Current]/[Baseline])
+  RatioSD : Standard deviation of the ratio distribution ([Current]/[Baseline])
+  1 μs    : 1 Microsecond (0.000001 sec)
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:01:47 (107.84 sec), executed benchmarks: 18
+
+Global total time: 00:02:08 (128.94 sec), executed benchmarks: 18
+// * Artifacts cleanup *
+Artifacts cleanup is finished

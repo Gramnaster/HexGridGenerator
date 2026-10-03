@@ -16,6 +16,11 @@
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.31.0.145097" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Benchmark-only (HexGrid.Benchmarks). Dev-time measurement tool, never referenced by
+         HexGrid.Core or HexGrid.App, so it never ships in the exe. See CLAUDE.md. -->
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
+  </ItemGroup>
+  <ItemGroup>
     <!-- Test-only packages (HexGrid.Core.Tests) -->
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />

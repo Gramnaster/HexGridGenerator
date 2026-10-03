@@ -34,11 +34,21 @@ public sealed class GridLayout
 
     public required double CellHeightPx { get; init; }
 
+    /// <summary>Stroke width of the frame rule, 0 when no border is drawn. The edge-label gutter was reserved around exactly this width.</summary>
+    public required double FrameRuleWidthPx { get; init; }
+
     /// <summary>Centreline of the frame rule. Equal to <see cref="ClipBounds"/> when the grid inset is 0.</summary>
     public required RectangleF FrameBounds { get; init; }
 
     /// <summary>The map area. Grid layers are clipped to this; hexes overhang it and are cut off.</summary>
     public required RectangleF ClipBounds { get; init; }
+
+    /// <summary>
+    /// The map area the cell counts and size were solved against. Equal to <see cref="ClipBounds"/>
+    /// unless <see cref="GridSettings.FlushAxis"/> shrank the frame to hug the grid, in which case
+    /// this still holds the full area, so fit hints can measure the leftover the flush moved outside the frame.
+    /// </summary>
+    public required RectangleF NominalClipBounds { get; init; }
 
     /// <summary>Tight bounding box of the untrimmed cell block. Larger than <see cref="ClipBounds"/> unless AutoFitSquares kept every cell inside it.</summary>
     public required RectangleF GridBounds { get; init; }

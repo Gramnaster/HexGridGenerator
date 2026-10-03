@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Dev-time BenchmarkDotNet harness. Not referenced by any shipped project and not published by
+       build.cmd or the release workflow. See README.md, "Benchmarks", for how to run it.
+       Windows TFM because the rasterizer benchmarks need HexGrid.App (GDI+). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HexGrid.Core\HexGrid.Core.csproj" />
+    <ProjectReference Include="..\HexGrid.App\HexGrid.App.csproj" />
+  </ItemGroup>
+
+</Project>

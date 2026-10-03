@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Presets;
 

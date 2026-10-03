@@ -13,9 +13,6 @@ public static class SvgRenderer
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-    /// <summary>Nominal ascent as a fraction of the em, used to place text baselines.</summary>
-    public const double AscentRatio = 0.80;
-
     private const string ClipId = "mapArea";
 
     public static string Render(DrawScene scene, Color? background = null)
@@ -45,7 +42,9 @@ public static class SvgRenderer
         {
             sb.Append("  <g id=\"Background\" inkscape:groupmode=\"layer\" inkscape:label=\"Background\">\n");
             sb.Append(Inv, $"    <rect x=\"0\" y=\"0\" width=\"{N(scene.WidthPx)}\" height=\"{N(scene.HeightPx)}\" ")
-              .Append(Inv, $"fill=\"{Hex(bg)}\"{Opacity("fill", bg)} />\n");
+              .Append(Inv, $"fill=\"{Hex(bg)}\"");
+            AppendOpacity(sb, "fill", bg);
+            sb.Append(" />\n");
             sb.Append("  </g>\n");
         }
 
@@ -83,11 +82,6 @@ public static class SvgRenderer
                     i = WriteCircleRun(sb, items, i, firstCircle);
                     break;
 
-                case LineItem l:
-                    WriteLine(sb, l);
-                    i++;
-                    break;
-
                 case RectItem r:
                     WriteRect(sb, r);
                     i++;
@@ -108,50 +102,47 @@ public static class SvgRenderer
     private static int WritePathRun(StringBuilder sb, IList<IDrawItem> items, int i, PathItem first)
     {
         int j = i;
-        var d = new StringBuilder();
+        sb.Append("    <path d=\"");
         while (j < items.Count && items[j] is PathItem p && SameStyle(first, p))
         {
-            AppendPath(d, p);
+            AppendPath(sb, p);
             j++;
         }
 
-        sb.Append("    <path d=\"").Append(d).Append('"')
-          .Append(StrokeAttrs(first.Stroke, first.StrokeWidthPx))
-          .Append(FillAttrs(first.Fill))
-          .Append(" />\n");
+        sb.Append('"');
+        AppendStroke(sb, first.Stroke, first.StrokeWidthPx);
+        AppendFill(sb, first.Fill);
+        sb.Append(" />\n");
         return j;
     }
 
     private static int WriteCircleRun(StringBuilder sb, IList<IDrawItem> items, int i, CircleItem firstCircle)
     {
         int j = i;
-        var d = new StringBuilder();
+        sb.Append("    <path d=\"");
         while (j < items.Count && items[j] is CircleItem c && c.Fill == firstCircle.Fill)
         {
-            AppendCircle(d, c);
+            AppendCircle(sb, c);
             j++;
         }
 
-        sb.Append("    <path d=\"").Append(d).Append('"')
-          .Append(FillAttrs(firstCircle.Fill))
-          .Append(" stroke=\"none\" />\n");
+        sb.Append('"');
+        AppendFill(sb, firstCircle.Fill);
+        sb.Append(" stroke=\"none\" />\n");
         return j;
     }
 
-    private static void WriteLine(StringBuilder sb, LineItem l) =>
-        sb.Append(Inv, $"    <line x1=\"{N(l.A.X)}\" y1=\"{N(l.A.Y)}\" x2=\"{N(l.B.X)}\" y2=\"{N(l.B.Y)}\"")
-          .Append(StrokeAttrs(l.Stroke, l.StrokeWidthPx))
-          .Append(" />\n");
-
-    private static void WriteRect(StringBuilder sb, RectItem r) =>
-        sb.Append(Inv, $"    <rect x=\"{N(r.Rect.X)}\" y=\"{N(r.Rect.Y)}\" width=\"{N(r.Rect.Width)}\" height=\"{N(r.Rect.Height)}\"")
-          .Append(StrokeAttrs(r.Stroke, r.StrokeWidthPx))
-          .Append(FillAttrs(r.Fill))
-          .Append(" />\n");
+    private static void WriteRect(StringBuilder sb, RectItem r)
+    {
+        sb.Append(Inv, $"    <rect x=\"{N(r.Rect.X)}\" y=\"{N(r.Rect.Y)}\" width=\"{N(r.Rect.Width)}\" height=\"{N(r.Rect.Height)}\"");
+        AppendStroke(sb, r.Stroke, r.StrokeWidthPx);
+        AppendFill(sb, r.Fill);
+        sb.Append(" />\n");
+    }
 
     private static void WriteText(StringBuilder sb, TextItem t)
     {
-        double baselineY = BaselineY(t.At.Y, t.FontSizePx, t.Baseline);
+        double baselineY = TextMetrics.BaselineY(t.At.Y, t.FontSizePx, t.Baseline);
         string anchor = t.Anchor switch
         {
             TextAnchor.Start => "start",
@@ -164,88 +155,76 @@ public static class SvgRenderer
           .Append(Inv, $"font-family=\"{Escape(t.FontFamily)}\" font-size=\"{N(t.FontSizePx)}\" ")
           .Append(t.Bold ? "font-weight=\"bold\" " : string.Empty)
           .Append(Inv, $"text-anchor=\"{anchor}\" dominant-baseline=\"auto\" ")
-          .Append(Inv, $"fill=\"{Hex(t.Color)}\"{Opacity("fill", t.Color)}>")
+          .Append(Inv, $"fill=\"{Hex(t.Color)}\"");
+        AppendOpacity(sb, "fill", t.Color);
+        sb.Append('>')
           .Append(Escape(t.Text))
           .Append("</text>\n");
     }
-
-    /// <summary>
-    /// Converts a box-relative vertical anchor into an alphabetic baseline position. Shared with the
-    /// GDI+ renderer so PNG and SVG place text identically.
-    /// </summary>
-    public static double BaselineY(double y, double fontSizePx, TextBaseline baseline) => baseline switch
-    {
-        TextBaseline.Top => y + (AscentRatio * fontSizePx),
-        TextBaseline.Bottom => y - ((1 - AscentRatio) * fontSizePx),
-        TextBaseline.Middle => y + ((AscentRatio - 0.5) * fontSizePx),
-        _ => y + ((AscentRatio - 0.5) * fontSizePx),
-    };
 
     // ----------------------------------------------------------------- helpers
 
     private static bool SameStyle(PathItem a, PathItem b) =>
         a.Stroke == b.Stroke && a.Fill == b.Fill && Math.Abs(a.StrokeWidthPx - b.StrokeWidthPx) < 1e-9;
 
-    private static void AppendPath(StringBuilder d, PathItem p)
+    private static void AppendPath(StringBuilder sb, PathItem p)
     {
         for (int k = 0; k < p.Points.Length; k++)
         {
-            d.Append(k == 0 ? 'M' : 'L')
-             .Append(N(p.Points[k].X)).Append(' ').Append(N(p.Points[k].Y)).Append(' ');
+            sb.Append(k == 0 ? 'M' : 'L')
+              .Append(Inv, $"{N(p.Points[k].X)} {N(p.Points[k].Y)} ");
         }
 
         if (p.Closed)
         {
-            d.Append("Z ");
+            sb.Append("Z ");
         }
     }
 
-    private static void AppendCircle(StringBuilder d, CircleItem c)
+    private static void AppendCircle(StringBuilder sb, CircleItem c)
     {
-        string r = N(c.RadiusPx);
-        d.Append('M').Append(N(c.Center.X - c.RadiusPx)).Append(' ').Append(N(c.Center.Y)).Append(' ')
-         .Append('a').Append(r).Append(',').Append(r).Append(" 0 1,0 ").Append(N(c.RadiusPx * 2)).Append(",0 ")
-         .Append('a').Append(r).Append(',').Append(r).Append(" 0 1,0 ").Append(N(-c.RadiusPx * 2)).Append(",0 Z ");
+        SvgNumber r = N(c.RadiusPx);
+        sb.Append(Inv, $"M{N(c.Center.X - c.RadiusPx)} {N(c.Center.Y)} ")
+          .Append(Inv, $"a{r},{r} 0 1,0 {N(c.RadiusPx * 2)},0 ")
+          .Append(Inv, $"a{r},{r} 0 1,0 {N(-c.RadiusPx * 2)},0 Z ");
     }
 
-    private static string StrokeAttrs(Color? stroke, double width)
+    private static void AppendStroke(StringBuilder sb, Color? stroke, double width)
     {
         if (stroke is not { } c || c.A == 0 || width <= 0)
         {
-            return " stroke=\"none\"";
+            sb.Append(" stroke=\"none\"");
+            return;
         }
 
-        return string.Create(Inv,
-            $" stroke=\"{Hex(c)}\"{Opacity("stroke", c)} stroke-width=\"{N(width)}\" stroke-linejoin=\"round\" stroke-linecap=\"round\"");
+        sb.Append(Inv, $" stroke=\"{Hex(c)}\"");
+        AppendOpacity(sb, "stroke", c);
+        sb.Append(Inv, $" stroke-width=\"{N(width)}\" stroke-linejoin=\"round\" stroke-linecap=\"round\"");
     }
 
-    private static string FillAttrs(Color? fill)
+    private static void AppendFill(StringBuilder sb, Color? fill)
     {
         if (fill is not { } c || c.A == 0)
         {
-            return " fill=\"none\"";
+            sb.Append(" fill=\"none\"");
+            return;
         }
 
-        return string.Create(Inv, $" fill=\"{Hex(c)}\"{Opacity("fill", c)}");
+        sb.Append(Inv, $" fill=\"{Hex(c)}\"");
+        AppendOpacity(sb, "fill", c);
     }
 
-    private static string Opacity(string kind, Color c) =>
-        c.A == 255 ? string.Empty : string.Create(Inv, $" {kind}-opacity=\"{N(c.A / 255.0)}\"");
-
-    private static string Hex(Color c) => $"#{c.R:x2}{c.G:x2}{c.B:x2}";
-
-    private static string N(double v)
+    private static void AppendOpacity(StringBuilder sb, string kind, Color c)
     {
-        // MA0193: explicit mode for consistency (see SceneBuilder.EdgeKey's Q for why the mode itself
-        // doesn't practically matter here: real coordinates essentially never tie at 3 decimals).
-        double r = Math.Round(v, 3, MidpointRounding.AwayFromZero);
-        if (Math.Abs(r) < 0.0005)
+        if (c.A != 255)
         {
-            r = 0;
+            sb.Append(Inv, $" {kind}-opacity=\"{N(c.A / 255.0)}\"");
         }
-
-        return r.ToString("0.###", Inv);
     }
+
+    private static SvgColor Hex(Color c) => new(c);
+
+    private static SvgNumber N(double v) => new(v);
 
     private static string Split(string pascal)
     {
@@ -268,4 +247,42 @@ public static class SvgRenderer
         .Replace("<", "&lt;", StringComparison.Ordinal)
         .Replace(">", "&gt;", StringComparison.Ordinal)
         .Replace("\"", "&quot;", StringComparison.Ordinal);
+
+    // The two value types below are ISpanFormattable so that, used as holes in an interpolated
+    // StringBuilder.Append, they format straight into the builder's buffer. A large grid writes
+    // hundreds of thousands of numbers, and a string per number was most of the export's garbage.
+
+    /// <summary>A coordinate or size as SVG writes it: 3 decimals, halves away from zero, never "-0".</summary>
+    private readonly struct SvgNumber : ISpanFormattable
+    {
+        private readonly double rounded;
+
+        public SvgNumber(double value)
+        {
+            // MA0193: explicit mode for consistency (see SceneBuilder.EdgeKey's Q for why the mode
+            // itself doesn't practically matter here: real coordinates essentially never tie at 3 decimals).
+            double r = Math.Round(value, 3, MidpointRounding.AwayFromZero);
+            rounded = Math.Abs(r) < 0.0005 ? 0 : r;
+        }
+
+        public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) =>
+            rounded.TryFormat(destination, out charsWritten, "0.###", CultureInfo.InvariantCulture);
+
+        public string ToString(string? format, IFormatProvider? formatProvider) =>
+            rounded.ToString("0.###", CultureInfo.InvariantCulture);
+
+        public override string ToString() => ToString(format: null, formatProvider: null);
+    }
+
+    /// <summary>An opaque colour as a lowercase #rrggbb hex triplet. Alpha is written separately as an opacity attribute.</summary>
+    private readonly struct SvgColor(Color color) : ISpanFormattable
+    {
+        public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider) =>
+            destination.TryWrite(CultureInfo.InvariantCulture, $"#{color.R:x2}{color.G:x2}{color.B:x2}", out charsWritten);
+
+        public string ToString(string? format, IFormatProvider? formatProvider) =>
+            $"#{color.R:x2}{color.G:x2}{color.B:x2}";
+
+        public override string ToString() => ToString(format: null, formatProvider: null);
+    }
 }

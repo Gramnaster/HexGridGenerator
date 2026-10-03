@@ -1,199 +1,207 @@
 # HexGrid Generator
 
-A Windows desktop utility that produces publication-quality hex or square grid overlays for map
-art: transparent PNG for Photoshop, Affinity Photo, Krita and GIMP, or SVG for anything vector.
+A Windows app that makes hex or square grid overlays for maps. Set up the grid, then export a
+transparent PNG or an SVG and drop it on top of your artwork in Photoshop, Affinity, Krita, GIMP,
+Inkscape or Illustrator.
 
-It is deliberately not a map editor and not a cartographic decoration tool. There is no title
-block, no legend and no scale bar: every option exists to get a geometrically correct grid onto
-someone else's artwork.
+It only makes grids. There is no map editor, title block, legend or scale bar.
 
-## Build
+## Download
 
-Requires the .NET 10 SDK. No NuGet packages, so restore cannot fail.
+Grab `HexGridGenerator.exe` from the latest GitHub release. It is a single file that runs on any
+64-bit Windows machine with nothing else to install.
 
-**Visual Studio.** Open `HexGridGenerator.sln`, set `HexGrid.App` as the startup project,
-build. The exe lands in `src\HexGrid.App\bin\Release\net10.0-windows\HexGridGenerator.exe`.
+## Using it
 
-**Command line.** Two scripts, each publishing a single-file exe:
+The left panel holds every setting. Click a setting to see what it does in the help box below
+the panel. The right side is a live preview of exactly what will be exported.
 
-| Command | Output | Needs |
-| --- | --- | --- |
-| `build.cmd` | `publish\HexGridGenerator.exe`, ~280 KB | .NET 10 Desktop Runtime installed |
-| `build-standalone.cmd` | `publish-standalone\HexGridGenerator.exe`, ~47 MB | nothing |
+- **Zoom** with the mouse wheel. The point under the cursor stays put. 100% fits the whole
+  canvas in the window. You can zoom out to 10%, or in until one canvas pixel is 32 screen
+  pixels. Right-click the preview for fixed zoom levels.
+- **Pan** by dragging with the middle mouse button, or with the scrollbars.
+- **Smooth zoom** (top bar) keeps lines and text sharp when you zoom in past the canvas's real
+  pixels. With it off, you see the PNG's actual pixels magnified. It only changes the preview,
+  never the export.
+- **Export PNG, Export SVG, Export both** save the current grid. Exports run in the background,
+  so the window stays usable. The export and save buttons are disabled until the file is written,
+  and the app won't close mid-export.
+- **Save preset, Load preset** store all settings in a JSON file. **Reset** restores the defaults.
 
-`build.cmd` is for local iteration. `build-standalone.cmd` is the release build: self-contained,
-runs on any Windows machine, and is what gets attached to a GitHub release.
-
-## Layout
-
-```
-src/
-  HexGrid.Core/        net10.0          geometry, labelling, SVG. No Windows dependency.
-    Units/             canvas presets, unit and DPI conversion
-    Layout/            hex and square maths, fit solver, clipping bounds
-    Labels/            column letters, row numbers, origin corners
-    Scene/             renderer-agnostic draw items grouped into layers
-    Rendering/         SVG writer
-    Presets/           JSON save and load
-    Naming/            filename token expansion
-  HexGrid.App/         net10.0-windows  WinForms shell
-    Rendering/         GDI+ rasteriser (live preview and PNG export), export service
-  HexGrid.Core.Tests/  net10.0          xUnit tests for HexGrid.Core
-  HexGrid.App.Tests/   net10.0-windows  xUnit tests for HexGrid.App
-```
-
-The layout engine produces plain numbers and knows nothing about drawing. `SceneBuilder` turns
-those numbers into layered draw items. Renderers consume the layers. Adding a PDF or EPS export
-later means writing one more renderer and touching nothing else.
+The status bar shows the grid you actually got (columns, rows, cell size) and tips for removing
+leftover gaps.
 
 ## Grid types
 
-**Grid Type**, at the top of the options panel, switches the whole tool between **Hex** and
-**Square**. Every other option that makes sense for both shapes carries over — fill colour,
-line style, in-cell labels, centre dots, edge labels, frame, export — and simply relabels itself
-for the shape in use (a hex-specific option like Hex Width becomes Square Size). Options that
-only apply to one shape (hex orientation; the square-only AutoFitSquares fit behaviour) appear
-only in that mode.
+**Grid type** switches between Hex and Square. Settings that apply to both shapes stay where they
+are and just get renamed (Hex width becomes Square size, for example). Settings for only one shape
+are hidden in the other mode. Switching never loses a setting, and presets save the same way in
+both modes.
 
-Saved presets and their JSON are unaffected by which mode the panel is currently showing:
-switching Grid Type never renames or discards a setting, it only changes how that setting is
-presented and which shape it drives.
+## Page layout
 
-## Page structure
-
-Working inward from the canvas edge:
+From the canvas edge inward:
 
 ```
 canvas edge
-  safe margin          keeps everything off the trim edge
-  label band           coordinate letters and numbers, OUTSIDE the frame
-  frame rule           a single line, nothing fancier
-  map area             the grid, clipped at the frame
+  safe margin     keeps everything off the trim edge
+  label band      column letters and row numbers, outside the frame
+  frame           a single line
+  map area        the grid, clipped at the frame
 ```
 
-**Hex grids** always fill the map area. Every hex centre lands inside the map area and the
-outermost hexes overhang it and are clipped, so the grid meets the frame on all four sides with
-no gap. Set **Grid inset** above 0 for a deliberate gap instead.
+**Hex grids** always fill the map area edge to edge. The outer hexes are cut off at the frame.
+Set **Grid inset** above 0 if you want a gap between the grid and the frame instead.
 
-**Square grids** can do the same edge-to-edge, clip-the-partials behaviour (**AutoFitSquares**
-off), or fit exactly whole squares only, centred in the map area with the leftover slack pushed
-out into a margin (**AutoFitSquares** on, the default). Squares, unlike hexes, tile a rectangle
-exactly, so nothing has to be clipped.
+**Square grids** can do the same (**Auto-fit squares** off), or fit whole squares only and centre
+them, leaving the spare room as a margin (**Auto-fit squares** on, the default).
 
-Row and column counts are a minimum, not an exact request, except for a fitted square grid
-(AutoFitSquares on), where they are exact: the axis that constrains the cell size comes out
-exactly as asked; the other axis gains however many cells it takes to reach the frame (or, for a
-fitted square grid, is simply the count requested). The status bar reports the counts actually
-produced, plus a hint for which axis is currently driving the size.
+## Sizing
 
-A fitted square grid's margin is only even on *both sides of the same axis* (left = right, top =
-bottom). It is not generally even *between* the two axes: unless Columns:Rows happens to match
-the map area's aspect ratio, one axis ends up flush against the frame while the other carries all
-the leftover slack, which can look like a lopsided gap rather than a clean border. Exact zero gap
-needs the counts and the canvas's aspect ratio to line up exactly, which for an arbitrary request
-is a coincidence, not something to expect from the numbers you typed in.
+**Sizing mode** has two options:
 
-When the gap is visible, the status bar searches nearby whole (Columns, Rows) pairs, a window on
-either side of what's currently set, for the one that leaves the least leftover, and reports it:
-a "no gap" pair when the search finds one, otherwise the tightest one it found and the residual
-size. In Fixed square size mode, where Columns/Rows are computed from the square size rather than
-set directly, it reports the nearby square size that produces a "no gap" or tightest grid instead.
-The search only looks near the current request. A pair far away might coincidentally fit tighter
-still, but recommending it would change the grid density far more than "close the gap" implies.
+- **AutoFitRowsColumns.** Rows and columns decide the cell size. Use this for paper: "A3, 40 by
+  26, fill it".
+- **FixedHexWidth** (FixedSquareSize for squares). The cell size decides how many rows and columns
+  fit. Use this for screens: "4K, 64 px hexes, as many as fit".
 
-**Flush axis** closes the gap outright rather than just shrinking or relocating it. By default the
-leftover on a non-binding axis is centred, split evenly between, say, the top and bottom margins,
-as dead space *inside* the frame. Setting Flush axis to Vertical, Horizontal or Both instead shrinks
-the frame itself on the side away from **Coordinate origin** until it touches the grid exactly
-(plus Grid inset, if set). The border rule and that side's edge-label band move with it, since both
-are drawn from the frame's bounds. The space that used to be a gap inside the frame becomes, instead,
-extra room between the (now smaller) frame and the canvas edge: visible, but outside the map area
-rather than an awkward pocket inside it. Which side shrinks follows Coordinate origin: the frame
-stays put on the origin side (so the A1 corner's margin is unchanged) and pulls in on the far side.
-This only applies when AutoFitSquares is on, and only reshapes the frame on the axis or axes
-flushed. Combine it with the Columns/Rows or square-size recommendation above to close gaps on both
-axes at once, or leave the other axis centred if a symmetric margin there is preferred.
+Rows and columns are a minimum. The grid usually adds cells on one axis to reach the frame. The
+exception is a fitted square grid, which gives you exactly the count you asked for.
+
+Hex width is measured across the hex horizontally: corner to corner for flat-top, flat side to
+flat side for pointy-top.
+
+### Gaps in a fitted square grid
+
+Whole squares rarely fill a rectangle exactly, so a fitted square grid usually has spare room on
+one axis. The margins are even left and right, and even top and bottom, but often not the same on
+both axes.
+
+Two tools help:
+
+- **Status bar tips.** The app checks nearby row and column counts (or, in fixed-size mode,
+  nearby square sizes) and suggests one that leaves no gap, or the smallest gap it can find.
+  Entering a suggestion gives exactly the result it promised.
+- **Flush axis.** Shrinks the frame to sit tight against the grid on the chosen axis, so the spare
+  room ends up outside the frame instead of inside it. The frame stays put on the coordinate
+  origin side and moves in on the opposite side. Only works with Auto-fit squares on.
+
+## Cell gaps
+
+**Gap X** and **Gap Y** add space between cells. Cells never stretch: squares stay square and hexes
+stay regular.
+
+- In a fitted square grid sized by rows and columns, you keep exactly the rows and columns you
+  asked for and the squares shrink to make room, like a CSS grid gap.
+- Everywhere else the cell size stays fixed, so a big gap means fewer cells fit. The status bar
+  shows how many actually fit.
+
+Hex grids have one **Gap** setting, because every hex is the same distance from all six neighbours.
 
 ## Units
 
-Every **length** in the options (canvas size, margins, hex width, line thickness, dot radius,
-label padding, offsets) is expressed in whatever `Unit` is set to. Every **font size** is in
-points, because points are resolution-independent and convert cleanly through `DPI`.
-
-`DPI` ties physical units to pixels. Use 300 for print, 96 for screen work. It has no effect
-when `Unit` is Pixels and the canvas is a screen preset, except on font sizes.
-
-## Sizing modes
-
-**AutoFitRowsColumns.** Rows and columns set the cell size. Used for paper: "A3, 40 x 26,
-fill it".
-
-**FixedHexWidth** (Fixed square size in Square mode). The cell size sets how many rows and
-columns there are. Used for screen overlays: "4K, 64 px hexes, as many as fit". At 4K with no
-margins that yields 81 x 39 flat-top hexes.
-
-For hexes, width means corner-to-corner for flat-top and flat-to-flat for pointy-top: the
-horizontal extent either way. For squares it is simply the side length, and combines with
-**AutoFitSquares** the same way AutoFitRowsColumns does: on gives whole squares only (floor
-division, no clipping), off fills edge to edge and clips the outermost partial squares.
+All lengths use the **Unit** you pick: pixels, millimetres, centimetres or inches. Font sizes are
+always in points. **DPI** converts between real-world units and pixels: 300 for print, 96 for
+screen.
 
 ## Coordinates
 
-Column letters roll over spreadsheet-style: A, B, ... Z, AA, AB. **Skip letters I and O** is on
-by default, standard military-mapping practice because they read as 1 and 0.
+Columns are lettered A to Z, then AA, AB and so on. **Skip letters I and O** is on by default,
+because they look like 1 and 0.
 
-**Coordinate origin** picks which physical corner is A1, so the same grid serves conventions
-that count from the top-left or the bottom-left.
-
-Labels appear in two independent places: inside every hex (**Hex Labels**) and in the band
-outside the frame (**Edge Labels**, any combination of the four sides). Top plus Left is the
-wargame convention; all four is the atlas convention.
+**Coordinate origin** picks which corner is A1. Labels can go inside every cell, around the
+outside of the frame on any of the four sides, or both. Top and left is the usual wargame
+style. All four sides is the usual atlas style.
 
 ## Export
 
-**SVG is the source of truth.** It carries the real physical size in millimetres with a pixel
-`viewBox`, so it prints at exactly the right size and rasterises to exactly the target pixel
-dimensions. Each layer becomes a named `<g>` group tagged as an Inkscape layer, which
-Illustrator, Affinity and Inkscape read as real layers. The grid layers carry a `clip-path` so
-the hexes are trimmed at the frame in vector form too.
+**SVG** is saved at the real physical size, so it prints at the right size. Each part of the
+grid (lines, fill, labels, frame) is its own named layer in Illustrator, Affinity and Inkscape.
 
-**PNG** is rasterised through GDI+ at full resolution with the DPI written into the file.
-Background can be transparent, white, black or custom. Antialiasing can be switched off for
-pixel-art workflows.
+**PNG** is rendered at full resolution with the DPI saved in the file. The background can be
+transparent, white, black or a custom colour. Turn off **Antialiasing** for crisp pixel-art lines.
 
-**Export layers separately** writes one transparent PNG per layer alongside the flattened
-image: `..._HexGrid.png`, `..._CenterDots.png`, `..._EdgeLabels.png`, `..._Border.png` for a hex
-grid, or `..._SquareGrid.png`, `..._SquareFill.png`, `..._SquareLabels.png` and so on for a
-square grid, ready to stack as Photoshop layers.
+**Export layers separately** also saves one transparent PNG per layer (grid, fill, dots, labels,
+frame), ready to stack in Photoshop.
 
-Filenames are generated from a token pattern: `{grid} {preset} {w} {h} {cols} {rows} {cellw}
-{cellwu} {dpi} {orient}`. `{grid}` expands to `Hex` or `Square`; `{orient}` is empty in Square
-mode. `{hexw}`/`{hexwu}` still work as aliases for `{cellw}`/`{cellwu}`, so presets saved before
-Square support keep producing the same filenames.
+The app warns before exporting a PNG over 100 megapixels. A0 at 300 DPI is 139 megapixels and
+needs about 0.6 GB of memory while rendering. SVG has no such limit.
 
-## Presets
+### File names
 
-**Save preset** and **Load preset** write the whole settings object as readable JSON, colours
-as hex strings. Keep one per campaign map.
+File names come from the **Filename pattern** setting. Available tokens:
 
-## Testing
+| Token | Becomes |
+| --- | --- |
+| `{grid}` | `Hex` or `Square` |
+| `{preset}` | canvas preset name |
+| `{w}` `{h}` | canvas width and height |
+| `{cols}` `{rows}` | column and row count |
+| `{cellw}` `{cellwu}` | cell width, without and with the unit |
+| `{dpi}` | DPI |
+| `{orient}` | hex orientation (empty for square grids) |
 
-`HexGrid.Core.Tests` and `HexGrid.App.Tests` are xUnit test projects covering hex and square
-tiling, clipping, label placement, SVG output, preset round-tripping and the WinForms shell. Run
-them with `dotnet test`.
+`{hexw}` and `{hexwu}` still work, so old presets keep their file names.
 
-## Correctness notes
+## How the grid stays accurate
 
-- **Every cell edge is stroked exactly once**, hex or square. Adjacent cells share an edge;
-  stroking whole polygons would draw internal edges twice, which at reduced line opacity makes
-  them visibly darker than the outer edges and thickens them under antialiasing. The scene
-  builder emits a deduplicated edge set instead, so line weight and opacity are uniform across
-  the whole grid.
-- Hexes and squares are always regular. A hex grid fills the page by clipping, never by
-  stretching. A square grid does the same unless AutoFitSquares is on, in which case it fits
-  exactly and centres with a margin instead of clipping.
-- Edge-label gutters are reserved from an estimate of text width rather than a real
-  measurement, so the geometry layer stays free of font dependencies. Increase **Padding from
-  frame** if a long label ever crowds the band.
-- Very large canvases are memory-hungry to rasterise. A0 at 300 dpi is 139 megapixels, roughly
-  0.6 GB while rendering; the app warns above 100 megapixels. SVG has no such limit.
+- Every cell edge is drawn exactly once. Shared edges are never drawn twice, so semi-transparent
+  lines have the same weight everywhere.
+- Cells are never stretched to fill the page. Hex grids are cut off at the frame instead.
+- The preview is drawn the same way as the PNG export, so what you see is what you get.
+- Edge label space is estimated from the text length, not measured from the font. If a long label
+  crowds the frame, raise **Padding from frame**.
+
+## Building from source
+
+You need the .NET 10 SDK. The app uses no NuGet packages.
+
+Open `HexGridGenerator.sln` in Visual Studio and run `HexGrid.App`, or use one of the scripts:
+
+| Script | Output | Needs |
+| --- | --- | --- |
+| `build.cmd` | `publish\HexGridGenerator.exe`, about 280 KB | .NET 10 Desktop Runtime |
+| `build-standalone.cmd` | `publish-standalone\HexGridGenerator.exe`, about 47 MB | nothing |
+
+The standalone build is the one attached to GitHub releases.
+
+### Project layout
+
+```
+src/
+  HexGrid.Core/        grid maths, labels and SVG. No Windows code.
+    Settings/          all settings and how the panel shows them
+    Units/             canvas presets, unit and DPI conversion
+    Layout/            hex and square layout, fitting, clipping
+    Labels/            coordinate letters and numbers
+    Scene/             turns the layout into layers of shapes to draw
+    Rendering/         SVG writer
+    Presets/           JSON save and load
+    Naming/            file name patterns
+  HexGrid.App/         the Windows app
+    Rendering/         preview and PNG drawing, background rendering, PNG writer, export
+  HexGrid.Core.Tests/  tests for HexGrid.Core
+  HexGrid.App.Tests/   tests for HexGrid.App
+  HexGrid.Benchmarks/  performance benchmarks (not shipped)
+```
+
+Core works out the grid as plain numbers and shapes. The renderers (SVG, and GDI+ for the preview
+and PNG) only draw them. A new export format means writing one more renderer.
+
+### Tests
+
+```
+dotnet test
+```
+
+### Benchmarks
+
+Benchmarks cover every preview stage, SVG export, PNG export and the square-fit tips. Run them in
+Release from the repo root:
+
+```
+dotnet run -c Release --project src/HexGrid.Benchmarks -- --filter "*"
+```
+
+Use a narrower filter such as `*PipelineBenchmarks*` to run one group. Any performance change
+should come with before and after results.

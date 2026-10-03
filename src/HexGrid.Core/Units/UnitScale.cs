@@ -1,3 +1,5 @@
+using HexGrid.Core.Settings;
+
 namespace HexGrid.Core.Units;
 
 /// <summary>Converts the user's chosen length unit into device pixels at a given DPI.</summary>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>HexGrid.Benchmarks.PreviewViewportBenchmarks-20261003-103623</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9457/25H2/2025Update/HudsonValley2)
+12th Gen Intel Core i9-12900HX 2.30GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 10.0.401
+  [Host]     : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+  Job-KRRUPJ : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code>IterationCount=8  LaunchCount=1  WarmupCount=2  
+</code></pre>
+
+<table>
+<thead><tr><th>Method           </th><th>ZoomOfFit</th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>WholeCanvas</td><td>1</td><td>149.992 ms</td><td>7.4173 ms</td><td>3.8794 ms</td><td>1.00</td><td>0.03</td><td>448 B</td><td>1.00</td>
+</tr><tr><td>VisibleRegion</td><td>1</td><td>141.604 ms</td><td>11.1890 ms</td><td>5.8520 ms</td><td>0.94</td><td>0.04</td><td>448 B</td><td>1.00</td>
+</tr><tr><td>VisibleRegionNative</td><td>1</td><td>9.486 ms</td><td>0.3679 ms</td><td>0.1924 ms</td><td>0.06</td><td>0.00</td><td>504 B</td><td>1.12</td>
+</tr><tr><td>VisibleRegionSmoothZoom</td><td>1</td><td>5.177 ms</td><td>0.1176 ms</td><td>0.0615 ms</td><td>0.03</td><td>0.00</td><td>504 B</td><td>1.12</td>
+</tr><tr><td>WholeCanvas</td><td>4</td><td>221.981 ms</td><td>4.3573 ms</td><td>2.2789 ms</td><td>1.00</td><td>0.01</td><td>448 B</td><td>1.00</td>
+</tr><tr><td>VisibleRegion</td><td>4</td><td>47.362 ms</td><td>1.9351 ms</td><td>1.0121 ms</td><td>0.21</td><td>0.00</td><td>448 B</td><td>1.00</td>
+</tr><tr><td>VisibleRegionNative</td><td>4</td><td>9.702 ms</td><td>0.3120 ms</td><td>0.1632 ms</td><td>0.04</td><td>0.00</td><td>504 B</td><td>1.12</td>
+</tr><tr><td>VisibleRegionSmoothZoom</td><td>4</td><td>4.542 ms</td><td>0.2320 ms</td><td>0.1214 ms</td><td>0.02</td><td>0.00</td><td>504 B</td><td>1.12</td>
+</tr></tbody></table>
+</body>
+</html>

@@ -58,6 +58,150 @@ public class MainFormTests
         Assert.Null(message);
     });
 
+    [Fact]
+    public void AdjustZoom_Notch_ZoomsThePanelWithoutWaitingForARender() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        var preview = (PreviewPanel)GetInstanceField(form, "_preview")!;
+        double before = preview.Zoom;
+
+        // Act
+        RaiseFromMessageLoop(form, () => InvokePrivate(form, "AdjustZoom", 1, Point.Empty));
+
+        // Assert: the frame takes milliseconds to render, far longer than one pass of the message loop,
+        // so the zoom cannot have waited for it.
+        Assert.Equal(before * 1.25, preview.Zoom, precision: 9);
+    });
+
+    [Fact]
+    public void AdjustZoom_Notch_RendersAnExactFrameForTheNewViewInTheBackground() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        var preview = (PreviewPanel)GetInstanceField(form, "_preview")!;
+
+        // Act
+        RaiseFromMessageLoop(form, () => InvokePrivate(form, "AdjustZoom", 1, Point.Empty));
+        double scale = preview.RenderScale;
+        bool covered = PumpUntil(() => preview.HasFrameCovering(scale, preview.VisibleRegion(scale, marginPx: 0)));
+
+        // Assert
+        Assert.True(covered);
+    });
+
+    [Fact]
+    public void AdjustZoom_ManyNotches_StopsAt3200PercentOfTheCanvasPixels() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        var preview = (PreviewPanel)GetInstanceField(form, "_preview")!;
+
+        // Act
+        for (int i = 0; i < 100; i++)
+        {
+            RaiseFromMessageLoop(form, () => InvokePrivate(form, "AdjustZoom", 1, Point.Empty));
+        }
+
+        // Assert
+        Assert.Equal(32.0, preview.Zoom, precision: 9);
+    });
+
+    [Fact]
+    public void SmoothZoom_TurnedOnPastTheCanvasResolution_RendersAnExactFrameAtTheZoom() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        var preview = (PreviewPanel)GetInstanceField(form, "_preview")!;
+        while (preview.Zoom < 2.0)
+        {
+            RaiseFromMessageLoop(form, () => InvokePrivate(form, "AdjustZoom", 1, Point.Empty));
+        }
+
+        CheckBox toggle = FindDescendant<CheckBox>(form)
+            ?? throw new InvalidOperationException("Smooth zoom toggle not found in MainForm's control tree.");
+
+        // Act
+        RaiseFromMessageLoop(form, () => toggle.Checked = true);
+        double zoom = preview.Zoom;
+        bool covered = PumpUntil(() => preview.HasFrameCovering(zoom, preview.VisibleRegion(zoom, marginPx: 0)));
+
+        // Assert
+        Assert.True(covered);
+    });
+
+    [Fact]
+    public void SaveInBackgroundAsync_WhileSaving_DisablesFileWritingButtonsAndShowsTheTag() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        using var gate = new ManualResetEventSlim();
+
+        // Act
+        Task saving = form.SaveInBackgroundAsync("grid.png", () =>
+        {
+            gate.Wait();
+            return ["grid.png"];
+        });
+
+        // Assert
+        Assert.False(FindButton(form, "Export PNG…").Enabled);
+        Assert.False(FindButton(form, "Export SVG…").Enabled);
+        Assert.False(FindButton(form, "Export both…").Enabled);
+        Assert.False(FindButton(form, "Save preset…").Enabled);
+        Assert.True(FindButton(form, "Load preset…").Enabled);
+        var tag = (Label)GetInstanceField(form, "_savingTag")!;
+        Assert.True(tag.Visible);
+        Assert.Contains("grid.png", tag.Text, StringComparison.Ordinal);
+
+        gate.Set();
+        PumpUntil(() => saving.IsCompleted);
+    });
+
+    [Fact]
+    public void SaveInBackgroundAsync_Finished_ReenablesButtonsAndHidesTheTag() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+
+        // Act
+        Task saving = form.SaveInBackgroundAsync("grid.png", () => ["grid.png"]);
+        bool finished = PumpUntil(() => saving.IsCompleted);
+
+        // Assert
+        Assert.True(finished);
+        Assert.True(FindButton(form, "Export PNG…").Enabled);
+        Assert.True(FindButton(form, "Save preset…").Enabled);
+        Assert.False(((Label)GetInstanceField(form, "_savingTag")!).Visible);
+    });
+
+    [Fact]
+    public void SaveInBackgroundAsync_Save_RunsOffTheUiThread() => StaThread.Run(() =>
+    {
+        // Arrange
+        using MainForm form = NewOffscreenForm();
+        ShowAndPump(form);
+        int uiThread = Environment.CurrentManagedThreadId;
+        int saveThread = uiThread;
+
+        // Act
+        Task saving = form.SaveInBackgroundAsync("grid.png", () =>
+        {
+            saveThread = Environment.CurrentManagedThreadId;
+            return ["grid.png"];
+        });
+        PumpUntil(() => saving.IsCompleted);
+
+        // Assert
+        Assert.NotEqual(uiThread, saveThread);
+    });
+
     private static MainForm NewOffscreenForm() => new()
     {
         StartPosition = FormStartPosition.Manual,
@@ -71,6 +215,16 @@ public class MainFormTests
     private static void ShowAndPump(Form form)
     {
         form.Show();
+        Application.DoEvents();
+    }
+
+    // Wheel and menu events reach MainForm from inside the message loop, where WinForms keeps its
+    // SynchronizationContext installed, so the preview render loop resumes on the UI thread. Called
+    // straight from the test body a handler would run outside that loop, so it is posted to the loop
+    // instead, the way a real event arrives.
+    private static void RaiseFromMessageLoop(Control control, Action handler)
+    {
+        control.BeginInvoke(handler);
         Application.DoEvents();
     }
 
@@ -92,6 +246,48 @@ public class MainFormTests
 
         return null;
     }
+
+    /// <summary>Pumps the message loop until <paramref name="condition"/> holds or five seconds pass.</summary>
+    private static bool PumpUntil(Func<bool> condition)
+    {
+        DateTime deadline = DateTime.UtcNow.AddSeconds(5);
+        while (!condition())
+        {
+            if (DateTime.UtcNow > deadline)
+            {
+                return false;
+            }
+
+            Application.DoEvents();
+            Thread.Sleep(10);
+        }
+
+        return true;
+    }
+
+    private static Button FindButton(Control root, string text) =>
+        FindButtonOrNull(root, text) ?? throw new InvalidOperationException($"Button '{text}' not found.");
+
+    private static Button? FindButtonOrNull(Control root, string text)
+    {
+        foreach (Control child in root.Controls)
+        {
+            if (child is Button button && string.Equals(button.Text, text, StringComparison.Ordinal))
+            {
+                return button;
+            }
+
+            if (FindButtonOrNull(child, text) is { } nested)
+            {
+                return nested;
+            }
+        }
+
+        return null;
+    }
+
+    private static void InvokePrivate(object instance, string name, params object[] args) =>
+        instance.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(instance, args);
 
     private static object? GetInstanceField(object instance, string name) =>
         instance.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(instance);
