@@ -1,5 +1,5 @@
 using HexGrid.App.Rendering;
-using HexGrid.Core;
+using HexGrid.Core.Settings;
 using HexGrid.Core.Scene;
 
 namespace HexGrid.App.Tests;

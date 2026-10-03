@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Globalization;
 
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>
 /// Renders <see cref="GridSizingMode.FixedHexWidth"/> as "Fixed square size" in the PropertyGrid

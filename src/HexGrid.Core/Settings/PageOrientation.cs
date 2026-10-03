@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 public enum PageOrientation
 {

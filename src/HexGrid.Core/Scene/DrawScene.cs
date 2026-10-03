@@ -1,4 +1,5 @@
 using System.Drawing;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Scene;
 

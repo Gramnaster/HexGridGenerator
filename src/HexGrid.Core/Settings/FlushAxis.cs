@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>
 /// Which axis of a fitted square grid's leftover slack is pushed entirely to one side - the side

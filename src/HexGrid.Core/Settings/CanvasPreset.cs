@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>Paper and screen canvas presets. Paper sizes are ISO 216 millimetre sizes; screen sizes are fixed pixel sizes.</summary>
 public enum CanvasPreset

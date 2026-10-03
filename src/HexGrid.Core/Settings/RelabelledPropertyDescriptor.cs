@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>
 /// Wraps a <see cref="PropertyDescriptor"/> to override its PropertyGrid display text, forwarding

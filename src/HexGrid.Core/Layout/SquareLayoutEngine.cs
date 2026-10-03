@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using HexGrid.Core.Labels;
+using HexGrid.Core.Settings;
 using HexGrid.Core.Units;
 
 namespace HexGrid.Core.Layout;

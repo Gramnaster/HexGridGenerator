@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>
 /// How each grid-line segment between two cells is drawn. Applies identically to hex and square

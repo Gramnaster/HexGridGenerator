@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using HexGrid.Core.Layout;
+using HexGrid.Core.Settings;
 using HexGrid.Core.Units;
 
 namespace HexGrid.Core.Naming;

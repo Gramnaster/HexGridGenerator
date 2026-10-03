@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>How the cell size is decided.</summary>
 [TypeConverter(typeof(GridSizingModeConverter))]

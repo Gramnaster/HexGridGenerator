@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Globalization;
 using HexGrid.App.Rendering;
-using HexGrid.Core;
+using HexGrid.Core.Settings;
 using HexGrid.Core.Layout;
 using HexGrid.Core.Naming;
 using HexGrid.Core.Presets;
@@ -24,6 +24,7 @@ public sealed class MainForm : Form
 
     // Panel pixels rendered beyond each edge of the view, so a short pan needs no new frame.
     private const int PreviewOverscanPx = 128;
+    private const string PngFilter = "PNG image (*.png)|*.png";
     private static readonly int[] ZoomPresets = [200, 150, 100, 75, 50];
 
     // SS066: these three are Controls added into this form's own Controls tree in BuildUi() below
@@ -465,62 +466,18 @@ public sealed class MainForm : Form
     // the scene it was asked for and a copy of the settings first: the property grid edits _settings
     // in place, and an edit made mid-export must not leak into the file being written.
 
-    private async Task ExportPngAsync()
-    {
-        DrawScene? scene = _scene;
-        if (scene is null || !ConfirmLargeExport())
-        {
-            return;
-        }
+    private Task ExportPngAsync() =>
+        ExportAsync(PngFilter, ".png", writesPng: true, Path.GetFileName, SavePngWithOwnRasterizer);
 
-        string? path = AskPath("PNG image (*.png)|*.png", ".png");
-        if (path is null)
-        {
-            return;
-        }
-
-        GridSettings settings = SnapshotSettings();
-        await SaveInBackgroundAsync(Path.GetFileName(path), () => SavePngWithOwnRasterizer(scene, settings, path));
-    }
-
-    private async Task ExportSvgAsync()
-    {
-        DrawScene? scene = _scene;
-        if (scene is null)
-        {
-            return;
-        }
-
-        string? path = AskPath("SVG vector (*.svg)|*.svg", ".svg");
-        if (path is null)
-        {
-            return;
-        }
-
-        GridSettings settings = SnapshotSettings();
-        await SaveInBackgroundAsync(Path.GetFileName(path), () =>
+    private Task ExportSvgAsync() =>
+        ExportAsync("SVG vector (*.svg)|*.svg", ".svg", writesPng: false, Path.GetFileName, (scene, settings, path) =>
         {
             ExportService.SaveSvg(scene, settings, path);
             return [path];
         });
-    }
 
-    private async Task ExportBothAsync()
-    {
-        DrawScene? scene = _scene;
-        if (scene is null || !ConfirmLargeExport())
-        {
-            return;
-        }
-
-        string? path = AskPath("PNG image (*.png)|*.png", ".png");
-        if (path is null)
-        {
-            return;
-        }
-
-        GridSettings settings = SnapshotSettings();
-        await SaveInBackgroundAsync(Path.GetFileNameWithoutExtension(path) + " (PNG and SVG)", () =>
+    private Task ExportBothAsync() =>
+        ExportAsync(PngFilter, ".png", writesPng: true, path => Path.GetFileNameWithoutExtension(path) + " (PNG and SVG)", (scene, settings, path) =>
         {
             var written = new List<string>(SavePngWithOwnRasterizer(scene, settings, path));
             string svgPath = Path.ChangeExtension(path, ".svg");
@@ -528,6 +485,34 @@ public sealed class MainForm : Form
             written.Add(svgPath);
             return written;
         });
+
+    /// <summary>
+    /// Asks where to save, then hands <paramref name="write"/> the current scene, a settings snapshot
+    /// and the chosen path on a background thread. A PNG past <see cref="ExportService.LargeExportPixels"/>
+    /// is confirmed before the dialog opens.
+    /// </summary>
+    /// <param name="describe">Names the export for the "Saving" tag, given the chosen path.</param>
+    private async Task ExportAsync(
+        string filter,
+        string extension,
+        bool writesPng,
+        Func<string, string> describe,
+        Func<DrawScene, GridSettings, string, IReadOnlyList<string>> write)
+    {
+        DrawScene? scene = _scene;
+        if (scene is null || (writesPng && !ConfirmLargeExport()))
+        {
+            return;
+        }
+
+        string? path = AskPath(filter, extension);
+        if (path is null)
+        {
+            return;
+        }
+
+        GridSettings settings = SnapshotSettings();
+        await SaveInBackgroundAsync(describe(path), () => write(scene, settings, path));
     }
 
     private GridSettings SnapshotSettings() => PresetIo.Deserialize(PresetIo.Serialize(_settings));
@@ -554,9 +539,7 @@ public sealed class MainForm : Form
         }
         catch (Exception ex)
         {
-            Program.WriteCrashLog(ex);
-            MessageBox.Show(this, ex.Message, "Export failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            _status.Text = "Export failed: " + ex.Message;
+            ReportFailure("Export failed", ex);
         }
         finally
         {
@@ -654,15 +637,20 @@ public sealed class MainForm : Form
         }
         catch (Exception ex)
         {
-            // As in Rebuild(): friendly ex.Message for the UI, full exception to the crash log.
-            Program.WriteCrashLog(ex);
-            MessageBox.Show(this, ex.Message, failureCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            _status.Text = failureCaption + ": " + ex.Message;
+            ReportFailure(failureCaption, ex);
         }
         finally
         {
             Cursor = previous;
         }
+    }
+
+    private void ReportFailure(string caption, Exception ex)
+    {
+        // As in Rebuild(): friendly ex.Message for the UI, full exception to the crash log.
+        Program.WriteCrashLog(ex);
+        MessageBox.Show(this, ex.Message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        _status.Text = caption + ": " + ex.Message;
     }
 
     private void Report(IReadOnlyList<string> written) =>

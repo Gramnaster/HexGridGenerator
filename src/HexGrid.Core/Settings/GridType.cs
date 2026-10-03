@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>Which shape tiles the map area.</summary>
 public enum GridType

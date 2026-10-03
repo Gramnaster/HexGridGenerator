@@ -1,7 +1,7 @@
 using System.Drawing;
 using BenchmarkDotNet.Attributes;
 using HexGrid.App.Rendering;
-using HexGrid.Core;
+using HexGrid.Core.Settings;
 using HexGrid.Core.Layout;
 using HexGrid.Core.Scene;
 

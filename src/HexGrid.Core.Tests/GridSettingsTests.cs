@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Tests;
 

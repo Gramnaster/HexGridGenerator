@@ -1,6 +1,7 @@
 using System.Drawing;
 using HexGrid.Core.Rendering;
 using HexGrid.Core.Scene;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Tests;
 

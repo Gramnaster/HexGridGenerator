@@ -1,6 +1,7 @@
 using System.Drawing;
 using HexGrid.Core.Labels;
 using HexGrid.Core.Layout;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Tests;
 

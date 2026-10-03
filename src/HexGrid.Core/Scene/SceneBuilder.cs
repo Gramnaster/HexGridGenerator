@@ -1,5 +1,6 @@
 using System.Drawing;
 using HexGrid.Core.Layout;
+using HexGrid.Core.Settings;
 using HexGrid.Core.Units;
 
 namespace HexGrid.Core.Scene;

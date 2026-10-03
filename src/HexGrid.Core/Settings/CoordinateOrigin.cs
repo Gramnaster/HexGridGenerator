@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>Which physical corner of the grid receives coordinate A1.</summary>
 public enum CoordinateOrigin

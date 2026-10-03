@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>Where the per-hex coordinate label sits inside its hex.</summary>
 public enum HexLabelPosition

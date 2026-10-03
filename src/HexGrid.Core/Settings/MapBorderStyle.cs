@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>
 /// The frame separating the map area from the coordinate-label band. Deliberately plain: a single

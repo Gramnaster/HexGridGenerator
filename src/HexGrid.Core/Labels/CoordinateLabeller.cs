@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Labels;
 

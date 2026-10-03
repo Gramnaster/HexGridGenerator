@@ -1,5 +1,6 @@
 using System.Drawing;
 using HexGrid.Core.Presets;
+using HexGrid.Core.Settings;
 
 namespace HexGrid.Core.Tests;
 

@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>Which axis carries letters and which carries numbers.</summary>
 public enum LabelScheme

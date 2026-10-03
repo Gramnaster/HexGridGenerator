@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>Which axes a <see cref="FlushAxis"/> value flushes.</summary>
 public static class FlushAxisExtensions

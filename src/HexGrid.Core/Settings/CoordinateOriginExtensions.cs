@@ -1,4 +1,4 @@
-namespace HexGrid.Core;
+namespace HexGrid.Core.Settings;
 
 /// <summary>Which edges of the grid a <see cref="CoordinateOrigin"/> corner sits on.</summary>
 public static class CoordinateOriginExtensions
